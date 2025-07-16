@@ -78,7 +78,7 @@ function Quiz({ onQuizComplete }) {
           </select>
           <div className="stagger-3" style={{ marginTop: '20px' }}>
             <button onClick={prev}>← Back</button>
-            <button disabled={!goal} onClick={handleSubmit} style={{ float: 'right' }}>Show My Blend →</button>
+            <button disabled={!goal} onClick={handleSubmit} style={{ float: 'right' }}>Result →</button>
           </div>
         </div>
       )}

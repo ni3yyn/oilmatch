@@ -132,7 +132,9 @@ button {
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.25s ease;
-  
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 rgba(255,255,255,0);
   backdrop-filter: blur(4px);
   
   position: relative;
