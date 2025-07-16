@@ -8,7 +8,7 @@ function OrderForm({ blend }) {
       <h3 style={{ marginBottom: '10px' }}>Order Your Custom Oil</h3>
 
       {!submitted ? (
-        <form className="order-form"
+        <form 
           action="https://formspree.io/f/YOUR_FORM_ID"
           method="POST"
           onSubmit={() => setSubmitted(true)}
