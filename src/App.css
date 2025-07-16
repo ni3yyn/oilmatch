@@ -1,29 +1,94 @@
 body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(to bottom right, #fefcea, #e3f7e6);
   margin: 0;
   padding: 0;
-  color: #333;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(-45deg, #e3ffe7, #d9e7ff, #ffe9f4, #e0f7ff);
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease infinite;
+  min-height: 100vh;
+}
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .app-wrapper {
+  background: linear-gradient(-45deg, #e6f2e6, #d4e8d4, #bfe0bf, #e6f2e6);
+  background-size: 400% 400%;
+  animation: gradientMove 10s ease infinite;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  
+  padding: 30px;
 }
 
-.app-container {
+.glow-container {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 500px;
-  background: #ffffff;
-  padding: 30px 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-  border-radius: 18px;
-  transition: all 0.4s ease;
+  height: 100%;
   overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(130, 200, 130, 0.4), transparent 70%);
+  filter: blur(60px);
+  animation: floatGlow 10s infinite ease-in-out;
+}
+
+/* ✨ Customize individual glows */
+.glow1 {
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.glow2 {
+  top: 50%;
+  left: 70%;
+  animation-delay: 10s;
+}
+
+.glow3 {
+  top: 80%;
+  left: 30%;
+  animation-delay: 20s;
+}
+
+/* 💫 Gentle floating movement */
+@keyframes floatGlow {
+  0%   { transform: translateY(0) translateX(0) scale(1); }
+  50%  { transform: translateY(-30px) translateX(20px) scale(1.1); }
+  100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+
+.app-container {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.15);
+  
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 30px 20px;
+  width: 100%;
+  max-width: 450px;
+  margin: 20px;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 30px;
 }
 
 label {
@@ -33,6 +98,7 @@ label {
   margin-bottom: 8px;
   color: #444;
   opacity: 0;
+  border-radius: 50px;
   animation: fadeSlideUp 0.6s ease forwards;
 }
 
@@ -42,18 +108,29 @@ select, input, textarea {
   
   margin-bottom: 8px;
   border: 1px solid #ddd;
-  border-radius: 12px;
+  border-radius: 50px;
   font-size: 15px;
-  background-color: #fdfdfd;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  color: #333;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   transition: all 0.3s ease;
   opacity: 0;
   animation: fadeSlideUp 0.6s ease forwards;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #888;
+  border-radius: 50px;
 }
 
 select:focus, input:focus, textarea:focus {
   outline: none;
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+  border-radius: 50px;
 }
 
 button {
@@ -62,7 +139,7 @@ button {
   padding: 12px 24px;
   font-size: 15px;
   border: none;
-  border-radius: 10px;
+  border-radius: 50px;
   cursor: pointer;
   transition: all 0.4s ease;
   margin-top: 14px;
@@ -89,3 +166,16 @@ button:hover {
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.3s; }
 .stagger-3 { animation-delay: 0.6s; }
+
+.animate-fade-slide {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInSlideUp 0.6s forwards ease;
+}
+
+@keyframes fadeInSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

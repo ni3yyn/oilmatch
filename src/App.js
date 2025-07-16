@@ -20,6 +20,11 @@ function App() {
 
   return (
     <div className="app-wrapper">
+      <div className="glow-container">
+  <div className="glow glow1"></div>
+  <div className="glow glow2"></div>
+  <div className="glow glow3"></div>
+</div>
     <div className="app-container">
       {!quizData ? (
         <div className="fade-in">
