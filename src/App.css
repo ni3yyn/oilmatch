@@ -1,0 +1,91 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom right, #fefcea, #e3f7e6);
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.app-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  
+}
+
+.app-container {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  padding: 30px 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  border-radius: 18px;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+label {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  margin-bottom: 8px;
+  color: #444;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s ease forwards;
+}
+
+select, input, textarea {
+  width: 100%;
+  display: inline;
+  
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+  background-color: #fdfdfd;
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s ease forwards;
+}
+
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+button {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  margin-top: 14px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s ease forwards;
+}
+
+button:hover {
+  background-color: #3c9743;
+  transform: scale(1.02);
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.3s; }
+.stagger-3 { animation-delay: 0.6s; }
