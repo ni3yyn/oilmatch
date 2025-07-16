@@ -6,6 +6,9 @@ body {
   background-size: 400% 400%;
   animation: gradientMove 15s ease infinite;
   min-height: 100vh;
+  
+  flex-direction: column;
+  align-items: center;
 }
 @keyframes gradientMove {
   0% { background-position: 0% 50%; }
@@ -21,56 +24,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
-
-.glow-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.glow {
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(130, 200, 130, 0.4), transparent 70%);
-  filter: blur(60px);
-  animation: floatGlow 10s infinite ease-in-out;
-}
-
-/* ✨ Customize individual glows */
-.glow1 {
-  top: 10%;
-  left: 20%;
-  animation-delay: 0s;
-}
-
-.glow2 {
-  top: 50%;
-  left: 70%;
-  animation-delay: 10s;
-}
-
-.glow3 {
-  top: 80%;
-  left: 30%;
-  animation-delay: 20s;
-}
-
-/* 💫 Gentle floating movement */
-@keyframes floatGlow {
-  0%   { transform: translateY(0) translateX(0) scale(1); }
-  50%  { transform: translateY(-30px) translateX(20px) scale(1.1); }
-  100% { transform: translateY(0) translateX(0) scale(1); }
-}
-
 
 .app-container {
   backdrop-filter: blur(14px);
@@ -80,7 +34,7 @@ body {
   align-items: center;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
-  padding: 30px 20px;
+  padding: 30px 30px;
   width: 100%;
   max-width: 450px;
   margin: 20px;
@@ -90,6 +44,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0);
+  border: none;
   
 }
 
@@ -102,12 +59,16 @@ label {
   opacity: 0;
   border-radius: 50px;
   animation: fadeSlideUp 0.6s ease forwards;
+  display: flex;
+  flex-direction: column;
+  
+  align-items: center;
 }
 
 select, input, textarea {
   width: 100%;
-  display: inline;
   
+  max-width: 200px;
   margin-bottom: 8px;
   border: 1px solid #ddd;
   border-radius: 50px;
@@ -117,6 +78,9 @@ select, input, textarea {
   color: #333;
   backdrop-filter: blur(6px);
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  
+  flex-direction: column;
+  align-items: center;
   transition: all 0.3s ease;
   opacity: 0;
   animation: fadeSlideUp 0.6s ease forwards;
@@ -125,7 +89,11 @@ select, input, textarea {
 input::placeholder,
 textarea::placeholder {
   color: #888;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 select:focus, input:focus, textarea:focus {
@@ -133,6 +101,10 @@ select:focus, input:focus, textarea:focus {
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
   border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 button {
