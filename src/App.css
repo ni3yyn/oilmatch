@@ -3,10 +3,10 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
-  background-image: url('D:\oilmatch\oilmatch-clean\src\background.jpeg');
-  background-size: 600% 600%;
+  background-image: url('D:\oilmatch\oilmatch-clean\src\604d0595-4dca-4967-8b88-a1e839195938.jpg');
+  
   animation: gradientMove 18s ease-in-out infinite;
-  background-size: 400% 400%;
+  
   animation: gradientMove 15s ease infinite;
   min-height: 100vh;
   
@@ -21,7 +21,7 @@ body {
 }
 
 .app-wrapper {
-  background-image: url('D:\oilmatch\oilmatch-clean\src\background.jpeg');
+  background-image: url('D:\oilmatch\oilmatch-clean\src\604d0595-4dca-4967-8b88-a1e839195938.jpg');
   
   min-height: 100vh;
   display: flex;
