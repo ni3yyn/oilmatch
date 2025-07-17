@@ -5,7 +5,7 @@ import { collection, addDoc, Timestamp } from 'firebase/firestore';
 function OrderForm({ blend }) {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,10 +17,12 @@ function OrderForm({ blend }) {
 
     const orderData = {
       name,
-      email,
+      phone,
       address,
       blend,
       createdAt: Timestamp.now(),
+      confirmed: false,
+      delivered: false
     };
 
     try {
@@ -36,49 +38,52 @@ function OrderForm({ blend }) {
 
   return (
     <div className="animate-fade-slide animate-delay-3" style={{ marginTop: '30px' }}>
-      <h3 style={{ marginBottom: '10px' }}>Order Your Custom Oil</h3>
+  <h3 style={{ marginBottom: '10px' }}>اطلب تركيبتك الخاصة من الزيوت</h3>
 
-      {!submitted ? (
-        <form className="order-form" onSubmit={handleSubmit}>
-          <label>Name</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+  {!submitted ? (
+    <form className="order-form" onSubmit={handleSubmit}>
+      <label>الاسم</label>
+      <input
+        type="text"
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
-          <label>Email</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+      <label>رقم الهاتف</label>
+      <input
+        type="tel"
+        required
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        pattern="[0-9+() -]{6,}"
+        placeholder=""
+      />
 
-          <label>Shipping Address</label>
-          <textarea
-            required
-            rows="3"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          ></textarea>
+      <label>عنوان الشحن</label>
+      <textarea
+        required
+        rows="3"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        placeholder="الولاية، البلدية، الشارع (الحي)، رقم المنزل"
+      ></textarea>
 
-          <label>Your Custom Blend</label>
-          <input type="text" value={blend} readOnly />
+      <label>تركيبتك الخاصة</label>
+      <input type="text" value={blend} readOnly />
 
-          {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
+      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
-          <button type="submit" disabled={loading}>
-            {loading ? '⏳ Sending...' : '✅ Place Order'}
-          </button>
-        </form>
-      ) : (
-        <p className="animate-fade-slide animate-delay-2" style={{ color: 'green', fontWeight: 'bold' }}>
-          ✅ Order submitted! We’ll contact you soon.
-        </p>
-      )}
-    </div>
+      <button type="submit" disabled={loading}>
+        {loading ? '⏳ جاري الإرسال...' : '✅ تأكيد الطلب'}
+      </button>
+    </form>
+  ) : (
+    <p className="animate-fade-slide animate-delay-2" style={{ color: 'green', fontWeight: 'bold' }}>
+      ✅ تم إرسال الطلب! سنقوم بالتواصل معك قريباً.
+    </p>
+  )}
+</div>
   );
 }
 
