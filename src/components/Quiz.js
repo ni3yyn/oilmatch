@@ -59,7 +59,7 @@ function Quiz({ onQuizComplete }) {
     <div>
       <p className="stagger-1" style={{ fontSize: '14px', marginBottom: '10px' }}>الخطوة {step} من 5</p>
       <div className="stagger-1" style={{ height: '6px', width: '100%', background: '#eee', borderRadius: '10px', overflow: 'hidden', marginBottom: '20px' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: '#4CAF50', transition: 'width 0.4s ease' }}></div>
+        <div style={{ height: '100%', width: `${progress}%`, background: '#b2d8b2', transition: 'width 0.4s ease' }}></div>
       </div>
 
       {step === 1 && (
