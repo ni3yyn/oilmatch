@@ -9,6 +9,7 @@ const App = () => {
 
   
   return (
+    
     <div className="App">
       {!quizData ? (
         <Quiz onQuizComplete={handleQuizComplete} />

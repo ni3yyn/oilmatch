@@ -3,8 +3,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
-  background-image: url('./background.jpg');
-
+  
   min-height: 100vh;
    
   flex-direction: column;
@@ -18,10 +17,11 @@ body {
 }
 
 .app-wrapper {
-  background-image: url('/background.jpg');
-  background-size: cover;
+  background-image: url('background.jpg'); /* ✅ Will work if CSS is global and used in public HTML */
+
+  
   background-position: center;
-  background-repeat: no-repeat;
+ min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
