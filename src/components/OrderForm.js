@@ -66,7 +66,7 @@ function OrderForm({ blend }) {
         value={address}
         onChange={(e) => setAddress(e.target.value)}
         placeholder="الولاية، البلدية، الشارع (الحي)، رقم المنزل"
-        color='#555'
+        style={{ color: '#555' }}
       ></textarea>
 
       <label>تركيبتك الخاصة</label>
