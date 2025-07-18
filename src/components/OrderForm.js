@@ -79,7 +79,7 @@ function OrderForm({ blend }) {
       </button>
     </form>
   ) : (
-    <p className="animate-fade-slide animate-delay-2" style={{ color: 'green', fontWeight: 'bold' }}>
+    <p  dir="rtl" className="animate-fade-slide animate-delay-2" style={{ color: 'green', fontWeight: 'bold' }}>
       ✅ تم إرسال الطلب! سنقوم بالتواصل معك قريباً.
     </p>
   )}
