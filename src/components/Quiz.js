@@ -24,29 +24,29 @@ function Quiz({ onQuizComplete }) {
     const blend = [];
 
     // Gender-based foundation oils
-    if (gender === 'male') blend.push('Pumpkin Seed Oil'); // anti-DHT
-    if (gender === 'female') blend.push('Lavender Oil'); // hormonal balance
-    if (gender === 'other') blend.push('Hemp Seed Oil'); // neutral & regenerative
+    if (gender === 'male') blend.push('زيت بذور اليقطين'); // anti-DHT
+    if (gender === 'female') blend.push('زيت الخزامى'); // hormonal balance
+    
 
     // Climate customization
-    if (climate === 'dry') blend.push('Jojoba Oil'); // sebum mimic
-    if (climate === 'humid') blend.push('Tea Tree Oil'); // antifungal
-    if (climate === 'temperate') blend.push('Argan Oil'); // balance & shine
+    if (climate === 'dry') blend.push('زيت الجوجوبا'); // sebum mimic
+    if (climate === 'humid') blend.push('زيت شجرة الشاي'); // antifungal
+    if (climate === 'temperate') blend.push('زيت الأرجان'); // balance & shine
 
     // Scalp Type
-    if (scalp === 'dry') blend.push('Avocado Oil');
-    if (scalp === 'oily') blend.push('Grapeseed Oil');
-    if (scalp === 'sensitive') blend.push('Sweet Almond Oil');
+    if (scalp === 'dry') blend.push('زيت الأفوكادو');
+    if (scalp === 'oily') blend.push('زيت بذور العنب');
+    if (scalp === 'sensitive') blend.push('زيت اللوز الحلو');
 
     // Balding Pattern
-    if (balding === 'crown') blend.push('Rosemary Oil');
-    if (balding === 'temples') blend.push('Peppermint Oil');
-    if (balding === 'diffuse') blend.push('Black Castor Oil');
+    if (balding === 'crown') blend.push('زيت أكليل الجبل');
+    if (balding === 'temples') blend.push('زيت النعناع');
+    if (balding === 'diffuse') blend.push('زيت الخروع الأسود');
 
     // Goal
-    if (goal === 'regrowth') blend.push('Black Seed Oil');
-    if (goal === 'thickness') blend.push('Castor Oil');
-    if (goal === 'dandruff') blend.push('Neem Oil');
+    if (goal === 'regrowth') blend.push('زيت الحبة السوداء');
+    if (goal === 'thickness') blend.push('زيت الخروع');
+    if (goal === 'dandruff') blend.push('زيت النيم');
 
     const finalBlend = [...new Set(blend)].join(', '); // remove duplicates
 
@@ -69,7 +69,7 @@ function Quiz({ onQuizComplete }) {
       <option value="">اختر</option>
       <option value="male">ذكر</option>
       <option value="female">أنثى</option>
-      <option value="other">آخر / أفضل عدم الإفصاح</option>
+      
     </select>
     <button disabled={!gender} onClick={next} style={{ marginTop: '20px' }}>التالي ←</button>
   </div>
