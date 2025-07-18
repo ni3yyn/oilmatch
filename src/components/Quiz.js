@@ -71,7 +71,7 @@ function Quiz({ onQuizComplete }) {
       <option value="female">أنثى</option>
       <option value="other">آخر / أفضل عدم الإفصاح</option>
     </select>
-    <button className="animate-fade-slide" disabled={!gender} onClick={next} style={{ marginTop: '20px' }}>التالي ←</button>
+    <button disabled={!gender} onClick={next} style={{ marginTop: '20px' }}>التالي ←</button>
   </div>
 )}
 
