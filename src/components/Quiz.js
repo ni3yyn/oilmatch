@@ -20,38 +20,82 @@ function Quiz({ onQuizComplete }) {
       setError('عمر كلش يالأخ ولا الأخت');
       return;
     }
-
-    const blend = [];
-
-    // Gender-based foundation oils
-    if (gender === 'male') blend.push('زيت بذور اليقطين'); // anti-DHT
-    if (gender === 'female') blend.push('زيت الخزامى'); // hormonal balance
-    
-
-    // Climate customization
-    if (climate === 'dry') blend.push('زيت الجوجوبا'); // sebum mimic
-    if (climate === 'humid') blend.push('زيت شجرة الشاي'); // antifungal
-    if (climate === 'temperate') blend.push('زيت الأرجان'); // balance & shine
-
-    // Scalp Type
-    if (scalp === 'dry') blend.push('زيت الأفوكادو');
-    if (scalp === 'oily') blend.push('زيت بذور العنب');
-    if (scalp === 'sensitive') blend.push('زيت اللوز الحلو');
-
-    // Balding Pattern
-    if (balding === 'crown') blend.push('زيت أكليل الجبل');
-    if (balding === 'temples') blend.push('زيت النعناع');
-    if (balding === 'diffuse') blend.push('زيت الخروع الأسود');
-
-    // Goal
-    if (goal === 'regrowth') blend.push('زيت الحبة السوداء');
-    if (goal === 'thickness') blend.push('زيت الخروع');
-    if (goal === 'dandruff') blend.push('زيت النيم');
-
-    const finalBlend = [...new Set(blend)].join(', '); // remove duplicates
-
-    onQuizComplete({ gender, climate, scalp, balding, goal, blend: finalBlend });
+  
+    const oils = [];
+    const descriptions = [];
+  
+    // === [1] Foundational Oil: Based on Gender or Climate ===
+    if (gender === 'male') {
+      oils.push('زيت بذور اليقطين');
+      descriptions.push('يساعد زيت بذور اليقطين على تقليل هرمون DHT المرتبط بتساقط الشعر عند الرجال.');
+    } else if (gender === 'female') {
+      oils.push('زيت الخزامى');
+      descriptions.push('يدعم زيت الخزامى توازن الهرمونات ويهدئ فروة الرأس.');
+    } else if (climate === 'dry') {
+      oils.push('زيت الجوجوبا');
+      descriptions.push('زيت الجوجوبا يرطّب الفروة الجافة ويحاكي الزيوت الطبيعية.');
+    } else if (climate === 'humid') {
+      oils.push('زيت شجرة الشاي');
+      descriptions.push('يقوم زيت شجرة الشاي بتنظيف فروة الرأس ومكافحة الفطريات في المناطق الرطبة.');
+    } else {
+      oils.push('زيت الأرجان');
+      descriptions.push('يعزّز زيت الأرجان لمعان الشعر ويغذّي الفروة في المناخات المعتدلة.');
+    }
+  
+    // === [2] Supportive Oil: Based on Scalp or Balding ===
+    if (scalp === 'dry') {
+      oils.push('زيت الأفوكادو');
+      descriptions.push('زيت الأفوكادو غني بالدهون التي تغذّي فروة الرأس الجافة.');
+    } else if (scalp === 'oily') {
+      oils.push('زيت بذور العنب');
+      descriptions.push('ينظّم زيت بذور العنب الإفرازات الدهنية ويقلل التهيج.');
+    } else if (scalp === 'sensitive') {
+      oils.push('زيت اللوز الحلو');
+      descriptions.push('زيت اللوز الحلو لطيف ومناسب للفروات الحساسة.');
+    } else if (balding === 'crown') {
+      oils.push('زيت إكليل الجبل');
+      descriptions.push('يزيد زيت إكليل الجبل من تدفق الدم إلى بصيلات الشعر.');
+    } else if (balding === 'temples') {
+      oils.push('زيت النعناع');
+      descriptions.push('يحفّز زيت النعناع النمو في مناطق الجبهة والجانبين.');
+    } else if (balding === 'diffuse') {
+      oils.push('زيت الخروع الأسود');
+      descriptions.push('يدعم زيت الخروع الأسود نمو الشعر المتناثر في جميع أنحاء الرأس.');
+    }
+  
+    // === [3] Targeted Oil: Based on Goal ===
+    if (goal === 'regrowth') {
+      oils.push('زيت الحبة السوداء');
+      descriptions.push('زيت الحبة السوداء يساعد على تنشيط بصيلات الشعر لنمو جديد.');
+    } else if (goal === 'thickness') {
+      oils.push('زيت الخروع');
+      descriptions.push('يعزّز زيت الخروع كثافة الشعر وقوته.');
+    } else if (goal === 'dandruff') {
+      oils.push('زيت النيم');
+      descriptions.push('يعمل زيت النيم على محاربة الفطريات المسببة للقشرة وتنظيف الفروة.');
+    }
+  
+    // Final blend (limit to 3, unique)
+    const uniqueOils = [...new Set(oils)].slice(0, 3);
+    const uniqueDescriptions = uniqueOils.map((oil, i) => {
+      const index = oils.indexOf(oil);
+      return `${oil}: ${descriptions[index]}`;
+    });
+  
+    const finalBlend = uniqueOils.join(', ');
+    const explanation = uniqueDescriptions.join('\n');
+  
+    onQuizComplete({
+      gender,
+      climate,
+      scalp,
+      balding,
+      goal,
+      blend: finalBlend,
+      explanation,
+    });
   };
+  
 
   const progress = Math.round((step / 5) * 100);
 
