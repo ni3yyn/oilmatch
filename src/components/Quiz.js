@@ -134,7 +134,7 @@ function Quiz({ onQuizComplete }) {
     </select>
     <div className="animate-fade-slide" style={{ marginTop: '20px' }}>
       <button onClick={prev}>← رجوع</button>
-      <button disabled={!goal} onClick={handleSubmit} style={{ float: 'right' }}>عرض النتيجة →</button>
+      <button disabled={!goal} onClick={handleSubmit} style={{ float: 'right' }}>النتيجة →</button>
     </div>
   </div>
 )}
