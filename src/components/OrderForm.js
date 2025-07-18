@@ -30,7 +30,7 @@ function OrderForm({ blend }) {
       setSubmitted(true);
     } catch (err) {
       console.error('Error submitting order:', err);
-      setError('❌ Failed to submit order. Please try again.');
+      setError('اياه صرات غلطة');
     }
 
     setLoading(false);
@@ -66,7 +66,7 @@ function OrderForm({ blend }) {
         value={address}
         onChange={(e) => setAddress(e.target.value)}
         placeholder="الولاية، البلدية، الشارع (الحي)، رقم المنزل"
-        style={{ color: '#555' }}
+        
       ></textarea>
 
       <label>تركيبتك الخاصة</label>

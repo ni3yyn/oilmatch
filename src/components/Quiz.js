@@ -17,7 +17,7 @@ function Quiz({ onQuizComplete }) {
 
   const handleSubmit = () => {
     if (!gender || !climate || !scalp || !balding || !goal) {
-      setError('Please complete all fields.');
+      setError('عمر كلش يالأخ ولا الأخت');
       return;
     }
 
@@ -139,7 +139,7 @@ function Quiz({ onQuizComplete }) {
   </div>
 )}
 
-{error && <p style={{ color: 'red', marginTop: '15px' }}>يرجى ملء جميع الحقول.</p>}
+{error && <p style={{ color: 'red', marginTop: '15px' }}>عمر كلش يالأخ ولا الأخت</p>}
     </div>
   );
 }
