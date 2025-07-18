@@ -16,7 +16,7 @@ function Result({ blend }) {
   const blendArray = blend.split(',').map(o => o.trim());
 
   return (
-    <div dir="rtl" className="animate-fade-slide animate-delay-2" style={{ marginTop: '30px' }}>
+    <div dir="center" className="animate-fade-slide animate-delay-2" style={{ marginTop: '30px' }}>
       <h3 style={{ fontStyle: 'italic', color: '#555' }}>تركيبتك الزيتية المخصصة</h3>
       <p dir="rtl" className="animate-fade-slide animate-delay-2" style={{ fontStyle: 'italic', color: '#555', marginBottom: '10px' }}>
         بناءً على إجاباتك، حضّرنا لك هذه التركيبة الفعالة:
