@@ -126,7 +126,8 @@ select:focus, input:focus, textarea:focus {
 }
 
 button {
-  background: linear-gradient(145deg, #b2d8b2, #a1c9a1);
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0);
   border: none;
   color: #2f402f;
   font-size: 16px;
