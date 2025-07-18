@@ -18,7 +18,7 @@ body {
 
 .app-wrapper {
   background-image: url('background.jpg'); /* ✅ Will work if CSS is global and used in public HTML */
-  background-size: 50%;
+  background-size: 1%;
   
   background-position: center;
  min-height: 100vh;
