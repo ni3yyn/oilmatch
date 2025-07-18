@@ -99,7 +99,7 @@ select, input, textarea {
   font-size: 15px;
   background: rgba(255, 255, 255, 0.3);
   border: none;
-  color: #222;
+  color: #ccc;
   backdrop-filter: blur(6px);
   direction: rtl;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
