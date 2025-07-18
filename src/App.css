@@ -222,6 +222,7 @@ button:active {
 .filter-buttons {
   margin: 10px 0;
   font-family: 'Tajawal', sans-serif;
+  color: #222;
 }
 
 .filter-buttons button {
