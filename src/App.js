@@ -7,7 +7,6 @@ import OrderForm from './components/OrderForm';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute'; // 🆕 Import this
-import bg from './background.jpg'; // if it's inside src/
 
 import './App.css';
 
