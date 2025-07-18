@@ -150,7 +150,7 @@ button:active {
     inset 0 3px 6px rgba(0, 0, 0, 0.12),
     0 0 0 rgba(0, 0, 0, 0);
   transform: translateY(1px);
-  background: linear-gradient(145deg, #a1c9a1, #8fb88f);
+  
   font-family: 'Tajawal', sans-serif;
 }
 
