@@ -108,7 +108,7 @@ select, input, textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: #888;
+  color: #555;
   font-family: 'Tajawal', sans-serif;
   border-radius: 50px;
   display: flex;
