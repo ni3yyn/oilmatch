@@ -47,6 +47,7 @@ body {
   flex-direction: column;
   align-items: center;
   color: #ccc;
+  direction: rtl;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(14px);
   background: rgba(255, 255, 255, 0);
@@ -63,6 +64,7 @@ body {
   border-radius: 50px;
   background: rgba(255, 255, 255, 0.4);
   color: #222;
+  direction: rtl;
   font-family: 'Tajawal', sans-serif;
   transition: box-shadow 0.3s ease, background 0.3s ease;
   opacity: 0;
@@ -97,6 +99,7 @@ select, input, textarea {
   border: none;
   color: #222;
   backdrop-filter: blur(6px);
+  direction: rtl;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   font-family: 'Tajawal', sans-serif;
   flex-direction: column;
@@ -191,6 +194,7 @@ button:active {
   padding: 20px;
   font-family: 'Tajawal', sans-serif;
   font-size: 14px;
+  direction: rtl;
 }
 
 .logout-btn {
@@ -229,9 +233,9 @@ button:active {
 
 .order-table th,
 .order-table td {
-  border: 1px solid #ccc;
+  
   padding: 6px 10px;
-  text-align: left;
+  text-align: right;
   font-family: 'Tajawal', sans-serif;
   
 }
@@ -239,7 +243,7 @@ button:active {
 .order-table th {
   background-color: #f2f2f2;
   font-family: 'Tajawal', sans-serif;
-  color: #ccc;
+  direction: rtl;  
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
 
