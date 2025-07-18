@@ -58,10 +58,10 @@ function AdminDashboard() {
       <h2>الطلبات</h2>
   
       <div className="filter-buttons">
-        <button onClick={() => setFilter('all')}>الكل</button>
-        <button onClick={() => setFilter('not_confirmed')}>غير مؤكدة</button>
-        <button onClick={() => setFilter('confirmed')}>مؤكدة</button>
-        <button onClick={() => setFilter('delivered')}>تم التوصيل</button>
+        <button className="filter-buttons" onClick={() => setFilter('all')}>الكل</button>
+        <button className="filter-buttons" onClick={() => setFilter('not_confirmed')}>غير مؤكدة</button>
+        <button className="filter-buttons" onClick={() => setFilter('confirmed')}>مؤكدة</button>
+        <button className="filter-buttons" onClick={() => setFilter('delivered')}>تم التوصيل</button>
       </div>
   
       <div className="table-container">
