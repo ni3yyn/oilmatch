@@ -17,7 +17,7 @@ function Result({ blend }) {
 
   return (
     <div dir="center" className="animate-fade-slide animate-delay-2" style={{ marginTop: '30px' }}>
-      <h3 style={{ fontStyle: 'italic'}}>تركيبتك الزيتية المخصصة</h3>
+      <h3 dir="rtl" style={{ fontStyle: 'italic'}}>تركيبتك الزيتية المخصصة</h3>
       <p  dir="rtl" className="animate-fade-slide" style={{ fontStyle: 'italic', marginBottom: '10px' }}>
         بناءً على إجاباتك، حضّرنا لك هذه التركيبة الفعالة:
       </p>
