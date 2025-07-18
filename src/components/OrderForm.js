@@ -38,7 +38,6 @@ function OrderForm({ blend }) {
 
   return (
     <div className="animate-fade-slide animate-delay-3" style={{ marginTop: '30px' }}>
-  <h3 style={{ marginBottom: '10px' }}>اطلب تركيبتك الخاصة من الزيوت</h3>
 
   {!submitted ? (
     <form className="order-form" onSubmit={handleSubmit}>
