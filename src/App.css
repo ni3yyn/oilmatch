@@ -202,66 +202,59 @@ button:active {
   }
 }
 
-.admin-dashboard {
-  padding: 20px;
+.landing-container {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: 'Tajawal', sans-serif;
-  font-size: 14px;
-  direction: rtl;
-  text-align: right;
-}
-
-.logout-btn {
-  float: right;
-  padding: 5px 10px;
-  font-size: 12px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  font-family: 'Tajawal', sans-serif;
-}
-
-.filter-buttons {
-  margin: 10px 0;
-  font-family: 'Tajawal', sans-serif;
-  color: #222;
-}
-
-.filter-buttons button {
-  margin-right: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-family: 'Tajawal', sans-serif;
-}
-
-.table-container {
-  overflow-x: auto;
-  font-family: 'Tajawal', sans-serif;
-}
-
-.order-table {
+  border-radius: 50px;
+  padding: 30px 30px;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  font-family: 'Tajawal', sans-serif;
-  
+  max-width: 450px;
+  margin: 20px;
 }
 
-.order-table th,
-.order-table td {
-  
-  padding: 6px 10px;
-  text-align: right;
-  font-family: 'Tajawal', sans-serif;
-  
+.landing-title {
+  font-size: 42px;
+  color: #444;
+  margin-bottom: 8px;
+  font-weight: 700;
 }
 
-.order-table th {
-  background-color: #f2f2f2;
-  font-family: 'Tajawal', sans-serif;
-  direction: rtl;  
-  
+.landing-subtitle {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 30px;
 }
 
-.order-table input[type="checkbox"] {
-  transform: scale(1.2);
-  font-family: 'Tajawal', sans-serif;
+.landing-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.landing-btn {
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+  background-color: #fff;
+  color: #222;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.landing-btn:hover {
+  transform: scale(1.05);
+  background-color: #f9e65b;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }

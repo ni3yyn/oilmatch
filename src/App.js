@@ -6,11 +6,13 @@ import Result from './components/Result';
 import OrderForm from './components/OrderForm';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
-import ProtectedRoute from './components/ProtectedRoute'; // 🆕 Import this
+import ProtectedRoute from './components/ProtectedRoute';
 
+import LandingPage from './components/LandingPage';
 import './App.css';
 
-function HomePage() {
+function App() {
+  const [view, setView] = useState('landing'); // 'matcher', 'store'
   const [quizData, setQuizData] = useState(null);
   const resultRef = useRef(null);
 
@@ -24,29 +26,48 @@ function HomePage() {
     }
   }, [quizData]);
 
-  return (
-    <div className="app-wrapper">
-      <div className="app-container">
-        {!quizData ? (
-          <div className="fade-in">
-            <Quiz onQuizComplete={handleQuizComplete} />
-          </div>
-        ) : (
-          <div ref={resultRef} className="fade-in">
-            <Result blend={quizData.blend} />
-            <OrderForm blend={quizData.blend} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+  const renderMainContent = () => {
+    if (view === 'matcher') {
+      return (
+        <div className="app-container">
+          {!quizData ? (
+            <div className="fade-in">
+              <Quiz onQuizComplete={handleQuizComplete} />
+            </div>
+          ) : (
+            <div ref={resultRef} className="fade-in">
+              <Result blend={quizData.blend} />
+              <OrderForm blend={quizData.blend} />
+            </div>
+          )}
+        </div>
+      );
+    }
 
-function App() {
+    if (view === 'store') {
+      return (
+        <div className="app-container">
+          <h2 className="fade-in">🛍️ Store Coming Soon</h2>
+          <p>Here you can showcase your oils, prices, and buy options.</p>
+        </div>
+      );
+    }
+
+    return (
+      <LandingPage
+        onChooseMatcher={() => setView('matcher')}
+        onChooseStore={() => setView('store')}
+      />
+    );
+  };
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/"
+          element={<div className="app-wrapper">{renderMainContent()}</div>}
+        />
         <Route path="/admin" element={<AdminLogin />} />
         <Route
           path="/admin/dashboard"

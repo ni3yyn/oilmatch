@@ -1,0 +1,39 @@
+.landing-container {
+    text-align: center;
+    padding: 100px 20px;
+    color: #333;
+    animation: fadeSlideUp 1s ease forwards;
+  }
+  
+  .landing-title {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+  
+  .landing-subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+  }
+  
+  .landing-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .landing-btn {
+    padding: 14px 28px;
+    font-size: 16px;
+    border: none;
+    border-radius: 30px;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .landing-btn:hover {
+    background-color: #388e3c;
+  }
+  

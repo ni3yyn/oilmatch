@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from 'firebase/auth';
 
+
 const firebaseConfig = {
     apiKey: "AIzaSyA4ipatIdZu0AzZBVOCfb2lPz8XwjpHMLo",
     authDomain: "oilmatch-1aa9c.firebaseapp.com",
@@ -16,5 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
 
 export { db, auth };
