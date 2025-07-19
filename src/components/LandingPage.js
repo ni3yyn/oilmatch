@@ -5,8 +5,8 @@ import '../LandingPage.css'; // style it as needed
 function LandingPage({ onChooseMatcher, onChooseStore }) {
   return (
     <div className="landing-container">
-      <h1 className="landing-title">!مرحبا بيك </h1>
-      <p className="landing-subtitle">خير تجربتك في الموقع</p>
+      <h1 className="label">!مرحبا بيك </h1>
+      <p className="lanbel">خير تجربتك في الموقع</p>
 
       <div className="landing-buttons">
         <button onClick={onChooseMatcher} >
