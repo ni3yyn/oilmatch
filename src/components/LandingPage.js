@@ -6,7 +6,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
   return (
     <div className="landing-container">
       <h1 className="label">مرحبا بك في متجرنا للزيوت الطبيعية</h1>
-      <p className="lanbel">!خير تجربتك في الموقع</p>
+      <p className="lanbel">كيفاش تخير الزيت؟</p>
 
       <div className="landing-buttons">
         <button onClick={onChooseMatcher} >

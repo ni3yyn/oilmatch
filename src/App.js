@@ -10,8 +10,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import LandingPage from './components/LandingPage';
 import './App.css';
-import './AdminDashboard.css';
-
 
 function App() {
   const [view, setView] = useState('landing'); // 'matcher', 'store'
@@ -32,6 +30,9 @@ function App() {
     if (view === 'matcher') {
       return (
         <div className="app-container">
+          {/* ✅ GO BACK BUTTON */}
+          <button onClick={() => setView('landing')} className="back-button">⬅ العودة</button>
+
           {!quizData ? (
             <div className="fade-in">
               <Quiz onQuizComplete={handleQuizComplete} />
@@ -49,6 +50,9 @@ function App() {
     if (view === 'store') {
       return (
         <div className="app-container">
+          {/* Optional Go Back for Store too */}
+          <button onClick={() => setView('landing')} className="back-button">⬅ العودة</button>
+
           <h2 className="fade-in">🛍️ Store Coming Soon</h2>
           <p>Here you can showcase your oils, prices, and buy options.</p>
         </div>
