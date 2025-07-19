@@ -5,15 +5,15 @@ import '../LandingPage.css'; // style it as needed
 function LandingPage({ onChooseMatcher, onChooseStore }) {
   return (
     <div className="landing-container">
-      <h1 className="landing-title">🌿 Welcome to OilMatch</h1>
-      <p className="landing-subtitle">Choose your experience:</p>
+      <h1 className="landing-title">!مرحبا بيك </h1>
+      <p className="landing-subtitle">خير تجربتك في الموقع</p>
 
       <div className="landing-buttons">
-        <button onClick={onChooseMatcher} className="landing-btn matcher">
-          🔍 AI Oil Matcher
+        <button onClick={onChooseMatcher} >
+          حاب الذكاء الاصطناعي يخيرلي
         </button>
-        <button onClick={onChooseStore} className="landing-btn store">
-          🛒 Browse Ready-Made Oils
+        <button onClick={onChooseStore} >
+          أنا نخير وش حبيت
         </button>
       </div>
     </div>

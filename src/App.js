@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import LandingPage from './components/LandingPage';
 import './App.css';
+import './AdminDashboard.css';
+
 
 function App() {
   const [view, setView] = useState('landing'); // 'matcher', 'store'
