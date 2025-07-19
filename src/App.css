@@ -40,6 +40,7 @@ body {
   width: 100%;
   max-width: 450px;
   margin: 20px;
+  animation: fadeSlideUp 1s ease forwards;
 }
 
 .order-form {

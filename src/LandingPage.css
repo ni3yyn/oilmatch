@@ -37,39 +37,22 @@
   align-items: center;
   }
   
-  
-  
-  .landing-btn {
-    padding: 14px 28px;
-    font-size: 16px;
-    border: none;
-    border-radius: 30px;
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  .back-button-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
   }
   
-  .landing-btn:hover {
-    background-color: #388e3c;
-  }
-
   .back-button {
-    margin-bottom: 20px;
-    padding: 10px 20px;
-    background: #fff0f0;
-    border: 2px solid #e74c3c;
-    color: #e74c3c;
-    font-weight: bold;
-    border-radius: 50px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
+    
+    padding: 7px;
+    margin-right: 350px;
+    
+    transition: background-color 0.2s ease;
   }
   
   .back-button:hover {
-    background: #e74c3c;
-    color: white;
+    background-color: #ddd;
   }
   
   
