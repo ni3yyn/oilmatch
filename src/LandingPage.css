@@ -40,13 +40,15 @@
   .back-button-container {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 10px;
+    
+    border-radius: 90px;
   }
   
   .back-button {
     font-size: 15px;
     padding: 7px;
     margin-right: 250px;
+    border-radius: 90px;
     text-align: center;
     transition: background-color 0.2s ease;
   }

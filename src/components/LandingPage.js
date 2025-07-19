@@ -2,6 +2,8 @@
 import React from 'react';
 import '../LandingPage.css'; // style it as needed
 
+
+
 function LandingPage({ onChooseMatcher, onChooseStore }) {
   return (
     <div className="landing-container">

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+
 import Quiz from './components/Quiz';
 import Result from './components/Result';
 import OrderForm from './components/OrderForm';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import { FaHome } from 'react-icons/fa';
 import LandingPage from './components/LandingPage';
 import './App.css';
 
@@ -31,7 +32,10 @@ function App() {
       return (
         <div className="app-container">
           <div className="back-button-container">
-  <button onClick={() => setView('landing')} className="back-button">العودة</button>
+          <button onClick={() => setView('landing')} className="back-button">
+  <FaHome />
+</button>
+
 </div>
           {!quizData ? (
             <div className="fade-in">
@@ -51,7 +55,10 @@ function App() {
       return (
         <div className="app-container">
           {/* Optional Go Back for Store too */}
-          <button onClick={() => setView('landing')} className="back-button">🏠</button>
+          <button onClick={() => setView('landing')} className="back-button">
+  <FaHome />
+</button>
+
 
           <h2 className="fade-in">🛍️ Store Coming Soon</h2>
           <p>Here you can showcase your oils, prices, and buy options.</p>
