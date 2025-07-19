@@ -44,10 +44,10 @@
   }
   
   .back-button {
-    
+    font-size: 15px;
     padding: 7px;
     margin-right: 250px;
-    
+    text-align: center;
     transition: background-color 0.2s ease;
   }
   
