@@ -51,7 +51,7 @@ function App() {
       return (
         <div className="app-container">
           {/* Optional Go Back for Store too */}
-          <button onClick={() => setView('landing')} className="back-button"> العودة</button>
+          <button onClick={() => setView('landing')} className="back-button">🏠</button>
 
           <h2 className="fade-in">🛍️ Store Coming Soon</h2>
           <p>Here you can showcase your oils, prices, and buy options.</p>
