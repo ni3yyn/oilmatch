@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import '../AdminLogin.css'; // Adjust the path if needed
+
 
 function AdminLogin() {
   const [email, setEmail] = useState('');

@@ -121,42 +121,61 @@ function AdminDashboard() {
 
       <div className="table-container">
         <table className="order-table">
-          <thead>
-            <tr>
-              <th>الاسم</th><th>العنوان</th><th>المنتجات</th>
-              <th>الإجمالي</th><th>الهاتف</th><th>ملاحظة</th>
-              <th>تم التأكيد</th><th>تم التوصيل</th><th>حذف</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOrders.map(order => (
-              <tr key={order.id}>
-                <td>{order.name}</td>
-                <td>{order.address}</td>
-                <td>{order.cart?.map((item,i)=><div key={i}>{item.name} - {item.quantity}×{item.price} DA</div>)}</td>
-                <td>{order.total} DA</td>
-                <td>{order.phone}</td>
-                <td>{order.note||'---'}</td>
-                <td>
-                <input
-    type="checkbox"
-    checked={!!order.confirmed}
-    onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
-  />
-</td>
-<td>
-  <input
-    type="checkbox"
-    checked={!!order.delivered}
-    onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
-  />
-                </td>
-                <td>
-                  <button className="icon-btn delete-btn" onClick={()=>handleDeleteOrder(order.id)} title="حذف الطلب">🗑</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+        <thead>
+  <tr>
+    <th>الاسم</th>
+    <th>العنوان</th>
+    <th>الولاية</th>
+    <th>نوع التوصيل</th>
+    <th>المنتجات</th>
+    <th>الإجمالي</th>
+    <th>الهاتف</th>
+    <th>ملاحظة</th>
+    <th>تم التأكيد</th>
+    <th>تم التوصيل</th>
+    <th>حذف</th>
+  </tr>
+</thead>
+<tbody>
+  {filteredOrders.map(order => (
+    <tr key={order.id}>
+      <td>{order.name}</td>
+      <td>{order.address}</td>
+      <td>{order.wilaya || '---'}</td>
+      <td>
+        {order.deliveryType === 'home' && 'المنزل'}
+        {order.deliveryType === 'office' && 'مكتب البريد'}
+        {!order.deliveryType && '---'}
+      </td>
+      <td>
+        {order.cart?.map((item, i) => (
+          <div key={i}>{item.name} - {item.quantity}×{item.price} DA</div>
+        ))}
+      </td>
+      <td>{order.total} DA</td>
+      <td>{order.phone}</td>
+      <td>{order.note || '---'}</td>
+      <td>
+        <input
+          type="checkbox"
+          checked={!!order.confirmed}
+          onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
+        />
+      </td>
+      <td>
+        <input
+          type="checkbox"
+          checked={!!order.delivered}
+          onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
+        />
+      </td>
+      <td>
+        <button className="icon-btn delete-btn" onClick={() => handleDeleteOrder(order.id)} title="حذف الطلب">🗑</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
 

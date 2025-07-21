@@ -1,0 +1,71 @@
+.admin-login {
+    width: 100%;
+    height: 100vh;
+    background: url('background.jpg') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+  }
+  
+  .admin-login form {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .admin-login h2 {
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+  }
+  
+  .admin-login input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    transition: 0.3s;
+  }
+  
+  .admin-login input:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .admin-login button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .admin-login button:hover {
+    background: linear-gradient(135deg, #a777e3, #6e8efb);
+    transform: translateY(-2px);
+  }
+  
+  .admin-login p {
+    margin-top: 15px;
+    color: #ff6b6b;
+  }
+  

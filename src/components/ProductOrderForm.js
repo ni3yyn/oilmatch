@@ -1,74 +1,155 @@
 // src/components/ProductOrderForm.js
 import React, { useState } from 'react';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import '../Store.css';
 
 function ProductOrderForm({ productName, productPrice }) {
+  const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [note, setNote] = useState('');
+  const [wilaya, setWilaya] = useState('');
+  const [deliveryType, setDeliveryType] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const totalPrice = productPrice * quantity;
+  const wilayas = [
+    "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار",
+    "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر",
+    "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة",
+    "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض",
+    "إليزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي",
+    "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت",
+    "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس",
+    "إن صالح", "إن قزام", "تقرت", "جانت", "المغير", "المنيعة"
+  ];
+
+  const deliveryFees = {
+    default: { home: 600, office: 400 },
+    "أدرار": { home: 1400, office: 900 },
+    "الشلف": { home: 750, office: 450 },
+    "الأغواط": { home: 950, office: 600 },
+    "أم البواقي": { home: 800, office: 450 },
+    "باتنة": { home: 800, office: 450 },
+    "بجاية": { home: 800, office: 450 },
+    "بسكرة": { home: 950, office: 600 },
+    "بشار": { home: 1100, office: 650 },
+    "البليدة": { home: 750, office: 450 },
+    "البويرة": { home: 750, office: 450 },
+    "تمنراست": { home: 1600, office: 1050 },
+    "تبسة": { home: 850, office: 450 },
+    "تلمسان": { home: 850, office: 500 },
+    "تيارت": { home: 800, office: 450 },
+    "تيزي وزو": { home: 750, office: 450 },
+    "الجزائر": { home: 500, office: 350 },
+    "الجلفة": { home: 950, office: 600 },
+    "جيجل": { home: 800, office: 450 },
+    "سطيف": { home: 750, office: 450 },
+    "سعيدة": { home: 800, office: null },
+    "سكيكدة": { home: 800, office: 450 },
+    "سيدي بلعباس": { home: 800, office: 450 },
+    "عنابة": { home: 800, office: 450 },
+    "قالمة": { home: 800, office: 450 },
+    "قسنطينة": { home: 800, office: 450 },
+    "المدية": { home: 750, office: 450 },
+    "مستغانم": { home: 800, office: 450 },
+    "المسيلة": { home: 850, office: 500 },
+    "معسكر": { home: 800, office: 450 },
+    "ورقلة": { home: 950, office: 600 },
+    "وهران": { home: 800, office: 450 },
+    "البيض": { home: 1100, office: 600 },
+    "برج بوعريريج": { home: 750, office: 450 },
+    "بومرداس": { home: 750, office: 450 },
+    "الطارف": { home: 800, office: 450 },
+    "تيسمسيلت": { home: 800, office: null },
+    "الوادي": { home: 950, office: 600 },
+    "خنشلة": { home: 800, office: null },
+    "سوق أهراس": { home: 800, office: 450 },
+    "تيبازة": { home: 500, office: 300 },
+    "ميلة": { home: 800, office: 450 },
+    "عين الدفلى": { home: 750, office: 450 },
+    "النعامة": { home: 1100, office: 600 },
+    "عين تموشنت": { home: 800, office: 450 },
+    "غرداية": { home: 950, office: 600 },
+    "غليزان": { home: 800, office: 450 },
+    "المغير": { home: 950, office: null },
+    "المنيعة": { home: 1000, office: null },
+    "أولاد جلال": { home: 950, office: 600 },
+    "بني عباس": { home: 1000, office: null },
+    "تيميمون": { home: 1400, office: null },
+    "تقرت": { home: 950, office: 600 },
+    "إن صالح": { home: 1600, office: null },
+    "إن قزام": { home: 1600, office: null }
+  };
+
+  const productTotal = productPrice * quantity;
+
+  const getDeliveryFee = () => {
+    const fees = deliveryFees[wilaya] || deliveryFees.default;
+    return deliveryType === 'home' ? fees.home : deliveryType === 'office' ? fees.office : 0;
+  };
+
+  const deliveryFee = getDeliveryFee();
+  const finalTotal = deliveryFee !== null ? productTotal + deliveryFee : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !phone || !address) return alert('يرجى ملء جميع الحقول');
+    setLoading(true);
+    setError('');
 
-    setSubmitting(true);
+    const orderData = {
+      name: name.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      wilaya,
+      deliveryType,
+      cart: [{
+        name: productName,
+        price: productPrice,
+        quantity
+      }],
+      total: finalTotal,
+      delivered: false,
+      confirmed: false,
+      createdAt: Timestamp.now()
+    };
+
     try {
-      await addDoc(collection(db, 'orders'), {
-        name,
-        phone,
-        address,
-        note,
-        status: 'pending',
-        delivered: false,
-        cart: [
-          {
-            name: productName,
-            quantity,
-            price: productPrice,
-          },
-        ],
-        total: totalPrice,
-        createdAt: new Date(),
-      });
-      alert('تم إرسال الطلب بنجاح!');
-      setName('');
-      setPhone('');
-      setAddress('');
-      setNote('');
-      setQuantity(1);
+      await addDoc(collection(db, 'orders'), orderData);
+      setSubmitted(true);
     } catch (err) {
-      console.error('Error placing order:', err);
-      alert('فشل في إرسال الطلب');
+      console.error('Error submitting order:', err);
+      setError('⚠️ حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.');
     }
-    setSubmitting(false);
+
+    setLoading(false);
   };
 
   return (
-    <form className="orderr" onSubmit={handleSubmit}>
-      <h3>طلب المنتج</h3>
-      <label>الاسم</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+    <div className="animate-fade-slide animate-delay-3" style={{ marginTop: '30px' }}>
+      {!submitted ? (
+        <form className="order-form" onSubmit={handleSubmit}>
+          <label>الاسم</label>
+          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} />
 
           <label>رقم الهاتف</label>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            pattern="[0-9+() -]{6,}"
-          />
+          <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} pattern="[0-9+() -]{6,}" />
+
+          <label>الولاية</label>
+          <select value={wilaya} onChange={(e) => setWilaya(e.target.value)} required>
+            <option value="">اختر الولاية</option>
+            {wilayas.map((w, i) => (
+              <option key={i} value={w}>{w}</option>
+            ))}
+          </select>
+
+          <label>نوع التوصيل</label>
+          <select value={deliveryType} onChange={(e) => setDeliveryType(e.target.value)} required>
+            <option value="">اختر نوع التوصيل</option>
+            <option value="home">إلى المنزل</option>
+            <option value="office">إلى مكتب البريد</option>
+          </select>
 
           <label>عنوان الشحن</label>
           <textarea
@@ -76,7 +157,7 @@ function ProductOrderForm({ productName, productPrice }) {
             rows="3"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="الولاية، البلدية، الشارع، رقم المنزل"
+            placeholder="البلدية، الشارع، رقم المنزل"
           ></textarea>
 
           <label>الكمية</label>
@@ -87,12 +168,40 @@ function ProductOrderForm({ productName, productPrice }) {
             onChange={(e) => setQuantity(parseInt(e.target.value))}
             required
           />
-      
-      <p>الإجمالي: <strong>{totalPrice} دج</strong></p>
-      <button type="submit" disabled={submitting}>
-        {submitting ? '...يتم الإرسال' : 'إرسال الطلب'}
-      </button>
-    </form>
+
+          <label>المنتج المطلوب</label>
+          <input type="text" value={productName} readOnly />
+
+          <p>سعر المنتج: {productPrice} × {quantity} = {productTotal} دج</p>
+
+          {deliveryType && wilaya && (
+            <p>
+              سعر التوصيل: {deliveryFee === null ? 'غير متوفر' : `${deliveryFee} دج`}
+            </p>
+          )}
+
+          {finalTotal && deliveryFee !== null && (
+            <p><strong>المجموع الكلي: {finalTotal} دج</strong></p>
+          )}
+
+          {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={
+              loading ||
+              (deliveryType === 'office' && (deliveryFees[wilaya]?.office === null || deliveryFees[wilaya]?.office === 'غير متوفر'))
+            }
+          >
+            {loading ? '⏳ جاري الإرسال...' : '✅ إرسال الطلب'}
+          </button>
+        </form>
+      ) : (
+        <p dir="rtl" className="animate-fade-slide" style={{ color: 'green', fontWeight: 'bold' }}>
+          ✅ تم إرسال الطلب بنجاح! سنتواصل معك قريبًا.
+        </p>
+      )}
+    </div>
   );
 }
 

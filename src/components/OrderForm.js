@@ -28,10 +28,60 @@ function OrderForm({ productName, blend }) {
   // Example delivery fees table
   const deliveryFees = {
     default: { home: 600, office: 400 },
-    "الجزائر": { home: 500, office: 300 },
-    "وهران": { home: 550, office: 350 },
-    "سطيف": { home: 500, office: 300 },
-    // Add more specific cases if needed
+    "أدرار": { home: 1400, office: 900 },
+    "الشلف": { home: 750, office: 450 },
+    "الأغواط": { home: 950, office: 600 },
+    "أم البواقي": { home: 800, office: 450 },
+    "باتنة": { home: 800, office: 450 },
+    "بجاية": { home: 800, office: 450 },
+    "بسكرة": { home: 950, office: 600 },
+    "بشار": { home: 1100, office: 650 },
+    "البليدة": { home: 750, office: 450 },
+    "البويرة": { home: 750, office: 450 },
+    "تمنراست": { home: 1600, office: 1050 },
+    "تبسة": { home: 850, office: 450 },
+    "تلمسان": { home: 850, office: 500 },
+    "تيارت": { home: 800, office: 450 },
+    "تيزي وزو": { home: 750, office: 450 },
+    "الجزائر": { home: 500, office: 350 },
+    "الجلفة": { home: 950, office: 600 },
+    "جيجل": { home: 800, office: 450 },
+    "سطيف": { home: 750, office: 450 },
+    "سعيدة": { home: 800, office: null },
+    "سكيكدة": { home: 800, office: 450 },
+    "سيدي بلعباس": { home: 800, office: 450 },
+    "عنابة": { home: 800, office: 450 },
+    "قالمة": { home: 800, office: 450 },
+    "قسنطينة": { home: 800, office: 450 },
+    "المدية": { home: 750, office: 450 },
+    "مستغانم": { home: 800, office: 450 },
+    "المسيلة": { home: 850, office: 500 },
+    "معسكر": { home: 800, office: 450 },
+    "ورقلة": { home: 950, office: 600 },
+    "وهران": { home: 800, office: 450 },
+    "البيض": { home: 1100, office: 600 },
+    "برج بوعريريج": { home: 750, office: 450 },
+    "بومرداس": { home: 750, office: 450 },
+    "الطارف": { home: 800, office: 450 },
+    "تسمسيلت": { home: 800, office: null },
+    "الوادي": { home: 950, office: 600 },
+    "خنشلة": { home: 800, office: null },
+    "سوق أهراس": { home: 800, office: 450 },
+    "تيبازة": { home: 500, office: 300 },
+    "ميلة": { home: 800, office: 450 },
+    "عين الدفلى": { home: 750, office: 450 },
+    "النعامة": { home: 1100, office: 600 },
+    "عين تموشنت": { home: 800, office: 450 },
+    "غرداية": { home: 950, office: 600 },
+    "غليزان": { home: 800, office: 450 },
+    "المغير": { home: 950, office: null },
+    "المنيعة": { home: 1000, office: null },
+    "أولاد جلال": { home: 950, office: 600 },
+    "بني عباس": { home: 1000, office: null },
+    "تيميمون": { home: 1400, office: null },
+    "تقرت": { home: 950, office: 600 },
+    "إن صالح": { home: 1600, office: null  },
+    "إن قزام": { home: 1600, office: null },
   };
 
   const productPrice = blend ? 2500 : null;
@@ -145,9 +195,14 @@ function OrderForm({ productName, blend }) {
             </>
           )}
 
-          {deliveryFee > 0 && (
-            <p>سعر التوصيل: {deliveryFee} دج</p>
-          )}
+{deliveryType && wilaya && (
+  <p>
+    سعر التوصيل:{" "}
+    {deliveryFee === null || deliveryFee === "التوصيل للمكتب غير متوفر حاليا"
+      ? "التوصيل للمكتب غير متوفر في ولايتك"
+      : `${deliveryFee} دج`}
+  </p>
+)}
 
           {finalTotal && (
             <p><strong>المجموع الكلي: {finalTotal} دج</strong></p>
@@ -155,9 +210,18 @@ function OrderForm({ productName, blend }) {
 
           {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
-          <button type="submit" disabled={loading}>
-            {loading ? '⏳ جاري الإرسال...' : '✅ تأكيد الطلب'}
-          </button>
+          <button
+  type="submit"
+  disabled={
+    loading ||
+    (deliveryType === 'office' &&
+      (deliveryFees[wilaya]?.office === null ||
+       deliveryFees[wilaya]?.office === 'غير متوفر'))
+  }
+>
+  {loading ? '⏳ جاري الإرسال...' : '✅ تأكيد الطلب'}
+</button>
+
         </form>
       ) : (
         <p dir="rtl" className="animate-fade-slide" style={{ color: 'green', fontWeight: 'bold' }}>
