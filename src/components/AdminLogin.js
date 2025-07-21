@@ -1,10 +1,8 @@
-// src/components/AdminLogin.js
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import '../AdminLogin.css'; // Adjust the path if needed
-
+import '../AdminLogin.css';
 
 function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -17,33 +15,35 @@ function AdminLogin() {
     setError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/admin/dashboard'); // ← THIS FIXES IT
+      navigate('/admin/dashboard');
     } catch (err) {
-      setError('❌ Invalid email or password');
+      setError('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
   };
 
   return (
-    <div className="admin-login">
-      <h2>🔐 Admin Login</h2>
-      <form onSubmit={handleLogin}>
+    <div className="admin-login-page">
+      <form className="admin-login-form" onSubmit={handleLogin}>
+        <h2>🔐 دخول المشرف</h2>
+
         <input
           type="email"
-          placeholder="Email"
+          placeholder="البريد الإلكتروني"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-        /><br />
+        />
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="كلمة المرور"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        /><br />
+        />
 
-        <button type="submit">Login</button>
+        <button type="submit">🚀 دخول</button>
+
+        {error && <p className="error-msg">{error}</p>}
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }
