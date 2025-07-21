@@ -61,3 +61,67 @@
   transform: scale(1.2);
   font-family: 'Tajawal', sans-serif;
 }
+
+.icon-btn {
+  background: #4caf50;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background 0.3s ease;
+}
+
+.icon-btn:hover {
+  background: #45a049;
+}
+
+.add-prod-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  font-size: 24px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.modal-form input, .modal-form textarea, .modal-form button {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.modal-form button[type="submit"] {
+  background: #4caf50;
+  color: white;
+  border: none;
+}

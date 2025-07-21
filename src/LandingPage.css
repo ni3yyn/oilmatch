@@ -51,10 +51,9 @@
     border-radius: 90px;
     text-align: center;
     transition: background-color 0.2s ease;
+
   }
   
-  .back-button:hover {
-    background-color: #ddd;
-  }
+
   
   

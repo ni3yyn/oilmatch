@@ -10,6 +10,8 @@ import AdminDashboard from './components/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { FaHome } from 'react-icons/fa';
 import LandingPage from './components/LandingPage';
+import Store from './components/Store';
+
 import './App.css';
 
 function App() {
@@ -31,12 +33,12 @@ function App() {
     if (view === 'matcher') {
       return (
         <div className="app-container">
-          <div className="back-button-container">
+          
           <button onClick={() => setView('landing')} className="back-button">
   <FaHome />
 </button>
 
-</div>
+
           {!quizData ? (
             <div className="fade-in">
               <Quiz onQuizComplete={handleQuizComplete} />
@@ -52,19 +54,10 @@ function App() {
     }
 
     if (view === 'store') {
-      return (
-        <div className="app-container">
-          {/* Optional Go Back for Store too */}
-          <button onClick={() => setView('landing')} className="back-button">
-  <FaHome />
-</button>
-
-
-          <h2 className="fade-in">🛍️ Store Coming Soon</h2>
-          <p>Here you can showcase your oils, prices, and buy options.</p>
-        </div>
-      );
+      return <Store onGoHome={() => setView('landing')} />;
     }
+    
+    
 
     return (
       <LandingPage
@@ -82,6 +75,8 @@ function App() {
           element={<div className="app-wrapper">{renderMainContent()}</div>}
         />
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/store" element={<Store />} />
+
         <Route
           path="/admin/dashboard"
           element={
