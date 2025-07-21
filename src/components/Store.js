@@ -83,8 +83,15 @@ function Store({ onGoHome }) {
                       alt={product.name}
                       className="product-img"
                     />
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-price">{product.price} دج</p>
+                  <div className="product-name-wrapper">
+  <div
+    className={`product-name-inner ${product.name.length > 13 ? 'scroll' : ''}`}
+  >
+    {product.name}
+  </div>
+</div>
+
+                    <p className="product-price"> دج ,{product.price}</p>
                   </div>
                 ))
               )}

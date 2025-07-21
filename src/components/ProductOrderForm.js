@@ -130,6 +130,7 @@ function ProductOrderForm({ productName, productPrice }) {
     <div className="animate-fade-slide animate-delay-3" style={{ marginTop: '30px' }}>
       {!submitted ? (
         <form className="order-form" onSubmit={handleSubmit}>
+          <h2>⬇️املأ بياناتك من هنا⬇️</h2>
           <label>الاسم</label>
           <input type="text" required value={name} onChange={(e) => setName(e.target.value)} />
 
@@ -193,7 +194,7 @@ function ProductOrderForm({ productName, productPrice }) {
               (deliveryType === 'office' && (deliveryFees[wilaya]?.office === null || deliveryFees[wilaya]?.office === 'غير متوفر'))
             }
           >
-            {loading ? '⏳ جاري الإرسال...' : '✅ إرسال الطلب'}
+            {loading ? '⏳ جار الإرسال...' : '✅ إرسال الطلب'}
           </button>
         </form>
       ) : (

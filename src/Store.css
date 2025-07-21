@@ -3,13 +3,13 @@
   justify-content: center;
   align-items: flex-start;
   
-  
+
   }
   
   .store-container {
-    width: 100%;
+    width: auto;
     
-    padding: 30px;
+    padding: 50px;
     border-radius: 16px;
     backdrop-filter: blur(14px);
     background: rgba(255, 255, 255, 0.07);
@@ -50,14 +50,17 @@
   }
   
   .product-card {
-    padding: 12px;
-    max-width: 100px;
-    height: 200px;
-    border-radius: 12px;
+    padding: 10px;
+    height: 210px;
+    width: 117px;
+    border-radius: 16px;
     text-align: center;
-    transition: transform 0.2s ease;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    cursor: none;
   }
   
   .product-card:hover {
@@ -72,16 +75,46 @@
     margin-bottom: 8px;
   }
   
-  .product-name {
+  .product-name-wrapper {
+    width: auto; /* أو حسب حجم البطاقة */
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    font-family: 'Tajawal', sans-serif;
+  }
+  
+  .product-name-inner {
+    display: inline-block;
     font-size: 14px;
-    margin: 4px 0;
-    color: #fff;
+    font-weight: 700;
+    
+    font-family: 'Tajawal', sans-serif;
+    color: #ccc;
+    white-space: nowrap;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  /* فقط الطويلة تتحرك */
+  .scroll {
+    animation: scroll-left 4s linear infinite;
+  }
+  
+  /* الحركة الفعلية */
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0%);
+    }
   }
   
   .product-price {
     font-size: 14px;
     color: #90ee90;
     font-weight: bold;
+    direction: ltr;
   }
   
   .empty-text {
@@ -99,7 +132,7 @@
     background: rgba(255, 255, 255, 0.15);
     color: white;
     border: none;
-    cursor: pointer;
+    cursor: none;
     margin-bottom: 16px;
   }
   
@@ -130,7 +163,7 @@
     background: none;
     border: none;
     color: white;
-    cursor: pointer;
+    cursor: none;
     user-select: none;
   }
   
@@ -178,6 +211,7 @@
     animation: fadeSlideUp 0.6s ease forwards;
     padding: 10px 20px;
     outline: none;
+    cursor: none;
   }
   
   input::placeholder,
