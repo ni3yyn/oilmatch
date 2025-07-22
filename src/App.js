@@ -12,6 +12,7 @@ import { FaHome } from 'react-icons/fa';
 import LandingPage from './components/LandingPage';
 import Store from './components/Store';
 
+
 import './App.css';
 
 function App() {
