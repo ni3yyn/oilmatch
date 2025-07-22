@@ -4,7 +4,21 @@
     color: #ccc;
     animation: fadeSlideUp 1s ease forwards;
   }
+
   
+  .logo {
+    width: 150px;
+    height: 150px;
+    
+    border-radius: 50%;
+    
+    animation: fadeSlideUp 1s ease forwards;
+    position: center;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .landing-title {
   font-weight: 600;
   font-size: 15px;
