@@ -1,7 +1,7 @@
-// src/components/ProductOrderForm.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function ProductOrderForm({ productName, productPrice }) {
   const [submitted, setSubmitted] = useState(false);
@@ -12,7 +12,15 @@ function ProductOrderForm({ productName, productPrice }) {
   const [deliveryType, setDeliveryType] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [errorFields, setErrorFields] = useState([]);
   const [error, setError] = useState('');
+
+  const nameRef = useRef(null);
+  const phoneRef = useRef(null);
+  const wilayaRef = useRef(null);
+  const deliveryTypeRef = useRef(null);
+  const addressRef = useRef(null);
+  const quantityRef = useRef(null);
 
   const wilayas = [
     "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار",
@@ -21,10 +29,11 @@ function ProductOrderForm({ productName, productPrice }) {
     "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران", "البيض",
     "إليزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي",
     "خنشلة", "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت",
-    "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال", "بني عباس",
+    "غرداية", "غليزان", "تميمون", "برج باجي مختار", "أولاد جلال", "بني عباس",
     "إن صالح", "إن قزام", "تقرت", "جانت", "المغير", "المنيعة"
   ];
 
+  // Example delivery fees table
   const deliveryFees = {
     default: { home: 600, office: 400 },
     "أدرار": { home: 1400, office: 900 },
@@ -62,7 +71,7 @@ function ProductOrderForm({ productName, productPrice }) {
     "برج بوعريريج": { home: 750, office: 450 },
     "بومرداس": { home: 750, office: 450 },
     "الطارف": { home: 800, office: 450 },
-    "تيسمسيلت": { home: 800, office: null },
+    "تسمسيلت": { home: 800, office: null },
     "الوادي": { home: 950, office: 600 },
     "خنشلة": { home: 800, office: null },
     "سوق أهراس": { home: 800, office: 450 },
@@ -79,9 +88,10 @@ function ProductOrderForm({ productName, productPrice }) {
     "بني عباس": { home: 1000, office: null },
     "تيميمون": { home: 1400, office: null },
     "تقرت": { home: 950, office: 600 },
-    "إن صالح": { home: 1600, office: null },
-    "إن قزام": { home: 1600, office: null }
+    "إن صالح": { home: 1600, office: null  },
+    "إن قزام": { home: 1600, office: null },
   };
+
 
   const productTotal = productPrice * quantity;
 
@@ -95,8 +105,26 @@ function ProductOrderForm({ productName, productPrice }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setErrorFields([]);
+
+    const fields = [
+      { name: 'name', value: name, ref: nameRef },
+      { name: 'phone', value: phone, ref: phoneRef },
+      { name: 'wilaya', value: wilaya, ref: wilayaRef },
+      { name: 'deliveryType', value: deliveryType, ref: deliveryTypeRef },
+      { name: 'address', value: address, ref: addressRef },
+      { name: 'quantity', value: quantity, ref: quantityRef },
+    ];
+
+    const emptyFields = fields.filter(f => !f.value || f.value === '');
+    if (emptyFields.length > 0) {
+      setErrorFields(emptyFields.map(f => f.name));
+      emptyFields[0].ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    setLoading(true);
 
     const orderData = {
       name: name.trim(),
@@ -126,83 +154,189 @@ function ProductOrderForm({ productName, productPrice }) {
     setLoading(false);
   };
 
+  const shakeAnimation = { x: [0, -6, 6, -6, 6, 0], transition: { duration: 0.4 } };
+
   return (
-    <div className="animate-fade-slide animate-delay-3" style={{ marginTop: '30px' }}>
+    <motion.div className="order-form-wrapper" style={{ marginTop: '30px' }}>
       {!submitted ? (
-        <form className="order-form" onSubmit={handleSubmit}>
-          <h2>⬇️املأ بياناتك من هنا⬇️</h2>
-          <label>الاسم</label>
-          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} />
+        <motion.form className="order-form" onSubmit={handleSubmit} style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}> املأ بياناتك من هنا </h2>
 
-          <label>رقم الهاتف</label>
-          <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} pattern="[0-9+() -]{6,}" />
+          {/* الاسم */}
+          <motion.input
+            ref={nameRef}
+            type="text"
+            placeholder="الاسم"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ border: errorFields.includes('name') ? '1px solid red' : '' }}
+            animate={errorFields.includes('name') ? shakeAnimation : {}}
+          />
 
-          <label>الولاية</label>
-          <select value={wilaya} onChange={(e) => setWilaya(e.target.value)} required>
+          {/* الهاتف */}
+          <motion.input
+            ref={phoneRef}
+            type="tel"
+            placeholder="رقم الهاتف"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={{ border: errorFields.includes('phone') ? '1px solid red' : '' }}
+            animate={errorFields.includes('phone') ? shakeAnimation : {}}
+          />
+
+          {/* الولاية */}
+          <motion.select
+            ref={wilayaRef}
+            value={wilaya}
+            onChange={(e) => setWilaya(e.target.value)}
+            style={{ border: errorFields.includes('wilaya') ? '1px solid red' : '' }}
+            animate={errorFields.includes('wilaya') ? shakeAnimation : {}}
+          >
             <option value="">اختر الولاية</option>
-            {wilayas.map((w, i) => (
-              <option key={i} value={w}>{w}</option>
+            {wilayas.map((w, idx) => (
+              <option key={idx} value={w}>{w}</option>
             ))}
-          </select>
+          </motion.select>
 
-          <label>نوع التوصيل</label>
-          <select value={deliveryType} onChange={(e) => setDeliveryType(e.target.value)} required>
+          {/* نوع التوصيل */}
+          <motion.select
+            ref={deliveryTypeRef}
+            value={deliveryType}
+            onChange={(e) => setDeliveryType(e.target.value)}
+            style={{ border: errorFields.includes('deliveryType') ? '1px solid red' : '' }}
+            animate={errorFields.includes('deliveryType') ? shakeAnimation : {}}
+          >
             <option value="">اختر نوع التوصيل</option>
             <option value="home">إلى المنزل</option>
             <option value="office">إلى مكتب البريد</option>
-          </select>
+          </motion.select>
 
-          <label>عنوان الشحن</label>
-          <textarea
-            required
-            rows="3"
+          {/* العنوان */}
+          <motion.textarea
+            ref={addressRef}
+            placeholder="عنوان الشحن"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="البلدية، الشارع، رقم المنزل"
-          ></textarea>
+            style={{ border: errorFields.includes('address') ? '1px solid red' : '' }}
+            animate={errorFields.includes('address') ? shakeAnimation : {}}
+          />
 
-          <label>الكمية</label>
-          <input
+          {/* الكمية */}
+          <motion.input
+            ref={quantityRef}
             type="number"
             min="1"
             value={quantity}
             onChange={(e) => setQuantity(parseInt(e.target.value))}
-            required
+            style={{ border: errorFields.includes('quantity') ? '1px solid red' : '' }}
+            animate={errorFields.includes('quantity') ? shakeAnimation : {}}
           />
 
-          <label>المنتج المطلوب</label>
-          <input type="text" value={productName} readOnly />
-
-          <p>سعر المنتج: {productPrice} × {quantity} = {productTotal} دج</p>
-
-          {deliveryType && wilaya && (
-            <p>
-              سعر التوصيل: {deliveryFee === null ? 'غير متوفر' : `${deliveryFee} دج`}
-            </p>
-          )}
-
-          {finalTotal && deliveryFee !== null && (
-            <p><strong>المجموع الكلي: {finalTotal} دج</strong></p>
-          )}
+          {/* ✅ حاوية الأسعار */}
+          <AnimatePresence>
+            {(deliveryType && wilaya) && (
+              <motion.div
+                
+                style={{
+                  marginTop: '15px',
+                padding: '10px',
+                borderRadius: '50px',
+                background: 'rgba(255, 255, 255, 0.3)',
+                opacity: '1',
+                textAlign: 'right'
+                }}
+              >
+                <p>سعر المنتج: {productPrice} × {quantity} = <strong>{productTotal} دج</strong></p>
+                <p>سعر التوصيل: <strong>{deliveryFee} دج</strong></p>
+                {finalTotal && (
+                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#ccc' }}>
+                    المجموع الكلي: {finalTotal} دج
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
-          <button
-            type="submit"
-            disabled={
-              loading ||
-              (deliveryType === 'office' && (deliveryFees[wilaya]?.office === null || deliveryFees[wilaya]?.office === 'غير متوفر'))
-            }
-          >
-            {loading ? '⏳ جار الإرسال...' : '✅ إرسال الطلب'}
-          </button>
-        </form>
+          <motion.button
+  type="submit"
+  disabled={loading}
+  whileHover={{ scale: loading ? 1 : 1.05 }}
+  whileTap={{ scale: loading ? 1 : 0.95 }}
+  style={{
+    marginTop: '20px',
+    width: '100%',
+    height: '50px',
+    backdropFilter: 'blur(14px)',
+    background: 'rgba(255, 255, 255, 0.2)',
+    border: 'none',
+    color: '#ccc',
+    textAlign: 'center',
+    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.4)',
+    fontSize: '16px',
+    fontWeight: '600',
+    fontFamily: "'Tajawal', sans-serif",
+    borderRadius: '50px',
+    cursor: loading ? 'default' : 'none',
+    transition: 'all 0.25s ease',
+    boxShadow: `
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      inset 0 0 0 rgba(255,255,255,0)
+    `,
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}
+>
+  <AnimatePresence>
+    {loading ? (
+      <motion.div
+        key="loader"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, rotate: 360 }}
+        exit={{ opacity: 0 }}
+        transition={{
+          repeat: Infinity,
+          duration: 1,
+          ease: 'linear'
+        }}
+        style={{
+          width: '24px',
+          height: '24px',
+          border: '3px solid rgba(255,255,255,0.6)',
+          borderTopColor: 'transparent',
+          borderRadius: '50%'
+        }}
+      />
+    ) : (
+      <motion.span
+        key="text"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        ✅ إرسال الطلب
+      </motion.span>
+    )}
+  </AnimatePresence>
+</motion.button>
+
+        </motion.form>
       ) : (
-        <p dir="rtl" className="animate-fade-slide" style={{ color: 'green', fontWeight: 'bold' }}>
+        <motion.p
+          key="success"
+          style={{ color: 'green', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, type: 'spring' }}
+        >
           ✅ تم إرسال الطلب بنجاح! سنتواصل معك قريبًا.
-        </p>
+        </motion.p>
       )}
-    </div>
+    </motion.div>
   );
 }
 

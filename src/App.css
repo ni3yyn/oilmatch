@@ -87,7 +87,7 @@ h2 {
   border-radius: 50px;
   text-align: right;
   background: rgba(255, 255, 255, 0.4);
-  color: #222;
+  color: #ccc;
   direction: rtl;
   font-family: 'Tajawal', sans-serif;
   transition: box-shadow 0.3s ease, background 0.3s ease;

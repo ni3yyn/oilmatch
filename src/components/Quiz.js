@@ -1,15 +1,17 @@
 // src/components/Quiz.js
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState(1); // لتحديد اتجاه الانيميشن
 
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
   const [scalp, setScalp] = useState('');
   const [hairFall, setHairFall] = useState('');
-  const [issues, setIssues] = useState(''); // قشرة أو فطريات
+  const [issues, setIssues] = useState('');
   const [goal, setGoal] = useState('');
 
   const totalSteps = 6;
@@ -28,6 +30,7 @@ function Quiz({ onQuizComplete }) {
 
   const handleNext = () => {
     if (step < totalSteps) {
+      setDirection(1);
       setStep((prev) => prev + 1);
     } else {
       const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
@@ -79,7 +82,7 @@ function Quiz({ onQuizComplete }) {
       case 2: return ['جاف', 'رطب', 'معتدل'];
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
-      case 5: return ['لا أعاني', 'قشرة', 'فطريات'];
+      case 5: return ['لا', 'قشرة', 'فطريات'];
       case 6: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية الجذور'];
       default: return [];
     }
@@ -114,29 +117,39 @@ function Quiz({ onQuizComplete }) {
   return (
     <div className="quiz-container glassy">
       {/* Progress Bar */}
-      <div className="progress-bar" style={{ width: '100%', height: '8px', backgroundColor: '#eee', marginBottom: '15px', borderRadius: '8px' }}>
-        <div style={{
-          width: `${progress}%`,
-          height: '100%',
-          backgroundColor: '#3baf69',
-          borderRadius: '8px',
-          transition: 'width 0.3s ease'
-        }} />
+      <div className="progress-container">
+        <div className="oil-tube">
+          <div className="oil-fill" style={{ width: `${progress}%` }}>
+            <div className="oil-wave"></div>
+          </div>
+          <div className="oil-shine"></div>
+        </div>
+        <span className="progress-text">{progress}%</span>
       </div>
 
-      <h2 className="quiz-title">{stepTitle()}</h2>
-
-      <div className="options-grid">
-        {getOptions().map((option) => (
-          <button
-            key={option}
-            onClick={() => handleOptionClick(option)}
-            className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
+      {/* Animate Question & Options */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={step}
+          initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
+          <h2 className="quiz-title">{stepTitle()}</h2>
+          <div className="options-grid">
+            {getOptions().map((option) => (
+              <button
+                key={option}
+                onClick={() => handleOptionClick(option)}
+                className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       <button
         className="next-btn"

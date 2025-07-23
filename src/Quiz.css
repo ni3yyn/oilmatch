@@ -29,7 +29,7 @@
     font-size: 1.1em;
     border: none;
     border-radius: 12px;
-    cursor: pointer;
+    cursor: none;
     color: white;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -82,5 +82,70 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+  
+  .progress-container {
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .oil-tube {
+    width: 100%;
+    height: 18px;
+    background: rgba(255, 255, 255, 0);
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.25);
+  }
+  
+  .oil-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #33913b, #226b31);
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .oil-wave {
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 20% 40%, rgba(255,255,255,0.3) 10%, transparent 40%),
+                radial-gradient(circle at 80% 60%, rgba(255,255,255,0.3) 10%, transparent 40%);
+    animation: waveMove 2s infinite ;
+    opacity: 0.2;
+  }
+  
+  .oil-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    border-radius: 50px;
+    pointer-events: none;
+  }
+  
+  .progress-text {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ccc;
+    font-family: 'Cairo', sans-serif;
+  }
+  
+  @keyframes waveMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
   
