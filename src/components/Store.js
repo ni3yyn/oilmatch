@@ -149,7 +149,7 @@ function Store({ onGoHome }) {
                             {product.name}
                           </div>
                         </div>
-                        <p className="product-price">{product.price}<p className='product-price'>دج</p></p> 
+                        <p className="product-price">دج{product.price}</p> 
                         
                       </motion.div>
                     ))
