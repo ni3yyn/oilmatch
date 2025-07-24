@@ -28,6 +28,8 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
+  
+
   const handleNext = () => {
     if (step < totalSteps) {
       setDirection(1);
@@ -82,7 +84,7 @@ function Quiz({ onQuizComplete }) {
       case 2: return ['جاف', 'رطب', 'معتدل'];
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
-      case 5: return ['لا', 'قشرة', 'فطريات'];
+      case 5: return ['كلا', 'قشرة', 'فطريات'];
       case 6: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية الجذور'];
       default: return [];
     }
@@ -156,7 +158,7 @@ function Quiz({ onQuizComplete }) {
         onClick={handleNext}
         disabled={!currentSelection()}
       >
-        {step < totalSteps ? 'التالي ➡️' : 'عرض النتيجة 🧪'}
+        {step < totalSteps ? 'التالي' : 'عرض النتيجة '}
       </button>
     </div>
   );

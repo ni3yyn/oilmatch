@@ -1,25 +1,70 @@
-// components/LandingPage.js
 import React from 'react';
-import '../LandingPage.css'; // style it as needed
+import { motion } from 'framer-motion';
+import '../LandingPage.css';
 import logo from '../assets/logo.png';
-
 
 function LandingPage({ onChooseMatcher, onChooseStore }) {
   return (
-    <div className="landing-container">
-      <img src={logo} alt="Logo" className="logo" />
-      <h1 className="label">مرحبا بك في متجرنا للزيوت الطبيعية</h1>
-      <p className="lanbel">كيفاش حاب تخير الزيت؟</p>
+    <motion.div 
+      className="landing-container"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* Logo with delay */}
+      <motion.img 
+        src={logo} 
+        alt="Logo" 
+        className="logo"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
+      />
 
-      <div className="landing-buttons">
-        <button onClick={onChooseMatcher} >
+      {/* Title */}
+      <motion.h1 
+        className="label"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.8 }}
+      >
+        مرحبا بك في متجرنا للزيوت الطبيعية
+      </motion.h1>
+
+      {/* Subtitle */}
+      <motion.p 
+        className="lanbel"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.8 }}
+      >
+        كيفاش حاب تخير الزيت؟
+      </motion.p>
+
+      {/* Buttons */}
+      <motion.div 
+        className="landing-buttons"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.8 }}
+      >
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onChooseMatcher}
+        >
           حاب الذكاء الاصطناعي يخيرلي
-        </button>
-        <button onClick={onChooseStore} >
+        </motion.button>
+        
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onChooseStore}
+        >
           أنا نخير وش حبيت
-        </button>
-      </div>
-    </div>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }
 
