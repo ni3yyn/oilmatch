@@ -1,11 +1,10 @@
-// src/components/Quiz.js
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState(1); // لتحديد اتجاه الانيميشن
+  const [direction, setDirection] = useState(1);
 
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
@@ -15,6 +14,23 @@ function Quiz({ onQuizComplete }) {
   const [goal, setGoal] = useState('');
 
   const totalSteps = 6;
+
+  const oilsDB = [
+    { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني", "معتدل", "أنثى"] },
+    { name: "زيت بذور اليقطين", tags: ["تكثيف", "تساقط", "ذكر", "معتدل"] },
+    { name: "زيت الأرغان", tags: ["جاف", "ترطيب", "تكثيف", "أنثى"] },
+    { name: "زيت إكليل الجبل", tags: ["تطويل", "تقوية الجذور", "تساقط", "عادي"] },
+    { name: "زيت النعناع", tags: ["دهني", "تقوية الجذور", "رطب", "ذكر"] },
+    { name: "زيت الخروع", tags: ["تساقط", "تكثيف", "جاف", "ذكر", "أنثى"] },
+    { name: "زيت الحبة السوداء", tags: ["تطويل", "تساقط", "دهني", "ذكر"] },
+    { name: "زيت بذور العنب", tags: ["معتدل", "عادي", "مهدئ", "أنثى"] },
+    { name: "زيت النيم", tags: ["رطب", "فطريات", "قشرة"] },
+    { name: "زيت شجر الشاي", tags: ["دهني", "قشرة", "فطريات"] },
+    { name: "زيت الخزامى", tags: ["عادي", "مهدئ", "هرمونات", "أنثى"] },
+    { name: "زيت الخروع الأسود", tags: ["تساقط", "تكثيف", "جاف"] },
+    { name: "زيت اللوز الحلو", tags: ["ترطيب", "جاف", "أنثى"] },
+    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف", "حساسية", "أنثى"] },
+  ];
 
   const handleOptionClick = (value) => {
     switch (step) {
@@ -38,29 +54,15 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  const oilsDB = [
-    { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني", "معتدل", "أنثى"] },
-    { name: "زيت بذور اليقطين", tags: ["تكثيف", "تساقط", "ذكر", "معتدل"] },
-    { name: "زيت الأرغان", tags: ["جاف", "ترطيب", "تكثيف", "أنثى"] },
-    { name: "زيت إكليل الجبل", tags: ["تطويل", "تقوية الجذور", "تساقط", "عادي"] },
-    { name: "زيت النعناع", tags: ["دهني", "تقوية الجذور", "رطب", "ذكر"] },
-    { name: "زيت الخروع", tags: ["تساقط", "تكثيف", "جاف", "ذكر", "أنثى"] },
-    { name: "زيت الحبة السوداء", tags: ["تطويل", "تساقط", "دهني", "ذكر"] },
-    { name: "زيت بذور العنب", tags: ["معتدل", "عادي", "مهدئ", "أنثى"] },
-    { name: "زيت النيم", tags: ["رطب", "فطريات", "قشرة"] },
-    { name: "زيت شجر الشاي", tags: ["دهني", "قشرة", "فطريات"] },
-    { name: "زيت الخزامى", tags: ["عادي", "مهدئ", "هرمونات", "أنثى"] },
-    { name: "زيت الخروع الأسود", tags: ["تساقط", "تكثيف", "جاف"] },
-    { name: "زيت اللوز الحلو", tags: ["ترطيب", "جاف", "أنثى"] },
-    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف", "حساسية", "أنثى"] },
-  ];
+  const handleBack = () => {
+    if (step > 1) {
+      setDirection(-1);
+      setStep((prev) => prev - 1);
+    }
+  };
 
   const determineBlend = ({ gender, climate, scalp, hairFall, issues, goal }) => {
-    const keywords = [];
-
-    keywords.push(gender);
-    keywords.push(climate);
-    keywords.push(scalp);
+    const keywords = [gender, climate, scalp];
     if (hairFall === 'نعم') keywords.push("تساقط");
     if (issues === 'قشرة') keywords.push("قشرة");
     if (issues === 'فطريات') keywords.push("فطريات");
@@ -102,12 +104,24 @@ function Quiz({ onQuizComplete }) {
 
   const stepTitle = () => {
     switch (step) {
-      case 1: return ' ما هو جنسك؟';
-      case 2: return ' ما هو نوع المناخ لديك؟';
-      case 3: return ' ما نوع فروة رأسك؟';
-      case 4: return ' هل تعاني من تساقط الشعر؟';
-      case 5: return ' هل تعاني من قشرة أو فطريات؟';
-      case 6: return ' ما هو هدفك من استخدام الزيت؟';
+      case 1: return 'ما هو جنسك؟';
+      case 2: return 'كيف تصف المناخ في منطقتك؟';
+      case 3: return 'ما نوع فروة رأسك؟';
+      case 4: return 'هل تعاني من تساقط الشعر؟';
+      case 5: return 'هل لديك قشرة أو فطريات؟';
+      case 6: return 'ما هو هدفك من الزيت؟';
+      default: return '';
+    }
+  };
+
+  const motivationText = () => {
+    switch (step) {
+      case 1: return 'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.';
+      case 2: return 'المناخ يؤثر على رطوبة شعرك، دعنا نأخذ ذلك في الحسبان.';
+      case 3: return 'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.';
+      case 4: return 'تساقط الشعر يحتاج مكونات فعالة للتقوية.';
+      case 5: return 'علاج المشاكل مثل القشرة مهم قبل التغذية.';
+      case 6: return 'هدفك هو سر الوصفة المثالية لشعرك.';
       default: return '';
     }
   };
@@ -116,36 +130,41 @@ function Quiz({ onQuizComplete }) {
 
   return (
     <div className="quiz-container glassy">
-      {/* Progress Bar */}
+      {/* Header */}
+      
+
+      {/* Progress */}
       <div className="progress-container">
         <div className="oil-tube">
           <div className="oil-fill" style={{ width: `${progress}%` }}>
             <div className="oil-wave"></div>
           </div>
-          <div className="oil-shine"></div>
         </div>
         <span className="progress-text">{progress}%</span>
       </div>
 
-      {/* Animate Question & Options */}
+      {/* Animated Question */}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={step}
           initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          transition={{ duration: 0.25 }}
         >
-          <h2 className="quiz-title">{stepTitle()}</h2>
+          <h3 className="quiz-title">{stepTitle()}</h3>
+          <p className="quiz-motivation">{motivationText()}</p>
           <div className="options-grid">
             {getOptions().map((option) => (
-              <button
+              <motion.button
                 key={option}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleOptionClick(option)}
                 className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
               >
                 {option}
-              </button>
+              </motion.button>
             ))}
           </div>
         </motion.div>
@@ -175,7 +194,8 @@ function Quiz({ onQuizComplete }) {
 
 </div>
 
-    </div>
+      </div>
+    
   );
 }
 
