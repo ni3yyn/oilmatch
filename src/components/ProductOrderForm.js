@@ -169,7 +169,7 @@ function ProductOrderForm({ productName, productPrice }) {
             placeholder="الاسم"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ border: errorFields.includes('name') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('name') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('name') ? shakeAnimation : {}}
           />
 
@@ -180,7 +180,7 @@ function ProductOrderForm({ productName, productPrice }) {
             placeholder="رقم الهاتف"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            style={{ border: errorFields.includes('phone') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('phone') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('phone') ? shakeAnimation : {}}
           />
 
@@ -189,7 +189,7 @@ function ProductOrderForm({ productName, productPrice }) {
             ref={wilayaRef}
             value={wilaya}
             onChange={(e) => setWilaya(e.target.value)}
-            style={{ border: errorFields.includes('wilaya') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('wilaya') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('wilaya') ? shakeAnimation : {}}
           >
             <option value="">اختر الولاية</option>
@@ -203,7 +203,7 @@ function ProductOrderForm({ productName, productPrice }) {
             ref={deliveryTypeRef}
             value={deliveryType}
             onChange={(e) => setDeliveryType(e.target.value)}
-            style={{ border: errorFields.includes('deliveryType') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('deliveryType') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('deliveryType') ? shakeAnimation : {}}
           >
             <option value="">اختر نوع التوصيل</option>
@@ -217,7 +217,7 @@ function ProductOrderForm({ productName, productPrice }) {
             placeholder="عنوانك الكامل"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            style={{ border: errorFields.includes('address') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('address') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('address') ? shakeAnimation : {}}
           />
 
@@ -228,7 +228,7 @@ function ProductOrderForm({ productName, productPrice }) {
             min="1"
             value={quantity}
             onChange={(e) => setQuantity(parseInt(e.target.value))}
-            style={{ border: errorFields.includes('quantity') ? '1px solid red' : '' }}
+            style={{ border: errorFields.includes('quantity') ? '0.9px solid red' : '' }}
             animate={errorFields.includes('quantity') ? shakeAnimation : {}}
           />
 

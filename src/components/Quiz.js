@@ -54,12 +54,7 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  const handleBack = () => {
-    if (step > 1) {
-      setDirection(-1);
-      setStep((prev) => prev - 1);
-    }
-  };
+  
 
   const determineBlend = ({ gender, climate, scalp, hairFall, issues, goal }) => {
     const keywords = [gender, climate, scalp];

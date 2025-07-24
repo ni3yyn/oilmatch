@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
 function OrderForm({ productName, blend }) {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState('');
@@ -153,57 +154,145 @@ function OrderForm({ productName, blend }) {
     setLoading(false);
   };
 
+  const shakeAnimation = { x: [0, -6, 6, -6, 6, 0], transition: { duration: 0.4 } };
+
   return (
-    <motion.div className="order-form-wrapper" style={{ marginTop: '30px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '15px' }}>📦 اطلب تركيبتك الآن</h2>
-      <p style={{ textAlign: 'center', fontSize: '14px', marginBottom: '10px', color: '#666' }}>
-        زيوت طبيعية 100%، من موردين جزائريين، نضمن لك الجودة.
-      </p>
+    <motion.div className="order-form-wrapper">
+      <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#ccc' }}>قم بطلب تركيبتك الخاصة الآن</h2>
 
       <AnimatePresence>
         {!submitted ? (
-          <motion.form className="order-form" onSubmit={handleSubmit} style={{ maxWidth: '500px', margin: '0 auto' }}>
-            {/* Inputs */}
-            <motion.input ref={nameRef} type="text" placeholder="اسمك" value={name} onChange={(e) => setName(e.target.value)} />
-            <motion.input ref={phoneRef} type="tel" placeholder="رقم هاتفك" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <motion.form className="order-form" onSubmit={handleSubmit}>
+            
+            {/* Inputs with shake & red border if error */}
+            <motion.input
+              ref={nameRef}
+              type="text"
+              placeholder="اسمك"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`form-input ${errorFields.includes('name') ? 'error' : ''}`}
+              animate={errorFields.includes('name') ? shakeAnimation : {}}
+            />
 
-            <motion.select ref={wilayaRef} value={wilaya} onChange={(e) => setWilaya(e.target.value)}>
+            <motion.input
+              ref={phoneRef}
+              type="tel"
+              placeholder="رقم هاتفك"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={`form-input ${errorFields.includes('phone') ? 'error' : ''}`}
+              animate={errorFields.includes('phone') ? shakeAnimation : {}}
+            />
+
+            <motion.select
+              ref={wilayaRef}
+              value={wilaya}
+              onChange={(e) => setWilaya(e.target.value)}
+              className={`form-input ${errorFields.includes('wilaya') ? 'error' : ''}`}
+              animate={errorFields.includes('wilaya') ? shakeAnimation : {}}
+            >
               <option value="">حدد ولايتك</option>
               {wilayas.map((w, idx) => <option key={idx} value={w}>{w}</option>)}
             </motion.select>
 
-            <motion.select ref={deliveryTypeRef} value={deliveryType} onChange={(e) => setDeliveryType(e.target.value)}>
+            <motion.select
+              ref={deliveryTypeRef}
+              value={deliveryType}
+              onChange={(e) => setDeliveryType(e.target.value)}
+              className={`form-input ${errorFields.includes('deliveryType') ? 'error' : ''}`}
+              animate={errorFields.includes('deliveryType') ? shakeAnimation : {}}
+            >
               <option value="">حدد نوع التوصيل</option>
               <option value="home">إلى منزلك</option>
               <option value="office">إلى مكتب التوصيل</option>
             </motion.select>
 
-            <motion.textarea ref={addressRef} placeholder="عنوانك الكامل" value={address} onChange={(e) => setAddress(e.target.value)} />
+            <motion.textarea
+              ref={addressRef}
+              placeholder="عنوانك الكامل"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className={`form-input ${errorFields.includes('address') ? 'error' : ''}`}
+              animate={errorFields.includes('address') ? shakeAnimation : {}}
+            />
 
-            <motion.input ref={quantityRef} type="number" min="1" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
+            <motion.input
+              ref={quantityRef}
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              className={`form-input ${errorFields.includes('quantity') ? 'error' : ''}`}
+              animate={errorFields.includes('quantity') ? shakeAnimation : {}}
+            />
 
-            {/* Soft Upsell */}
-            <p style={{ fontSize: '13px', margin: '10px 0', color: '#888' }}>
-              نصيحة: للحصول على أفضل نتيجة، ننصحك بطلب عبوتين تكفي لشهرين من الاستخدام.
-            </p>
+            {/* Blend Container */}
+            {/* Blend Container */}
+{blend && (
+  <motion.div >
+    <p className='blendname' style={{
+    
+    padding: '10px',
+    borderRadius: '50px',
+    background: 'rgba(255, 255, 255, 0.3)',
+    color: '#ccc',            // ✅ Text color applied
+    fontWeight: '500',
+    textAlign: 'center'
+  }}>{blend}</p>
+  </motion.div>
+)}
 
-            {/* Pricing Summary */}
-            {blend && (
-              <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '10px', marginTop: '10px' }}>
-                <p>السعر: {productPrice} × {quantity} = {productTotal} دج</p>
-                <p>التوصيل: {deliveryFee} دج</p>
-                <p style={{ fontWeight: 'bold', fontSize: '16px' }}>الإجمالي: {finalTotal} دج</p>
-              </div>
-            )}
+{/* Price Container */}
+{blend && (
+  <motion.div style={{
+    marginTop: '15px',
+    padding: '10px',
+    borderRadius: '10px',
+    background: 'rgba(255, 255, 255, 0.4)',
+    color: '#ccc',            // ✅ Text color applied
+    textAlign: 'right'
+  }}>
+    <p>السعر: {productPrice} × {quantity} = {productTotal} دج</p>
+    <p>التوصيل: {deliveryFee} دج</p>
+    <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#ccc' }}>
+      المجموع الكلي: {finalTotal} دج
+    </p>
+  </motion.div>
+)}
+
+            {error && <p className="error-text">{error}</p>}
 
             {/* Submit Button */}
-            <motion.button type="submit" disabled={loading} whileHover={{ scale: loading ? 1 : 1.05 }}>
-              {loading ? 'جاري الإرسال...' : 'إتمام الطلب الآن'}
+            <motion.button
+              type="submit"
+              disabled={loading}
+              className="submit-btn"
+              whileHover={{ scale: loading ? 1 : 1.05 }}
+              whileTap={{ scale: loading ? 1 : 0.95 }}
+            >
+              <AnimatePresence>
+                {loading ? (
+                  <motion.div
+                    key="loader"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, rotate: 360 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="loader"
+                  />
+                ) : (
+                  <motion.span key="text" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    إرسال الطلب
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </motion.button>
           </motion.form>
         ) : (
-          <motion.p style={{ color: 'green', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
-            ✅ شكراً! تم تسجيل طلبك بنجاح وسنتواصل معك قريباً.
+          <motion.p key="success" className="success-message"
+            initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, type: 'spring' }}>
+            ✅ تم إرسال الطلب بنجاح! سنتواصل معك قريبًا.
           </motion.p>
         )}
       </AnimatePresence>

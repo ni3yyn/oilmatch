@@ -23,10 +23,8 @@ function AdminDashboard() {
     const unsubscribe = onSnapshot(collection(db, 'orders'), (snapshot) => {
       setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-  
     return () => unsubscribe();
   }, []);
-  
 
   const handleLogout = async () => {
     try {
@@ -45,7 +43,6 @@ function AdminDashboard() {
       console.error(`فشل التحديث لحقل ${field}:`, err);
     }
   };
-  
 
   const handleDeleteOrder = async (id) => {
     if (window.confirm('هل أنت متأكد أنك تريد حذف هذا الطلب؟')) {
@@ -59,33 +56,55 @@ function AdminDashboard() {
   };
 
   const filteredOrders = orders.filter((order) => {
-  if (filteredStatus === 'all') return true;
-  if (filteredStatus === 'confirmed') return order.confirmed === true;
-  if (filteredStatus === 'delivered') return order.delivered === true;
-  return true;
-});
-
+    if (filteredStatus === 'all') return true;
+    if (filteredStatus === 'confirmed') return order.confirmed === true;
+    if (filteredStatus === 'delivered') return order.delivered === true;
+    return true;
+  });
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!prodName || !price || !thumbnailFile) return alert('يرجى ملء جميع الحقول المطلوبة');
+
     setUploading(true);
     try {
+      // Upload thumbnail
       const thumbForm = new FormData();
       thumbForm.append('file', thumbnailFile);
       thumbForm.append('upload_preset', 'product');
-      const thumbRes = await axios.post('https://api.cloudinary.com/v1_1/de122nwjr/image/upload', thumbForm);
-      const thumbnailUrl = thumbRes.data.secure_url;
 
+      const thumbRes = await axios.post(
+        'https://api.cloudinary.com/v1_1/de122nwjr/image/upload',
+        thumbForm
+      );
+
+      // Apply quality optimization
+      const thumbnailUrl = thumbRes.data.secure_url.replace(
+        '/upload/',
+        '/upload/q_50,f_auto/'
+      );
+
+      // Upload additional images
       const uploadedImages = [];
       for (const file of additionalImages) {
         const imgForm = new FormData();
         imgForm.append('file', file);
         imgForm.append('upload_preset', 'product');
-        const res = await axios.post('https://api.cloudinary.com/v1_1/de122nwjr/image/upload', imgForm);
-        uploadedImages.push(res.data.secure_url);
+
+        const res = await axios.post(
+          'https://api.cloudinary.com/v1_1/de122nwjr/image/upload',
+          imgForm
+        );
+
+        // Optimize each image
+        const optimizedImage = res.data.secure_url.replace(
+          '/upload/',
+          '/upload/q_50,f_auto/'
+        );
+        uploadedImages.push(optimizedImage);
       }
 
+      // Save product in Firestore
       await addDoc(collection(db, 'products'), {
         name: prodName,
         price: parseFloat(price),
@@ -95,6 +114,7 @@ function AdminDashboard() {
         createdAt: new Date()
       });
 
+      // Reset form
       setProdName('');
       setPrice('');
       setDesc('');
@@ -121,61 +141,60 @@ function AdminDashboard() {
 
       <div className="table-container">
         <table className="order-table">
-        <thead>
-  <tr>
-    <th>الاسم</th>
-    <th>العنوان</th>
-    <th>الولاية</th>
-    <th>نوع التوصيل</th>
-    <th>المنتجات</th>
-    <th>الإجمالي</th>
-    <th>الهاتف</th>
-    <th>ملاحظة</th>
-    <th>تم التأكيد</th>
-    <th>تم التوصيل</th>
-    <th>حذف</th>
-  </tr>
-</thead>
-<tbody>
-  {filteredOrders.map(order => (
-    <tr key={order.id}>
-      <td>{order.name}</td>
-      <td>{order.address}</td>
-      <td>{order.wilaya || '---'}</td>
-      <td>
-        {order.deliveryType === 'home' && 'المنزل'}
-        {order.deliveryType === 'office' && 'مكتب البريد'}
-        {!order.deliveryType && '---'}
-      </td>
-      <td>
-        {order.cart?.map((item, i) => (
-          <div key={i}>{item.name} - {item.quantity}×{item.price} DA</div>
-        ))}
-      </td>
-      <td>{order.total} DA</td>
-      <td>{order.phone}</td>
-      <td>{order.note || '---'}</td>
-      <td>
-        <input
-          type="checkbox"
-          checked={!!order.confirmed}
-          onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
-        />
-      </td>
-      <td>
-        <input
-          type="checkbox"
-          checked={!!order.delivered}
-          onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
-        />
-      </td>
-      <td>
-        <button className="icon-btn delete-btn" onClick={() => handleDeleteOrder(order.id)} title="حذف الطلب">🗑</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>العنوان</th>
+              <th>الولاية</th>
+              <th>نوع التوصيل</th>
+              <th>المنتجات</th>
+              <th>الإجمالي</th>
+              <th>الهاتف</th>
+              <th>ملاحظة</th>
+              <th>تم التأكيد</th>
+              <th>تم التوصيل</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map(order => (
+              <tr key={order.id}>
+                <td>{order.name}</td>
+                <td>{order.address}</td>
+                <td>{order.wilaya || '---'}</td>
+                <td>
+                  {order.deliveryType === 'home' && 'المنزل'}
+                  {order.deliveryType === 'office' && 'مكتب البريد'}
+                  {!order.deliveryType && '---'}
+                </td>
+                <td>
+                  {order.cart?.map((item, i) => (
+                    <div key={i}>{item.name} - {item.quantity}×{item.price} DA</div>
+                  ))}
+                </td>
+                <td>{order.total} DA</td>
+                <td>{order.phone}</td>
+                <td>{order.note || '---'}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={!!order.confirmed}
+                    onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={!!order.delivered}
+                    onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
+                  />
+                </td>
+                <td>
+                  <button className="icon-btn delete-btn" onClick={() => handleDeleteOrder(order.id)} title="حذف الطلب">🗑</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
 
