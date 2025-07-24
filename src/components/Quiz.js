@@ -28,8 +28,6 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  
-
   const handleNext = () => {
     if (step < totalSteps) {
       setDirection(1);
@@ -153,13 +151,30 @@ function Quiz({ onQuizComplete }) {
         </motion.div>
       </AnimatePresence>
 
+      <div className="quiz-navigation">
       <button
-        className="next-btn"
-        onClick={handleNext}
-        disabled={!currentSelection()}
-      >
-        {step < totalSteps ? 'التالي' : 'عرض النتيجة '}
-      </button>
+  className="quiz-btn"
+  onClick={() => {
+    if (step > 1) {
+      setDirection(-1);
+      setStep((prev) => prev - 1);
+    }
+  }}
+  disabled={step === 1}
+>
+  ← رجوع
+</button>
+
+<button
+  className="quiz-btn"
+  onClick={handleNext}
+  disabled={!currentSelection()}
+>
+  {step < totalSteps ? 'التالي →' : 'النتيجة'}
+</button>
+
+</div>
+
     </div>
   );
 }

@@ -214,7 +214,7 @@ function ProductOrderForm({ productName, productPrice }) {
           {/* العنوان */}
           <motion.textarea
             ref={addressRef}
-            placeholder="عنوان الشحن"
+            placeholder="عنوانك الكامل"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             style={{ border: errorFields.includes('address') ? '1px solid red' : '' }}
@@ -318,7 +318,7 @@ function ProductOrderForm({ productName, productPrice }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        ✅ إرسال الطلب
+      إرسال الطلب
       </motion.span>
     )}
   </AnimatePresence>

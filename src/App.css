@@ -45,8 +45,8 @@ h2 {
   font-family: 'Tajawal', sans-serif;
   border-radius: 50px;
   padding: 30px 40px;
-  width: 100%;
-  max-width: 450px;
+  width: fit-content;
+  max-width: 330px;
   margin: 20px;
   animation: fadeSlideUp 1s ease forwards;
 }

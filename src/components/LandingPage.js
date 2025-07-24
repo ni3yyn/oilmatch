@@ -18,7 +18,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         className="logo"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.8, type: "spring" }}
+        transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
       />
 
       {/* Title */}
@@ -26,7 +26,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         className="label"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
       >
         مرحبا بك في متجرنا للزيوت الطبيعية
       </motion.h1>
@@ -36,7 +36,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         className="lanbel"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.8 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
       >
         كيفاش حاب تخير الزيت؟
       </motion.p>
@@ -46,7 +46,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         className="landing-buttons"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
+        transition={{ delay: 0.8, duration: 0.8 }}
       >
         <motion.button 
           whileHover={{ scale: 1.05 }}

@@ -3,6 +3,7 @@
   padding: 100px 20px;
   color: #ccc;
   animation: fadeSlideUp 1s ease forwards;
+  background: rgba(255, 255, 255, 0.062);
   
 }
 

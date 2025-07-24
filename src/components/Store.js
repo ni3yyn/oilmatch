@@ -1,6 +1,5 @@
-// src/components/Store.js
-import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import React, { useEffect, useState, useCallback } from 'react';
+import { collection, query, orderBy, limit, startAfter, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import ProductOrderForm from './ProductOrderForm';
 import '../Store.css';
@@ -12,18 +11,55 @@ function Store({ onGoHome }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const PAGE_SIZE = 8;
+
+  const fetchProducts = async (isLoadMore = false) => {
+    try {
+      if (!isLoadMore) setLoading(true);
+  
+      const productsRef = collection(db, 'products');
+      let q = query(productsRef, orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
+  
+      if (isLoadMore && lastDoc) {
+        q = query(productsRef, orderBy('createdAt', 'desc'), startAfter(lastDoc), limit(PAGE_SIZE));
+        setLoadingMore(true);
+      }
+  
+      const snapshot = await getDocs(q);
+  
+      if (!snapshot.empty) {
+        const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+        setProducts(prev => {
+          // ✅ Remove duplicates using Set
+          const allProducts = [...prev, ...newProducts];
+          const uniqueProducts = Array.from(new Map(allProducts.map(item => [item.id, item])).values());
+          return uniqueProducts;
+        });
+  
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+        setHasMore(snapshot.docs.length === PAGE_SIZE);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Error loading products:', err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'products'), (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setProducts(data);
-    });
-    return unsub;
+    fetchProducts();
   }, []);
 
+  // Search filter
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -66,7 +102,7 @@ function Store({ onGoHome }) {
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.2 }}
             >
-              <h2 className="store-title">🛍️ المتجر</h2>
+              <h2 className="store-title"> المتجر</h2>
               <input
                 type="text"
                 placeholder="🔍 ابحث عن منتج..."
@@ -74,40 +110,59 @@ function Store({ onGoHome }) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="product-grid">
-                {filteredProducts.length === 0 ? (
-                  <p className="empty-text">لا توجد منتجات مطابقة.</p>
-                ) : (
-                  filteredProducts.map((product) => (
-                    <motion.div
-                      className="product-card glass"
-                      key={product.id}
-                      onClick={() => handleProductClick(product)}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2 }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <img
-                        src={product.thumbnail}
-                        alt={product.name}
-                        className="product-img"
-                      />
-                      <div className="product-name-wrapper">
-                        <div
-                          className={`product-name-inner ${
-                            product.name.length > 13 ? 'scroll' : ''
-                          }`}
-                        >
-                          {product.name}
+
+              {/* Skeleton Loader */}
+              {loading ? (
+                <div className="product-grid">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="product-card skeleton"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="product-grid">
+                  {filteredProducts.length === 0 ? (
+                    <p className="empty-text">لا توجد منتجات مطابقة.</p>
+                  ) : (
+                    filteredProducts.map((product) => (
+                      <motion.div
+                        className="product-card glass"
+                        key={product.id}
+                        onClick={() => handleProductClick(product)}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <img
+                          src={product.thumbnail}
+                          alt={product.name}
+                          className="product-img"
+                          loading="lazy"
+                        />
+                        <div className="product-name-wrapper">
+                          <div
+                            className={`product-name-inner ${
+                              product.name.length > 13 ? 'scroll' : ''
+                            }`}
+                          >
+                            {product.name}
+                          </div>
                         </div>
-                      </div>
-                      <p className="product-price"> دج {product.price}</p>
-                    </motion.div>
-                  ))
-                )}
-              </div>
+                        <p className="product-price">{product.price}<p className='product-price'>دج</p></p> 
+                        
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Load More */}
+              {!loading && hasMore && (
+                <button className="load-more-btn" onClick={() => fetchProducts(true)}>
+                  {loadingMore ? 'جار التحميل...' : 'تحميل المزيد'}
+                </button>
+              )}
             </motion.div>
           ) : (
             <motion.div
@@ -136,6 +191,7 @@ function Store({ onGoHome }) {
                     }
                     alt="product"
                     className="product-slide-img"
+                    loading="lazy"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
