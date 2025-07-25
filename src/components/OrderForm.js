@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-
 
 function OrderForm({ productName, blend }) {
   const [submitted, setSubmitted] = useState(false);
@@ -16,12 +15,33 @@ function OrderForm({ productName, blend }) {
   const [errorFields, setErrorFields] = useState([]);
   const [error, setError] = useState('');
 
+  // Custom select states
+  const [isWilayaOpen, setIsWilayaOpen] = useState(false);
+  const [isDeliveryTypeOpen, setIsDeliveryTypeOpen] = useState(false);
+  const wilayaDropdownRef = useRef(null);
+  const deliveryTypeDropdownRef = useRef(null);
+
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
-  const wilayaRef = useRef(null);
-  const deliveryTypeRef = useRef(null);
   const addressRef = useRef(null);
   const quantityRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wilayaDropdownRef.current && !wilayaDropdownRef.current.contains(event.target)) {
+        setIsWilayaOpen(false);
+      }
+      if (deliveryTypeDropdownRef.current && !deliveryTypeDropdownRef.current.contains(event.target)) {
+        setIsDeliveryTypeOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const wilayas = [
     "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار",
@@ -111,8 +131,8 @@ function OrderForm({ productName, blend }) {
     const fields = [
       { name: 'name', value: name, ref: nameRef },
       { name: 'phone', value: phone, ref: phoneRef },
-      { name: 'wilaya', value: wilaya, ref: wilayaRef },
-      { name: 'deliveryType', value: deliveryType, ref: deliveryTypeRef },
+      { name: 'wilaya', value: wilaya, ref: wilayaDropdownRef },
+      { name: 'deliveryType', value: deliveryType, ref: deliveryTypeDropdownRef },
       { name: 'address', value: address, ref: addressRef },
       { name: 'quantity', value: quantity, ref: quantityRef },
     ];
@@ -156,122 +176,338 @@ function OrderForm({ productName, blend }) {
 
   const shakeAnimation = { x: [0, -6, 6, -6, 6, 0], transition: { duration: 0.4 } };
 
+  // Custom Select Component
+  const CustomSelect = ({ 
+    options, 
+    value, 
+    onChange, 
+    placeholder, 
+    isOpen, 
+    setIsOpen, 
+    dropdownRef,
+    error
+  }) => {
+    return (
+      <div ref={dropdownRef} style={{ position: 'relative' }}>
+        <motion.div
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: '50px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            color: '#ccc',
+            fontSize: '1rem',
+            cursor: 'none',
+            display: 'flex',
+            marginBottom: '0.33rem',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            border: error ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}
+          animate={error ? shakeAnimation : {}}
+          whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+        >
+          <span>{value || placeholder}</span>
+          <motion.span
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            style={{ display: 'inline-flex', marginRight: '0.5rem' }}
+          >
+            ▼
+          </motion.span>
+        </motion.div>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '0.25rem',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+                zIndex: 10,
+                overflow: 'hidden',
+                maxHeight: '300px',
+                overflowY: 'auto'
+              }}
+            >
+              {options.map((option, idx) => (
+                <motion.div
+                  key={idx}
+                  onClick={() => {
+                    onChange(option);
+                    setIsOpen(false);
+                  }}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    cursor: 'pointer',
+                    color: value === option ? '#ccc' : '#e6eaf0',
+                    background: value === option ? 'e6eaf0' : 'transparent',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  {option}
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
   return (
-    <motion.div className="order-form-wrapper">
-      <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#ccc' }}>قم بطلب تركيبتك الخاصة الآن</h2>
+    <motion.div 
+      className="order-form-wrapper"
+      style={{
+        borderRadius: '12px',
+      }}
+    >
+      <h2 style={{ 
+        textAlign: 'center', 
+        marginBottom: '1rem',
+        color: '#ccc',
+        fontSize: '1.5rem',
+        fontWeight: '600'
+      }}>
+        قم بطلب تركيبتك الخاصة الآن
+      </h2>
 
       <AnimatePresence>
         {!submitted ? (
-          <motion.form className="order-form" onSubmit={handleSubmit}>
-            
-            {/* Inputs with shake & red border if error */}
-            <motion.input
-              ref={nameRef}
-              type="text"
-              placeholder="اسمك"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={`form-input ${errorFields.includes('name') ? 'error' : ''}`}
-              animate={errorFields.includes('name') ? shakeAnimation : {}}
-            />
+          <motion.form 
+            className="order-form" 
+            onSubmit={handleSubmit}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <motion.input
+                ref={nameRef}
+                type="text"
+                placeholder="اسمك"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: '50px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ccc',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  marginBottom: '0.33rem',
+                  marginTop: '0.33rem',
+                  transition: 'all 0.2s',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+                animate={errorFields.includes('name') ? shakeAnimation : {}}
+              />
 
-            <motion.input
-              ref={phoneRef}
-              type="tel"
-              placeholder="رقم هاتفك"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={`form-input ${errorFields.includes('phone') ? 'error' : ''}`}
-              animate={errorFields.includes('phone') ? shakeAnimation : {}}
-            />
+              <motion.input
+                ref={phoneRef}
+                type="tel"
+                placeholder="رقم هاتفك"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: '50px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ccc',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  marginBottom: '0.33rem',
+                  transition: 'all 0.2s',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+                animate={errorFields.includes('phone') ? shakeAnimation : {}}
+              />
 
-            <motion.select
-              ref={wilayaRef}
-              value={wilaya}
-              onChange={(e) => setWilaya(e.target.value)}
-              className={`form-input ${errorFields.includes('wilaya') ? 'error' : ''}`}
-              animate={errorFields.includes('wilaya') ? shakeAnimation : {}}
-            >
-              <option value="">حدد ولايتك</option>
-              {wilayas.map((w, idx) => <option key={idx} value={w}>{w}</option>)}
-            </motion.select>
+              <CustomSelect
+                options={wilayas}
+                value={wilaya}
+                onChange={(val) => setWilaya(val)}
+                placeholder="حدد ولايتك"
+                isOpen={isWilayaOpen}
+                setIsOpen={setIsWilayaOpen}
+                dropdownRef={wilayaDropdownRef}
+                error={errorFields.includes('wilaya')}
+              />
 
-            <motion.select
-              ref={deliveryTypeRef}
-              value={deliveryType}
-              onChange={(e) => setDeliveryType(e.target.value)}
-              className={`form-input ${errorFields.includes('deliveryType') ? 'error' : ''}`}
-              animate={errorFields.includes('deliveryType') ? shakeAnimation : {}}
-            >
-              <option value="">حدد نوع التوصيل</option>
-              <option value="home">إلى منزلك</option>
-              <option value="office">إلى مكتب التوصيل</option>
-            </motion.select>
+              <CustomSelect
+                options={['إلى منزلك', 'إلى مكتب التوصيل']}
+                value={deliveryType === 'home' ? 'إلى منزلك' : deliveryType === 'office' ? 'إلى مكتب التوصيل' : ''}
+                onChange={(val) => setDeliveryType(val === 'إلى منزلك' ? 'home' : 'office')}
+                placeholder="حدد نوع التوصيل"
+                isOpen={isDeliveryTypeOpen}
+                setIsOpen={setIsDeliveryTypeOpen}
+                dropdownRef={deliveryTypeDropdownRef}
+                error={errorFields.includes('deliveryType')}
+              />
 
-            <motion.textarea
-              ref={addressRef}
-              placeholder="عنوانك الكامل"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className={`form-input ${errorFields.includes('address') ? 'error' : ''}`}
-              animate={errorFields.includes('address') ? shakeAnimation : {}}
-            />
+              <motion.textarea
+                ref={addressRef}
+                placeholder="عنوانك الكامل"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: '50px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ccc',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  marginBottom: '0.33rem',
+                  marginTop: '0.1rem',
+                  transition: 'all 0.2s',
+                  minHeight: '100px',
+                  resize: 'vertical',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+                animate={errorFields.includes('address') ? shakeAnimation : {}}
+              />
 
-            <motion.input
-              ref={quantityRef}
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value))}
-              className={`form-input ${errorFields.includes('quantity') ? 'error' : ''}`}
-              animate={errorFields.includes('quantity') ? shakeAnimation : {}}
-            />
+              <motion.input
+                ref={quantityRef}
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: '50px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ccc',
+                  fontSize: '1rem',
+                  marginTop: '0.1rem',
+                  outline: 'none',
+                  transition: 'all 0.2s',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+                animate={errorFields.includes('quantity') ? shakeAnimation : {}}
+              />
+            </div>
 
-            {/* Blend Container */}
-            {/* Blend Container */}
-{blend && (
-  <motion.div >
-    <p className='blendname' style={{
-    
-    padding: '10px',
-    borderRadius: '50px',
-    background: 'rgba(255, 255, 255, 0.3)',
-    color: '#ccc',            // ✅ Text color applied
-    fontWeight: '500',
-    textAlign: 'center'
-  }}>{blend}</p>
-  </motion.div>
-)}
+            {blend && (
+              <motion.div 
+                style={{
+                  marginTop: '0.25rem',
+                  padding: '0.75rem',
+                  borderRadius: '30px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                <p style={{
+                  margin: 0,
+                  color: '#ccc',
+                  fontWeight: '500',
+                  fontSize: '1.1rem'
+                }}>
+                  {blend}
+                </p>
+              </motion.div>
+            )}
 
-{/* Price Container */}
-{blend && (
-  <motion.div style={{
-    marginTop: '15px',
-    padding: '10px',
-    borderRadius: '10px',
-    background: 'rgba(255, 255, 255, 0.4)',
-    color: '#ccc',            // ✅ Text color applied
-    textAlign: 'right'
-  }}>
-    <p>السعر: {productPrice} × {quantity} = {productTotal} دج</p>
-    <p>التوصيل: {deliveryFee} دج</p>
-    <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#ccc' }}>
-      المجموع الكلي: {finalTotal} دج
-    </p>
-  </motion.div>
-)}
+            {blend && (
+              <motion.div 
+                style={{
+                  padding: '1rem',
+                  borderRadius: '30px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '0.25rem',
+                  color: '#e5e7eb'
+                }}>
+                  <span>السعر:</span>
+                  <span>{productPrice} × {quantity} = {productTotal} دج</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '0.25rem',
+                  color: '#e5e7eb'
+                }}>
+                  <span>التوصيل:</span>
+                  <span>{deliveryFee} دج</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '0.5rem',
+                  paddingTop: '0.5rem',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#f8f9fa',
+                  fontWeight: '600',
+                  fontSize: '1.1rem'
+                }}>
+                  <span>المجموع الكلي:</span>
+                  <span>{finalTotal} دج</span>
+                </div>
+              </motion.div>
+            )}
 
-            {error && <p className="error-text">{error}</p>}
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '50px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                  color: '#fecaca',
+                  fontSize: '0.9rem',
+                  textAlign: 'center',
+                  border: 'none'
+                }}
+              >
+                {error}
+              </motion.div>
+            )}
 
-            {/* Submit Button */}
             <motion.button
               type="submit"
               disabled={loading}
-              className="submit-btn"
-              whileHover={{ scale: loading ? 1 : 1.05 }}
-              whileTap={{ scale: loading ? 1 : 0.95 }}
+              style={{
+                padding: '0.875rem',
+                borderRadius: '50px',
+                backgroundColor: loading ? '#4b5563' : 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                alignItems: 'center',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'none',
+                transition: 'all 0.2s',
+                marginTop: '0.5rem',
+                border: 'none'
+              }}
+              whileHover={{ scale: loading ? 1 : 1.03 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
             >
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {loading ? (
                   <motion.div
                     key="loader"
@@ -279,10 +515,23 @@ function OrderForm({ productName, blend }) {
                     animate={{ opacity: 1, rotate: 360 }}
                     exit={{ opacity: 0 }}
                     transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                    className="loader"
+                    style={{
+                      display: 'inline-block',
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid rgba(255, 255, 255, 0.3)',
+                      borderTopColor: 'white',
+                      borderRadius: '50%',
+                      margin: '0 auto'
+                    }}
                   />
                 ) : (
-                  <motion.span key="text" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <motion.span 
+                    key="text" 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     إرسال الطلب
                   </motion.span>
                 )}
@@ -290,10 +539,23 @@ function OrderForm({ productName, blend }) {
             </motion.button>
           </motion.form>
         ) : (
-          <motion.p key="success" className="success-message"
-            initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, type: 'spring' }}>
+          <motion.div 
+            key="success"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, type: 'spring' }}
+            style={{
+              padding: '1.5rem',
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderRadius: '50px',
+              textAlign: 'center',
+              color: '#a7f3d0',
+              fontSize: '1.1rem',
+              border: 'none'
+            }}
+          >
             ✅ تم إرسال الطلب بنجاح! سنتواصل معك قريبًا.
-          </motion.p>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>

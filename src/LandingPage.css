@@ -1,9 +1,21 @@
+.app-wrapper {
+  background-image: url('lolo.jpg'); /* ✅ Will work if CSS is global and used in public HTML */
+  background-size: 100%;
+  
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Tajawal', sans-serif;
+}
+
 .landing-container {
   text-align: center;
   padding: 100px 20px;
   color: #ccc;
   animation: fadeSlideUp 1s ease forwards;
-  background: rgba(255, 255, 255, 0.062);
+  background: rgba(255, 255, 255, 0.001);
   
 }
 
@@ -98,7 +110,7 @@ align-items: center;
 .back-button-container {
   display: flex;
   justify-content: flex-start;
-  
+  background-color: aqua;
   border-radius: 90px;
 }
 
