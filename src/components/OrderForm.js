@@ -279,10 +279,13 @@ function OrderForm({ productName, blend }) {
     >
       <h2 style={{ 
         textAlign: 'center', 
-        marginBottom: '1rem',
+        alignContent: 'center',
+        marginTop:'60px',
+        marginBottom: '-20px',
         color: '#ccc',
         fontSize: '1.5rem',
         fontWeight: '600'
+
       }}>
         قم بطلب تركيبتك الخاصة الآن
       </h2>
@@ -494,7 +497,7 @@ function OrderForm({ productName, blend }) {
               style={{
                 padding: '0.875rem',
                 borderRadius: '50px',
-                backgroundColor: loading ? '#4b5563' : 'rgba(255, 255, 255, 0.15)',
+                backgroundColor: loading ? '#666' : 'rgba(255, 255, 255, 0.15)',
                 color: 'white',
                 alignItems: 'center',
                 fontSize: '1rem',
@@ -502,7 +505,7 @@ function OrderForm({ productName, blend }) {
                 cursor: loading ? 'not-allowed' : 'none',
                 transition: 'all 0.2s',
                 marginTop: '0.5rem',
-                border: 'none'
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}
               whileHover={{ scale: loading ? 1 : 1.03 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}

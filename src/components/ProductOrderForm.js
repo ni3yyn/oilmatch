@@ -475,14 +475,15 @@ function ProductOrderForm({ productName, productPrice }) {
               style={{
                 padding: '0.875rem',
                 borderRadius: '50px',
-                backgroundColor: loading ? '#4b5563' : '#3b82f6',
+                backgroundColor: loading ? '#666' : 'rgba(255, 255, 255, 0.15)',
                 color: 'white',
+                alignItems: 'center',
                 fontSize: '1rem',
                 fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: loading ? 'not-allowed' : 'none',
                 transition: 'all 0.2s',
                 marginTop: '0.5rem',
-                border: 'none'
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}
               whileHover={{ scale: loading ? 1 : 1.03 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
