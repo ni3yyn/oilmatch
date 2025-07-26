@@ -14,7 +14,10 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         padding: '2rem',
         maxWidth: '320px', // Optimal reading width
         margin: '0 auto', // Center the container
-        textAlign: 'center' // Center all text
+        textAlign: 'center', // Center all text
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(20px)'
       }}
     >
       {/* Logo with delay */}
