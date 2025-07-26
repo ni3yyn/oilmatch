@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
 
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
@@ -49,12 +51,23 @@ function Quiz({ onQuizComplete }) {
       setDirection(1);
       setStep((prev) => prev + 1);
     } else {
-      const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
-      onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
+      setIsAnalyzing(true);
+      setAnalysisProgress(0);
+
+      const interval = setInterval(() => {
+        setAnalysisProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
+              onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
+            }, 500);
+          }
+          return Math.min(prev + 4, 100);
+        });
+      }, 150);
     }
   };
-
-  
 
   const determineBlend = ({ gender, climate, scalp, hairFall, issues, goal }) => {
     const keywords = [gender, climate, scalp];
@@ -112,7 +125,7 @@ function Quiz({ onQuizComplete }) {
   const motivationText = () => {
     switch (step) {
       case 1: return 'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.';
-      case 2: return 'المناخ يؤثر على رطوبة شعرك، دعنا نأخذ ذلك في الحسبان.';
+      case 2: return 'المناخ يؤثر على رطوبة شعرك.';
       case 3: return 'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.';
       case 4: return 'تساقط الشعر يحتاج مكونات فعالة للتقوية.';
       case 5: return 'علاج المشاكل مثل القشرة مهم قبل التغذية.';
@@ -125,72 +138,119 @@ function Quiz({ onQuizComplete }) {
 
   return (
     <div className="quiz-container glassy">
-      {/* Header */}
-      
+      {isAnalyzing ? (
+        <div className="analysis-screen">
+          <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+            🤖 جارٍ تحليل إجاباتك...
+          </motion.h2>
 
-      {/* Progress */}
-      <div className="progress-container">
-        <div className="oil-tube">
-          <div className="oil-fill" style={{ width: `${progress}%` }}>
-            <div className="oil-wave"></div>
-          </div>
-        </div>
-        <span className="progress-text">{progress}%</span>
-      </div>
-
-      {/* Animated Question */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={step}
-          initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <h3 className="quiz-title">{stepTitle()}</h3>
-          <p className="quiz-motivation">{motivationText()}</p>
-          <div className="options-grid">
-            {getOptions().map((option) => (
-              <motion.button
-                key={option}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleOptionClick(option)}
-                className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
-              >
-                {option}
-              </motion.button>
+          {/* AI Brain Animation */}
+          <motion.div
+            className="ai-brain"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
+          >
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="ai-dot"
+                initial={{ scale: 0 }}
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+              />
             ))}
+          </motion.div>
+
+          {/* Analysis Progress */}
+          <div className="analysis-bar-container">
+            <motion.div
+              className="analysis-wave"
+              animate={{ x: [0, 50, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <div className="analysis-bar">
+              <motion.div
+                className="analysis-progress"
+                style={{ width: `${analysisProgress}%` }}
+                animate={{
+                  background: [
+                    'linear-gradient(90deg, #06b6d4, #3b82f6)',
+                    'linear-gradient(90deg, #10b981, #6ee7b7)',
+                    'linear-gradient(90deg, #8b5cf6, #6366f1)',
+                  ],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              />
+            </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
 
-      <div className="quiz-navigation">
-      <button
-  className="quiz-btn"
-  onClick={() => {
-    if (step > 1) {
-      setDirection(-1);
-      setStep((prev) => prev - 1);
-    }
-  }}
-  disabled={step === 1}
->
-  ← رجوع
-</button>
+          <motion.p className="analysis-text">{analysisProgress}%</motion.p>
+        </div>
+      ) : (
+        <>
+          {/* Progress Bar */}
+          <div className="progress-container">
+            <div className="oil-tube">
+              <div className="oil-fill" style={{ width: `${progress}%` }}>
+                <div className="oil-wave"></div>
+              </div>
+            </div>
+            <span className="progress-text">{progress}%</span>
+          </div>
 
-<button
-  className="quiz-btn"
-  onClick={handleNext}
-  disabled={!currentSelection()}
->
-  {step < totalSteps ? 'التالي →' : 'النتيجة'}
-</button>
+          {/* Question & Options */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={step}
+              initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <h3 className="quiz-title">{stepTitle()}</h3>
+              <p className="quiz-motivation">{motivationText()}</p>
+              <div className="options-grid">
+                {getOptions().map((option) => (
+                  <motion.button
+                    key={option}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleOptionClick(option)}
+                    className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                  >
+                    {option}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
 
-</div>
+          {/* Navigation Buttons */}
+          <div className="quiz-navigation">
+            <button
+              className="quiz-btn"
+              onClick={() => {
+                if (step > 1) {
+                  setDirection(-1);
+                  setStep((prev) => prev - 1);
+                }
+              }}
+              disabled={step === 1}
+            >
+              ← رجوع
+            </button>
 
-      </div>
-    
+            <button
+              className="quiz-btn"
+              onClick={handleNext}
+              disabled={!currentSelection()}
+            >
+              {step < totalSteps ? 'التالي →' : 'النتيجة'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 

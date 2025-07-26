@@ -180,3 +180,172 @@
 .quiz-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.25);
 }
+
+/* Loading Overlay Styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.loading-content h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.loading-content p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* Analyzing Animation */
+.analyzing-animation {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.dot-flashing {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: #4CAF50;
+  animation: dotFlashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.dot-flashing::before {
+  left: -15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: #4CAF50;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: #4CAF50;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dotFlashing {
+  0% {
+    background-color: #4CAF50;
+  }
+  50%,
+  100% {
+    background-color: #e0f7e0;
+  }
+}
+
+/* Ad Styles */
+.ad-container {
+  width: 100%;
+  margin: 1rem 0;
+  min-height: 60px;
+}
+
+.top-ad {
+  margin-bottom: 2rem;
+}
+
+.bottom-ad {
+  margin-top: 2rem;
+}
+
+.ad-banner {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 1rem;
+  border-radius: 10px;
+  position: relative;
+  text-align: center;
+  border: 1px dashed #4CAF50;
+}
+
+.ad-banner p {
+  margin: 0;
+  color: #333;
+  font-weight: bold;
+}
+
+.close-ad {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.ad-placeholder {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px dashed #ccc;
+  color: #999;
+}
+
+/* Progress Bar Animation Fix */
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
