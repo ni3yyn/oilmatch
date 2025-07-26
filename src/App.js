@@ -34,7 +34,8 @@ function App() {
     if (view === 'matcher') {
       return (
         <div className="app-container">
-          
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6010052879824695"
+     crossorigin="anonymous"></script>
           <button onClick={() => setView('landing')} className="back-button">
   <FaHome />
 </button>
