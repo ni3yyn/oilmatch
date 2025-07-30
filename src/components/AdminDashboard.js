@@ -274,7 +274,7 @@ function AdminDashboard() {
   return (
     <div className="admin-dashboard-container">
       <div className="admin-header">
-        <h2>لوحة التحكم الإدارية</h2>
+        <h2>لوحة التحكم </h2>
         <button className="admin-logout-btn" onClick={handleLogout}>تسجيل الخروج</button>
       </div>
 
