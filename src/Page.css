@@ -1,0 +1,329 @@
+/* Base Styles */
+body {
+  font-family: 'Tajawal', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #ccc;
+  background-image: url('lolo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Floating Nav */
+.floating-nav {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.nav-toggle {
+  background: rgba(74, 144, 78, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-toggle:hover {
+  background: rgba(94, 184, 98, 0.8);
+  transform: scale(1.1);
+}
+
+.icon.rotate {
+  transform: rotate(45deg);
+}
+
+.nav-menu {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: rgba(40, 40, 40, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: #eee;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-size: 15px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-5px);
+}
+
+.nav-icon {
+  margin-right: 12px;
+  font-size: 18px;
+  color: #4CAF50;
+}
+
+/* Page Container Styles */
+.page-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  min-height: 80vh;
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.8s ease-out;
+}
+
+.page-container h1 {
+  color: #4CAF50;
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 2.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-container h2 {
+  color: #ddd;
+  margin-top: 30px;
+  font-size: 1.8rem;
+}
+
+.page-container p {
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+/* Contact Form */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  color: #eee;
+  font-size: 16px;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: #aaa;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #4CAF50;
+}
+
+.contact-form button {
+  background: rgba(74, 144, 78, 0.7);
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.contact-form button:hover {
+  background: rgba(94, 184, 98, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Oil Guide Cards */
+.oilgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.oilcard {
+  background: rgba(50, 50, 50, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.oilcard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.oilcard h3 {
+  color: #4CAF50;
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.oilcard ul {
+  padding-left: 20px;
+}
+
+.oilcard li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* Blog Posts */
+.blog-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.blog-post {
+  background: rgba(50, 50, 50, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.blog-post:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.blog-post h2 {
+  color: #4CAF50;
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.blog-post button {
+  background: rgba(74, 144, 78, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 15px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.blog-post button:hover {
+  background: rgba(94, 184, 98, 0.8);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .page-container {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 20px;
+  }
+  
+  .oil-grid,
+  .blog-posts {
+    grid-template-columns: 1fr;
+  }
+  
+  .floating-nav {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .nav-menu {
+    width: 200px;
+  }
+}
+
+/* Existing Styles (keep these as they were) */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.app-container {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.062);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Tajawal', sans-serif;
+  border-radius: 50px;
+  padding: 30px 40px;
+  width: fit-content;
+  max-width: 330px;
+  margin: 20px;
+  animation: fadeSlideUp 1s ease forwards;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ... (keep all your existing styles below this point) ... */

@@ -1,0 +1,114 @@
+/* Blog.css */
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .blog-subtitle {
+    color: #777;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .blog-posts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .blog-post {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .post-image-container {
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .post-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .post-title {
+    margin: 0 0 1rem;
+    font-size: 1.4rem;
+    color: #fff;
+  }
+  
+  .post-excerpt {
+    color: #ddd;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex: 1;
+  }
+  
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+  
+  .post-date {
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+  
+  .read-more-btn {
+    background: rgba(76, 175, 80, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  
+  .read-more-btn:hover {
+    background: rgba(76, 175, 80, 0.9);
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #4CAF50;
+    margin: 2rem auto;
+  }
+  
+  .empty-state {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 2rem;
+    color: #aaa;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .blog-posts {
+      grid-template-columns: 1fr;
+    }
+    
+    .page-container {
+      padding: 1rem;
+    }
+  }

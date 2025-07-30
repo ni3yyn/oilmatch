@@ -193,7 +193,7 @@ function ProductOrderForm({ productName, productPrice }) {
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '50px',
-            background: 'rgba(255, 255, 255, 0.1)',
+            background: 'rgba(255, 255, 255, 0.)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             color: '#ccc',
@@ -232,8 +232,8 @@ function ProductOrderForm({ productName, productPrice }) {
                 right: 0,
                 marginTop: '0.25rem',
                 borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                backdropFilter: 'blur(1.9px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
@@ -253,7 +253,7 @@ function ProductOrderForm({ productName, productPrice }) {
                   }}
                   style={{
                     padding: '0.75rem 1rem',
-                    cursor: 'pointer',
+                    cursor: 'none',
                     color: value === option ? '#ccc' : '#e6eaf0',
                     background: value === option ? 'e6eaf0' : 'transparent',
                     borderBottom: '1px solid rgba(255, 255, 255, 0.05)'

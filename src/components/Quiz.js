@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
@@ -19,7 +19,9 @@ function Quiz({ onQuizComplete }) {
 
   const oilsDB = [
     { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني", "معتدل", "أنثى"] },
-    { name: "زيت بذور اليقطين", tags: ["تكثيف", "تساقط", "ذكر", "معتدل"] },
+    { name: "زيت بذور اليقطين", tags: ["تكثيف", 
+
+"تساقط", "ذكر", "معتدل"] },
     { name: "زيت الأرغان", tags: ["جاف", "ترطيب", "تكثيف", "أنثى"] },
     { name: "زيت إكليل الجبل", tags: ["تطويل", "تقوية الجذور", "تساقط", "عادي"] },
     { name: "زيت النعناع", tags: ["دهني", "تقوية الجذور", "رطب", "ذكر"] },
@@ -31,7 +33,9 @@ function Quiz({ onQuizComplete }) {
     { name: "زيت الخزامى", tags: ["عادي", "مهدئ", "هرمونات", "أنثى"] },
     { name: "زيت الخروع الأسود", tags: ["تساقط", "تكثيف", "جاف"] },
     { name: "زيت اللوز الحلو", tags: ["ترطيب", "جاف", "أنثى"] },
-    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف", "حساسية", "أنثى"] },
+    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف", 
+
+"حساسية", "أنثى"] },
   ];
 
   const handleOptionClick = (value) => {
@@ -51,21 +55,21 @@ function Quiz({ onQuizComplete }) {
       setDirection(1);
       setStep((prev) => prev + 1);
     } else {
-      setIsAnalyzing(true);
-      setAnalysisProgress(0);
+      // Show loading screen
+      setLoading(true);
+      setProgress(0);
 
+      let counter = 0;
       const interval = setInterval(() => {
-        setAnalysisProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-              const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
-              onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
-            }, 500);
-          }
-          return Math.min(prev + 4, 100);
-        });
-      }, 150);
+        counter += 2;
+        if (counter <= 100) {
+          setProgress(counter);
+        } else {
+          clearInterval(interval);
+          const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
+          onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
+        }
+      }, 70);
     }
   };
 
@@ -75,6 +79,7 @@ function Quiz({ onQuizComplete }) {
     if (issues === 'قشرة') keywords.push("قشرة");
     if (issues === 'فطريات') keywords.push("فطريات");
     if (goal) keywords.push(goal);
+
 
     const scoredOils = oilsDB.map(oil => {
       const score = oil.tags.filter(tag => keywords.includes(tag)).length;
@@ -95,6 +100,7 @@ function Quiz({ onQuizComplete }) {
       case 5: return ['كلا', 'قشرة', 'فطريات'];
       case 6: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية الجذور'];
       default: return [];
+
     }
   };
 
@@ -119,13 +125,14 @@ function Quiz({ onQuizComplete }) {
       case 5: return 'هل لديك قشرة أو فطريات؟';
       case 6: return 'ما هو هدفك من الزيت؟';
       default: return '';
+
     }
   };
 
   const motivationText = () => {
     switch (step) {
       case 1: return 'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.';
-      case 2: return 'المناخ يؤثر على رطوبة شعرك.';
+      case 2: return 'المناخ يؤثر على رطوبة شعرك، دعنا نأخذ ذلك في الحسبان.';
       case 3: return 'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.';
       case 4: return 'تساقط الشعر يحتاج مكونات فعالة للتقوية.';
       case 5: return 'علاج المشاكل مثل القشرة مهم قبل التغذية.';
@@ -134,77 +141,28 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  const progress = Math.round((step / totalSteps) * 100);
+  const progressBar = Math.round((step / totalSteps) * 100);
 
   return (
     <div className="quiz-container glassy">
-      {isAnalyzing ? (
-        <div className="analysis-screen">
-          <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            🤖 جارٍ تحليل إجاباتك...
-          </motion.h2>
-
-          {/* AI Brain Animation */}
-          <motion.div
-            className="ai-brain"
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
-          >
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="ai-dot"
-                initial={{ scale: 0 }}
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-              />
-            ))}
-          </motion.div>
-
-          {/* Analysis Progress */}
-          <div className="analysis-bar-container">
-            <motion.div
-              className="analysis-wave"
-              animate={{ x: [0, 50, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <div className="analysis-bar">
-              <motion.div
-                className="analysis-progress"
-                style={{ width: `${analysisProgress}%` }}
-                animate={{
-                  background: [
-                    'linear-gradient(90deg, #06b6d4, #3b82f6)',
-                    'linear-gradient(90deg, #10b981, #6ee7b7)',
-                    'linear-gradient(90deg, #8b5cf6, #6366f1)',
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              />
-            </div>
-          </div>
-
-          <motion.p className="analysis-text">{analysisProgress}%</motion.p>
-        </div>
-      ) : (
+      {!loading ? (
         <>
-          {/* Progress Bar */}
           <div className="progress-container">
             <div className="oil-tube">
-              <div className="oil-fill" style={{ width: `${progress}%` }}>
+              <div className="oil-fill" style={{ width: `${progressBar}%` }}>
                 <div className="oil-wave"></div>
               </div>
             </div>
-            <span className="progress-text">{progress}%</span>
+            <span className="progress-text">{progressBar}%</span>
           </div>
 
-          {/* Question & Options */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={step}
               initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
+
               transition={{ duration: 0.25 }}
             >
               <h3 className="quiz-title">{stepTitle()}</h3>
@@ -225,7 +183,6 @@ function Quiz({ onQuizComplete }) {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Buttons */}
           <div className="quiz-navigation">
             <button
               className="quiz-btn"
@@ -249,6 +206,55 @@ function Quiz({ onQuizComplete }) {
             </button>
           </div>
         </>
+      ) : (
+
+        <div className="loading-overlay">
+          <div className="circle-loader">
+            <svg width="160" height="160" viewBox="0 0 120 120">
+              <circle
+                cx="60"
+                cy="60"
+                r="54"
+                stroke="rgba(0, 0, 0, 0)"
+                strokeWidth="8"
+                fill="none"
+              />
+              <motion.circle
+                cx="60"
+                cy="60"
+                r="54"
+                stroke="url(#gradient)"
+                strokeWidth="8"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray="339"
+                strokeDashoffset={339 - (progress / 100) * 339}
+                transition={{ duration: 0.3 }}
+                
+
+              />
+              <defs>
+                <linearGradient id="gradient" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stopColor="rgb(0, 94, 0)" />
+                  <stop offset="100%" stopColor="rgb(0, 60, 0)" />
+                </linearGradient>
+              </defs>
+              <text
+                x="50%"
+                y="50%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="20"
+                fill="#ccc"
+                fontFamily='Tajwal, sans serif'
+              >
+                {progress}%
+              </text>
+            </svg>
+            <p className="loading-text">جاري تحليل إجاباتك...</p>
+          </div>
+
+        </div>
       )}
     </div>
   );

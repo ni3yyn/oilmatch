@@ -141,18 +141,18 @@ function Store({ onGoHome }) {
                           className="product-img"
                           loading="lazy"
                         />
-                        <div className="product-name-wrapper">
-                          <div
-                            className={`product-name-inner ${
-                              product.name.length > 13 ? 'scroll' : ''
-                            }`}
-                          >
-                            {product.name}
+                        <div className="product-info">
+                          <div className="product-name-wrapper">
+                            <div className={`product-name-inner ${product.name.length > 13 ? 'scroll' : ''}`}>
+                              {product.name}
+                            </div>
                           </div>
+                          <p className="product-price">
+                            {product.displayPrice || `${product.price} DA`}
+                          </p>
                         </div>
-                        <p className="product-price">دج{product.price}</p> 
-                        
                       </motion.div>
+                    
                     ))
                   )}
                 </div>
