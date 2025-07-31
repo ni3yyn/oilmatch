@@ -16,54 +16,48 @@ const Footer = () => {
     >
       <div className="footer-content">
         <div className="footer-section">
-          <h3>Quick Links</h3>
+          <h3>روابط سريعة</h3>
           <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/store">Shop</Link></li>
-            <li><Link to="/quiz">Oil Matcher</Link></li>
-            <li><Link to="/oil-guide">Oil Guide</Link></li>
-            <li><Link to="/blog">Blog</Link></li>
+            <li><Link to="/">الرئيسية</Link></li>
+            <li><Link to="/store">المتجر</Link></li>
+            <li><Link to="/quiz">اختبار الزيت المناسب</Link></li>
+            <li><Link to="/oil-guide">دليل الزيوت</Link></li>
+            <li><Link to="/blog">المدونة</Link></li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h3>Information</h3>
+          <h3>روابط مهمة</h3>
           <ul>
-            <li><Link to="/about">About Us</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
-            <li><Link to="/privacy">Privacy Policy</Link></li>
-            <li><Link to="/terms">Terms & Conditions</Link></li>
+            <li><Link to="/about">شكون أنا</Link></li>
+            <li><Link to="/contact">تواصل معنا</Link></li>
+            <li><Link to="/privacy">سياسة الخصوصية</Link></li>
+            <li><Link to="/terms">شروط الإستخدام</Link></li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h3>Contact Us</h3>
+          <h3>اتصل بنا</h3>
           <ul className="contact-info">
-            <li><FaPhone /> +1 (234) 567-8900</li>
-            <li><FaEnvelope /> info@oilstore.com</li>
-            <li><FaMapMarkerAlt /> 123 Oil Street, Aroma City</li>
+            <li><FaPhone /> +2130792847564</li>
+            <li><FaEnvelope /> ni3yyn@gmail.com</li>
+            <li><FaMapMarkerAlt /> تيبازة، الجزائر</li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h3>Follow Us</h3>
+          <h3>تابعنا</h3>
           <div className="social-icons">
-            <a href="https://facebook.com" aria-label="Facebook"><FaFacebook /></a>
-            <a href="https://instagram.com" aria-label="Instagram"><FaInstagram /></a>
-            <a href="https://twitter.com" aria-label="Twitter"><FaTwitter /></a>
+            <a href="https://facebook.com/ni3yyn" aria-label="Facebook"><FaFacebook /></a>
+            <a href="https://instagram.com/xtra.takata" aria-label="Instagram"><FaInstagram /></a>
+            
           </div>
-          <div className="newsletter">
-            <p>Subscribe to our newsletter</p>
-            <form>
-              <input type="email" placeholder="Your email" />
-              <button type="submit">Subscribe</button>
-            </form>
-          </div>
+          
         </div>
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {currentYear} Your Oil Store. All rights reserved.</p>
+        <p>&copy; {currentYear} Oil Match. All rights reserved.</p>
       </div>
     </motion.footer>
   );

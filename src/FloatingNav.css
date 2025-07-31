@@ -9,7 +9,7 @@
 }
 
 .nav-toggle {
-  background: rgba(74, 144, 78, 0.7);
+  background: rgba(236, 241, 236, 0.041);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: white;
@@ -28,9 +28,9 @@
 }
 
 .nav-menu {
-  background: rgba(40, 40, 40, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  background: rgba(40, 40, 40, 0.3);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   padding: 15px;
@@ -38,7 +38,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 15px;
   transform-origin: bottom right;
 }
@@ -49,10 +49,11 @@
   padding: 10px 15px;
   color: #eee;
   text-decoration: none;
+  direction: rtl;
   border-radius: 12px;
   transition: all 0.2s ease;
   font-size: 15px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .nav-item:hover {

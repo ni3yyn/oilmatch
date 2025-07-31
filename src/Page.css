@@ -17,12 +17,13 @@ body {
   bottom: 30px;
   right: 30px;
   z-index: 1000;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px); /* iOS Safari */
+  background: rgba(255, 255, 255, 0);
 }
 
 .nav-toggle {
-  background: rgba(74, 144, 78, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  
   color: white;
   border: none;
   border-radius: 50%;
@@ -51,9 +52,7 @@ body {
   position: absolute;
   bottom: 70px;
   right: 0;
-  background: rgba(40, 40, 40, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   padding: 15px;
@@ -66,6 +65,9 @@ body {
 
 .nav-item {
   display: flex;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px); /* iOS Safari */
+  background: rgba(255, 255, 255, 0);
   align-items: center;
   padding: 10px 15px;
   color: #eee;
@@ -84,22 +86,10 @@ body {
   margin-right: 12px;
   font-size: 18px;
   color: #4CAF50;
+  
 }
 
-/* Page Container Styles */
-.page-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 30px;
-  min-height: 80vh;
-  background: rgba(30, 30, 30, 0.6);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeIn 0.8s ease-out;
-}
+
 
 .page-container h1 {
   color: #4CAF50;
@@ -155,7 +145,7 @@ body {
 }
 
 .contact-form button {
-  background: rgba(74, 144, 78, 0.7);
+  background: rgba(74, 144, 78, 0.37);
   color: white;
   padding: 15px;
   border: none;
@@ -171,88 +161,96 @@ body {
   transform: translateY(-2px);
 }
 
-/* Oil Guide Cards */
-.oilgrid {
+/* Oil Guide Specific Styles */
+.oil-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
-  margin-top: 40px;
+  margin: 40px 0;
 }
 
-.oilcard {
-  background: rgba(50, 50, 50, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+.oil-card {
+  background-color: rgba(8, 7, 7, 0.349);
+  border-radius: 30px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
-.oilcard:hover {
+.oil-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.oilcard h3 {
+.oil-card h3 {
   color: #4CAF50;
-  margin-top: 0;
   font-size: 1.5rem;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.oilcard ul {
-  padding-left: 20px;
+.oil-benefits {
+  background: #f1ecec00;
+  padding: 12px;
+  border-radius: 30px;
+  margin-bottom: 15px;
+  font-style: italic;
 }
 
-.oilcard li {
-  margin-bottom: 8px;
-  line-height: 1.6;
+.oil-card h4 {
+  color: #5a7247;
+  margin: 15px 0 10px;
+  font-size: 1.2rem;
+}
+
+.oil-uses {
+  list-style-type: none;
+  padding: 0;
+}
+
+.oil-uses li {
+  padding: 8px 0;
+  position: relative;
+  padding-right: 25px;
+}
+
+.oil-uses li:before {
+  content: "•";
+  color: #4CAF50;
+  font-size: 1.5rem;
+  position: absolute;
+  right: 0;
+}
+
+.safety-note {
+  background-color: #1d1a1248;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 40px;
+  border-left: 4px solid #ffc107;
+}
+
+.safety-note h3 {
+  color: #ff9800;
+  margin-top: 0;
+}
+
+.safety-note ul {
+  padding-right: 20px;
+}
+
+@media (max-width: 768px) {
+  .oil-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .oil-card {
+    padding: 15px;
+  }
 }
 
 /* Blog Posts */
-.blog-posts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
-}
 
-.blog-post {
-  background: rgba(50, 50, 50, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.blog-post:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.blog-post h2 {
-  color: #4CAF50;
-  margin-top: 0;
-  font-size: 1.5rem;
-}
-
-.blog-post button {
-  background: rgba(74, 144, 78, 0.7);
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 15px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 15px;
-}
-
-.blog-post button:hover {
-  background: rgba(94, 184, 98, 0.8);
-}
 
 /* Animations */
 @keyframes fadeIn {
@@ -327,3 +325,293 @@ body {
 }
 
 /* ... (keep all your existing styles below this point) ... */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  border: 0.5px solid #ddd;
+  
+  font-family: 'Tajawal', sans-serif;
+}
+
+.contact-form textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.contact-form button {
+  padding: 10px 15px;
+  color: white;
+  border: none;
+ 
+  cursor: none;
+}
+
+.success-message {
+  text-align: center;
+  padding: 20px;
+  
+ 
+}
+
+.error-message {
+  color: #d32f2f;
+  margin: 0;
+}
+
+/* Page.css */
+.page-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  min-height: 80vh;
+  border: 1px solid rgba(255, 255, 255, 0.226);
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  text-align: right; /* RTL for Arabic */
+  direction: rtl; /* RTL direction */
+  font-family: 'Tajawal', sans-serif; /* Arabic-friendly font */
+  transition: all 0.3s ease;
+  animation: fade-in 0.7s ease-in-out;
+}
+
+.page-container h1 {
+  color: #4CAF50;
+  margin-bottom: 25px;
+  font-size: 2.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-container h2 {
+  color: #4a8c4e;
+  margin-top: 30px;
+  font-size: 1.8rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.page-container p {
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.content-section {
+  background-color: rgba(255, 255, 255, 0);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.features-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.features-list li {
+  padding: 8px 0;
+  position: relative;
+  padding-right: 25px;
+}
+
+.features-list li:before {
+  content: "•";
+  color: #4CAF50;
+  font-size: 1.5rem;
+  position: absolute;
+  right: 0;
+}
+
+.contact-info {
+  background-color: #f8f8f800;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 15px;
+    margin: 20px auto;
+  }
+  
+  .page-container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .page-container h2 {
+    font-size: 1.5rem;
+  }
+}
+
+
+
+.blog-subtitle {
+  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 30px;
+  padding: 8px 15px;
+  margin: 0 auto 30px;
+  max-width: 500px;
+}
+
+.search-icon {
+  color: #4CAF50;
+  margin-right: 10px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.blog-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.blog-post {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-align: right;
+}
+
+.post-image-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.post-content {
+  padding: 20px;
+}
+
+.post-title {
+  color: #333;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  transition: color 0.3s ease;
+}
+
+.post-excerpt {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.post-date {
+  display: flex;
+  align-items: center;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.date-icon {
+  margin-right: 5px;
+  color: #4CAF50;
+}
+
+.read-more-btn {
+  background: #4CAF50;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+  background: #3e8e41;
+}
+
+.empty-state {
+  text-align: center;
+  grid-column: 1 / -1;
+  padding: 40px;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #4CAF50;
+  border-radius: 50%;
+  margin: 30px auto;
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .search-icon {
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+[dir="rtl"] .date-icon {
+  margin-left: 0;
+  margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+  .blog-posts {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-container {
+    padding: 20px;
+  }
+}

@@ -14,6 +14,7 @@ import Privacy from './components/Privacy';
 import Terms from './components/Terms';
 import OilGuide from './components/OilGuide';
 import Blog from './components/Blog';
+import { Link } from 'react-router-dom';
 import Footer from './components/Footer';
 import ArticleDetail from './components/ArticleDetail';
 import FloatingNav from './components/FloatingNav';
@@ -43,9 +44,9 @@ function App() {
     if (view === 'matcher') {
       return (
         <div className="app-container">
-          <button onClick={() => setView('landing')} className="back-button">
-            <FaHome />
-          </button>
+          <Link to="/" className="back-button">
+      <FaHome />
+    </Link>
           <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6010052879824695" crossOrigin="anonymous"></script>
           {!quizData ? (
             <div className="fade-in">

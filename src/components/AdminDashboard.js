@@ -29,29 +29,127 @@ function AdminDashboard() {
 
   const navigate = useNavigate();
 
+  // Analytics state
+  const [analytics, setAnalytics] = useState({
+    totalOrders: 0,
+    totalRevenue: 0,
+    deliveredOrders: 0,
+    deliveredRevenue: 0,
+    monthlyData: [],
+    popularProducts: []
+  });
+
   // Fetch all data
-  useEffect(() => {
-    const ordersUnsubscribe = onSnapshot(collection(db, 'orders'), (snapshot) => {
-      setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
-    const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
-      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
-    const articlesUnsubscribe = onSnapshot(
-      query(collection(db, 'articles'), orderBy('createdAt', 'desc')), 
-      (snapshot) => {
-        setArticles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+  // Move calculateAnalytics inside useEffect to avoid dependency
+useEffect(() => {
+  const calculateAnalytics = (ordersData) => {
+    const monthlyData = ordersData.reduce((acc, order) => {
+      const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+      const monthYear = `${date.getMonth()+1}/${date.getFullYear()}`;
+      
+      if (!acc[monthYear]) {
+        acc[monthYear] = {
+          month: date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' }),
+          orders: 0,
+          revenue: 0,
+          delivered: 0
+        };
       }
-    );
+      
+      acc[monthYear].orders++;
+      acc[monthYear].revenue += order.total || 0;
+      if (order.delivered) acc[monthYear].delivered++;
+      
+      return acc;
+    }, {});
+    
+    const productSales = {};
+    ordersData.forEach(order => {
+      order.cart?.forEach(item => {
+        productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+      });
+    });
+    
+    setAnalytics({
+      totalOrders: ordersData.length,
+      totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
+      deliveredOrders: ordersData.filter(o => o.delivered).length,
+      deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
+      monthlyData: Object.values(monthlyData).reverse(),
+      popularProducts: products
+        .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
+        .sort((a,b) => b.sales - a.sales)
+        .slice(0, 5)
+    });
+  };
 
-    return () => {
-      ordersUnsubscribe();
-      productsUnsubscribe();
-      articlesUnsubscribe();
-    };
-  }, []);
+  const ordersUnsubscribe = onSnapshot(collection(db, 'orders'), (snapshot) => {
+    const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setOrders(ordersData);
+    calculateAnalytics(ordersData); // Now this is safe to call
+  });
+
+  const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
+    setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+  });
+
+  const articlesUnsubscribe = onSnapshot(
+    query(collection(db, 'articles'), orderBy('createdAt', 'desc')), 
+    (snapshot) => {
+      setArticles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }
+  );
+
+  return () => {
+    ordersUnsubscribe();
+    productsUnsubscribe();
+    articlesUnsubscribe();
+  };
+}, [products]); // Only products remains as dependency
+
+  // Calculate analytics
+  const calculateAnalytics = (ordersData) => {
+    // Monthly data calculation
+    const monthlyData = ordersData.reduce((acc, order) => {
+      const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+      const monthYear = `${date.getMonth()+1}/${date.getFullYear()}`;
+      
+      if (!acc[monthYear]) {
+        acc[monthYear] = {
+          month: date.toLocaleString('ar-DZ', { month: 'long', year: 'numeric' }),
+          orders: 0,
+          revenue: 0,
+          delivered: 0
+        };
+      }
+      
+      acc[monthYear].orders++;
+      acc[monthYear].revenue += order.total || 0;
+      if (order.delivered) acc[monthYear].delivered++;
+      
+      return acc;
+    }, {});
+    
+    // Popular products
+    const productSales = {};
+    ordersData.forEach(order => {
+      order.cart?.forEach(item => {
+        productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+      });
+    });
+    
+    setAnalytics({
+      totalOrders: ordersData.length,
+      totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
+      deliveredOrders: ordersData.filter(o => o.delivered).length,
+      deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
+      monthlyData: Object.values(monthlyData).reverse(),
+      popularProducts: products
+        .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
+        .sort((a,b) => b.sales - a.sales)
+        .slice(0, 5)
+    });
+  };
 
   const handleLogout = async () => {
     try {
@@ -92,7 +190,6 @@ function AdminDashboard() {
     try {
       let thumbnailUrl = editingProduct?.thumbnail || '';
       
-      // Upload new thumbnail if provided
       if (thumbnailFile) {
         const thumbForm = new FormData();
         thumbForm.append('file', thumbnailFile);
@@ -106,7 +203,6 @@ function AdminDashboard() {
         thumbnailUrl = thumbRes.data.secure_url;
       }
 
-      // Upload additional images
       const uploadedImages = [...(editingProduct?.images || [])];
       if (additionalImages.length > 0) {
         for (const file of additionalImages) {
@@ -135,15 +231,12 @@ function AdminDashboard() {
       };
 
       if (editingProduct) {
-        // Update existing product
         await updateDoc(doc(db, 'products', editingProduct.id), productData);
       } else {
-        // Add new product
         productData.createdAt = new Date();
         await addDoc(collection(db, 'products'), productData);
       }
 
-      // Reset form
       resetProductForm();
       setShowProductModal(false);
     } catch (err) {
@@ -190,7 +283,6 @@ function AdminDashboard() {
     try {
       let imageUrl = editingArticle?.image || '';
       
-      // Upload new image if provided
       if (articleImage) {
         const imgForm = new FormData();
         imgForm.append('file', articleImage);
@@ -210,15 +302,12 @@ function AdminDashboard() {
       };
 
       if (editingArticle) {
-        // Update existing article
         await updateDoc(doc(db, 'articles', editingArticle.id), articleData);
       } else {
-        // Add new article
         articleData.createdAt = new Date();
         await addDoc(collection(db, 'articles'), articleData);
       }
 
-      // Reset form
       resetArticleForm();
       setShowArticleModal(false);
     } catch (err) {
@@ -274,7 +363,7 @@ function AdminDashboard() {
   return (
     <div className="admin-dashboard-container">
       <div className="admin-header">
-        <h2>لوحة التحكم </h2>
+        <h2>لوحة التحكم</h2>
         <button className="admin-logout-btn" onClick={handleLogout}>تسجيل الخروج</button>
       </div>
 
@@ -297,6 +386,37 @@ function AdminDashboard() {
         >
           المقالات
         </button>
+      </div>
+
+      {/* Analytics Section - Visible on all tabs */}
+      <div className="admin-analytics-section">
+        <h3>التحليلات والإحصائيات</h3>
+        
+        <div className="admin-stats-grid">
+          <div className="admin-stat-card">
+            <div className="admin-stat-value">{analytics.totalOrders}</div>
+            <div className="admin-stat-label">إجمالي الطلبات</div>
+          </div>
+          
+          <div className="admin-stat-card">
+            <div className="admin-stat-value">{analytics.deliveredOrders}</div>
+            <div className="admin-stat-label">طلبات مسلمة</div>
+          </div>
+          
+          <div className="admin-stat-card revenue">
+            <div className="admin-stat-value">
+              {analytics.totalRevenue.toLocaleString('ar-DZ')} دج
+            </div>
+            <div className="admin-stat-label">إجمالي الإيرادات</div>
+          </div>
+          
+          <div className="admin-stat-card revenue">
+            <div className="admin-stat-value">
+              {analytics.deliveredRevenue.toLocaleString('ar-DZ')} دج
+            </div>
+            <div className="admin-stat-label">إيرادات مسلمة</div>
+          </div>
+        </div>
       </div>
 
       {/* Orders Tab */}
@@ -339,6 +459,8 @@ function AdminDashboard() {
             <table className="admin-order-table">
               <thead>
                 <tr>
+                  <th>#</th>
+                  <th>وقت الطلب</th>
                   <th>الاسم</th>
                   <th>العنوان</th>
                   <th>الولاية</th>
@@ -347,14 +469,28 @@ function AdminDashboard() {
                   <th>المجموع</th>
                   <th>الهاتف</th>
                   <th>ملاحظة</th>
-                  <th>مؤكدة</th>
-                  <th>مسلمة</th>
+                  <th>تم التأكيد</th>
+                  <th>تم التسليم</th>
                   <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders().map(order => (
+                {filteredOrders().map((order, index) => (
                   <tr key={order.id} className={order.delivered ? 'admin-delivered-row' : ''}>
+                    <td>{orders.length - index}</td>
+                    <td>
+                      {order.createdAt?.toDate ? 
+                        new Date(order.createdAt.toDate()).toLocaleString('ar-DZ', {
+                          day: 'numeric',
+                          month: 'numeric',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          hour12: true
+                        }) : 
+                        '---'
+                      }
+                    </td>
                     <td>{order.name}</td>
                     <td>{order.address}</td>
                     <td>{order.wilaya || '---'}</td>
@@ -600,8 +736,8 @@ function AdminDashboard() {
                 <div className="admin-article-content">
                   <h3 className="admin-article-title">{article.title}</h3>
                   <p className="admin-article-date">
-                    {new Date(article.createdAt?.seconds * 1000).toLocaleDateString('ar-EG')}
-                    {article.updatedAt && ` (تم التحديث: ${new Date(article.updatedAt?.seconds * 1000).toLocaleDateString('ar-EG')})`}
+                    {new Date(article.createdAt?.seconds * 1000).toLocaleDateString('ar-DZ')}
+                    {article.updatedAt && ` (تم التحديث: ${new Date(article.updatedAt?.seconds * 1000).toLocaleDateString('ar-DZ')})`}
                   </p>
                   <p className="admin-article-preview">
                     {article.content.length > 150 

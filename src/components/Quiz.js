@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
+
+
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-
+  
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
   const [scalp, setScalp] = useState('');
@@ -144,10 +146,13 @@ function Quiz({ onQuizComplete }) {
   const progressBar = Math.round((step / totalSteps) * 100);
 
   return (
+    
     <div className="quiz-container glassy">
+      
       {!loading ? (
         <>
-          <div className="progress-container">
+          <div className="progress-container" >
+          
             <div className="oil-tube">
               <div className="oil-fill" style={{ width: `${progressBar}%` }}>
                 <div className="oil-wave"></div>

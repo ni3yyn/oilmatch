@@ -1,18 +1,116 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import '../Page.css';
 
 const Terms = () => {
   return (
     <div className="page-container">
-      <h1>Terms of Service</h1>
-      <p>Last updated: [Date]</p>
-      <p>By using our website and services, you agree to these terms and conditions.</p>
-      <h2>Use of Services</h2>
-      <p>Our oil matcher tool provides recommendations based on your inputs, but we cannot guarantee specific results.</p>
-      <h2>Product Information</h2>
-      <p>While we strive for accuracy, product descriptions and images may occasionally be incorrect.</p>
-      <h2>Limitation of Liability</h2>
-      <p>We are not liable for any indirect damages resulting from the use of our products or services.</p>
+      <Helmet>
+        <title>شروط الخدمة - متجر الزيوت الطبيعية</title>
+        <meta name="description" content="شروط وأحكام استخدام متجر الزيوت الطبيعية وخدماته" />
+        <meta name="keywords" content="شروط الخدمة, أحكام الاستخدام, متجر زيوت, سياسة المتجر" />
+      </Helmet>
+
+      <h1>شروط وأحكام الاستخدام</h1>
+      <p className="update-date">آخر تحديث: ١٠ رجب ١٤٤٥ هـ</p>
+
+      <div className="content-section">
+        <h2>القبول والشروط</h2>
+        <p>
+          بمجرد استخدامك لموقعنا أو خدماتنا، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي بند من هذه الشروط، يرجى عدم استخدام موقعنا.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>وصف الخدمة</h2>
+        <p>
+          يوفر متجر الزيوت الطبيعية:
+        </p>
+        <ul className="terms-list">
+          <li>أداة مطابقة الزيوت التي تقدم توصيات بناءً على إدخالاتك</li>
+          <li>متجر إلكتروني لشراء الزيوت الطبيعية</li>
+          <li>معلومات تعليمية عن استخدامات الزيوت</li>
+        </ul>
+        <p>
+          هذه التوصيات لأغراض إعلامية فقط ولا تضمن نتائج محددة.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>المنتجات والمعلومات</h2>
+        <p>
+          بينما نسعى لضمان دقة المعلومات:
+        </p>
+        <ul className="terms-list">
+          
+          <li>المواصفات عرضة للتغيير دون إشعار مسبق</li>
+          <li>الأسعار قد تتغير حسب العرض والطلب</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>الطلبات والشحن</h2>
+        <p>
+          <strong>طريقة الدفع:</strong> عند الإستلام
+        </p>
+        <p>
+          <strong>مدة الشحن:</strong> من 2 إلى 7 أيام
+        </p>
+        <p>
+          <strong>الإرجاع والاستبدال:</strong> يمكنك إرجاع المنتجات خلال 14 يومًا بشرط عدم فتح العبوة
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>الاستخدام المسموح</h2>
+        <p>يجب ألا تستخدم الموقع لأي من الأغراض التالية:</p>
+        <ul className="prohibited-list">
+          <li>أي نشاط غير قانوني</li>
+          <li>انتحال شخصية آخرين أو تزوير معلومات</li>
+          <li>إرسال محتوى ضار أو فيروسات</li>
+          <li>أي استخدام قد يعطل عمل الموقع</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>المسؤولية القانونية</h2>
+        <p>
+          لن نكون مسؤولين عن:
+        </p>
+        <ul className="liability-list">
+          <li>أي أضرار غير مباشرة ناتجة عن استخدام المنتجات</li>
+          <li>أي أخطاء في المعلومات الفنية حول الزيوت</li>
+          <li>التأخيرات في الشحن خارجة عن إرادتنا</li>
+        </ul>
+        <p>
+          ننصح دائمًا باستشارة مختص قبل استخدام الزيوت لأغراض علاجية.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>الملكية الفكرية</h2>
+        <p>
+          جميع محتويات الموقع من نصوص وصور وشعارات هي ملك حصري لمتجر الزيوت الطبيعية ويحظر نسخها أو إعادة استخدامها دون إذن كتابي.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>التعديلات على الشروط</h2>
+        <p>
+          نحتفظ بحق تعديل هذه الشروط في أي وقت، وسيتم نشر أي تغييرات على هذه الصفحة.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>اتصل بنا</h2>
+        <p>
+          للاستفسارات حول شروط الخدمة:
+          <br />
+          البريد الإلكتروني: legal@example.com
+          <br />
+          هاتف: +966112345678
+        </p>
+      </div>
     </div>
   );
 };

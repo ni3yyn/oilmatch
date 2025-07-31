@@ -5,6 +5,8 @@ import ProductOrderForm from './ProductOrderForm';
 import '../Store.css';
 import { FaHome } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+
 
 function Store({ onGoHome }) {
   const [products, setProducts] = useState([]);
@@ -15,6 +17,7 @@ function Store({ onGoHome }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const navigate = useNavigate();
 
   const PAGE_SIZE = 8;
 
@@ -53,7 +56,7 @@ function Store({ onGoHome }) {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }
 
   useEffect(() => {
     fetchProducts();
@@ -90,7 +93,7 @@ function Store({ onGoHome }) {
   return (
     <div className="store-wrapper">
       <div className="app-container glass">
-        <button onClick={onGoHome} className="back-button">
+        <button onClick={() => navigate('/')} className="back-button">
           <FaHome />
         </button>
 

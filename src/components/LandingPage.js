@@ -2,8 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import '../LandingPage.css';
 import logo from '../assets/logo.png';
+import { useNavigate } from 'react-router-dom';
+
+
 
 function LandingPage({ onChooseMatcher, onChooseStore }) {
+  const navigate = useNavigate();
   return (
     <motion.div 
       className="landing-container"
@@ -93,7 +97,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
             transition: 'all 0.2s'
           }}
           
-          onClick={onChooseMatcher}
+          onClick={() => navigate('/quiz')}
         >
           حاب الذكاء الاصطناعي يخيرلي
         </motion.button>
@@ -108,7 +112,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
             transition: 'all 0.2s'
           }}
           
-          onClick={onChooseStore}
+          onClick={() => navigate('/store')}
         >
           أنا نخير وش حبيت
         </motion.button>

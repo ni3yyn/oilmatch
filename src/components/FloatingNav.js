@@ -50,7 +50,7 @@ const FloatingNav = () => {
         whileTap={{ scale: 0.95 }}
         animate={{
           rotate: isOpen ? 45 : 0,
-          backgroundColor: isOpen ? 'rgba(94, 184, 98, 0.8)' : 'rgba(74, 144, 78, 0.7)'
+          backgroundColor: isOpen ? 'rgba(255, 255, 255, 0.01)' : 'rgba(255, 255, 255, 0.01)'
         }}
         transition={{ type: 'spring', stiffness: 300 }}
       >
@@ -67,15 +67,15 @@ const FloatingNav = () => {
             variants={navVariants}
           >
             {[
-              { icon: <FaHome />, text: 'Home', path: '/' },
-              { icon: <FaStore />, text: 'Store', path: '/store' },
-              { icon: <FaQuestionCircle />, text: 'Oil Matcher', path: '/quiz' },
-              { icon: <FaBook />, text: 'Oil Guide', path: '/oil-guide' },
-              { icon: <FaQuestionCircle />, text: 'About', path: '/about' },
-              { icon: <FaEnvelope />, text: 'Contact', path: '/contact' },
-              { icon: <FaFileAlt />, text: 'Privacy', path: '/privacy' },
-              { icon: <FaShieldAlt />, text: 'Terms', path: '/terms' },
-              { icon: <FaBlog />, text: 'Blog', path: '/blog' }
+              { icon: <FaHome />, text: 'الصفحة الرئيسة', path: '/' },
+              { icon: <FaStore />, text: 'المتجر', path: '/store' },
+              { icon: <FaQuestionCircle />, text: 'اختبار الشعر', path: '/quiz' },
+              { icon: <FaBook />, text: 'دليل الزيوت', path: '/oil-guide' },
+              { icon: <FaQuestionCircle />, text: 'شكون أنا', path: '/about' },
+              { icon: <FaEnvelope />, text: 'اتصل بنا', path: '/contact' },
+              { icon: <FaFileAlt />, text: 'سياسة الخصوصية', path: '/privacy' },
+              { icon: <FaShieldAlt />, text: 'شروط الإستخدام', path: '/terms' },
+              { icon: <FaBlog />, text: 'المدونة(مهمة جدا)', path: '/blog' }
             ].map((item, i) => (
               <motion.div
                 key={item.text}

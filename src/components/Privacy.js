@@ -1,18 +1,100 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import '../Page.css';
 
 const Privacy = () => {
   return (
     <div className="page-container">
-      <h1>Privacy Policy</h1>
-      <p>Last updated: [Date]</p>
-      <p>Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information.</p>
-      <h2>Information We Collect</h2>
-      <p>We may collect personal information such as your name, email address, and payment details when you use our services.</p>
-      <h2>How We Use Your Information</h2>
-      <p>We use your information to process orders, improve our services, and communicate with you.</p>
-      <h2>Data Security</h2>
-      <p>We implement security measures to protect your personal information.</p>
+      <Helmet>
+        <title>سياسة الخصوصية - متجر الزيوت الطبيعية</title>
+        <meta name="description" content="سياسة الخصوصية الخاصة بمتجر الزيوت الطبيعية توضح كيفية جمع واستخدام البيانات الشخصية" />
+        <meta name="keywords" content="سياسة الخصوصية, حماية البيانات, أمان المعلومات, متجر زيوت" />
+      </Helmet>
+
+      <h1>سياسة الخصوصية</h1>
+      <p className="update-date">آخر تحديث: ١٠ رجب ١٤٤٥ هـ</p>
+
+      <div className="content-section">
+        <h2>مقدمة</h2>
+        <p>
+          نرحب بكم في سياسة الخصوصية الخاصة بمتجر الزيوت الطبيعية. نحن نحرص على حماية خصوصيتكم وبياناتكم الشخصية، وهذه السياسة توضح كيفية جمعنا واستخدامنا لمعلوماتكم.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>البيانات التي نجمعها</h2>
+        <p>قد نجمع الأنواع التالية من المعلومات:</p>
+        <ul className="privacy-list">
+          <li>الاسم الكامل ومعلومات الاتصال</li>
+          <li>عنوان البريد الإلكتروني</li>
+          <li>عنوان الشحن والفوترة</li>
+          <li>معلومات الدفع (مع التأكيد أننا لا نخزن بيانات البطاقات الائتمانية)</li>
+          <li>سجل الطلبات والمعاملات</li>
+          <li>بيانات التصفح واستخدام الموقع</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>كيف نستخدم بياناتك</h2>
+        <p>نستخدم المعلومات التي نجمعها للأغراض التالية:</p>
+        <ul className="privacy-list">
+          <li>معالجة الطلبات وإتمام المعاملات</li>
+          <li>تحسين تجربة المستخدم وتطوير خدماتنا</li>
+          <li>الرد على الاستفسارات وطلبات الدعم الفني</li>
+          <li>إرسال تحديثات وعروض خاصة (بموافقتك)</li>
+          <li>تحليل استخدام الموقع لأغراض تحسين الأداء</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>حماية البيانات</h2>
+        <p>
+          نلتزم بتطبيق أعلى معايير الأمان لحماية بياناتك:
+        </p>
+        <ul className="privacy-list">
+          <li>تشفير البيانات أثناء النقل باستخدام تقنيات SSL</li>
+          <li>أنظمة حماية من الاختراق والوصول غير المصرح به</li>
+          <li>الوصول المحدود للبيانات الحساسة فقط للموظفين المصرح لهم</li>
+          <li>مراجعات دورية لسياسات الأمان</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>ملفات تعريف الارتباط (Cookies)</h2>
+        <p>
+          نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح، ويمكنك إدارة تفضيلاتك من خلال إعدادات المتصفح.
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>حقوقك</h2>
+        <p>بموجب القانون، لديك الحق في:</p>
+        <ul className="privacy-list">
+          <li>الوصول إلى بياناتك الشخصية</li>
+          <li>طلب تصحيح البيانات غير الدقيقة</li>
+          <li>طلب حذف بياناتك في حالات معينة</li>
+          <li>الاعتراض على معالجة بياناتك</li>
+          <li>طلب نسخة من بياناتك بصيغة قابلة للقراءة</li>
+        </ul>
+      </div>
+
+      <div className="content-section">
+        <h2>التغييرات على السياسة</h2>
+        <p>
+          نحتفظ بالحق في تحديث هذه السياسة، وسننشر أي تغييرات على هذه الصفحة مع تحديث تاريخ "آخر تحديث".
+        </p>
+      </div>
+
+      <div className="content-section">
+        <h2>اتصل بنا</h2>
+        <p>
+          للأسئلة حول سياسة الخصوصية، يرجى التواصل عبر:
+          <br />
+          البريد الإلكتروني: ni3yyn@gmail.com
+          <br />
+          هاتف: +213798483721
+        </p>
+      </div>
     </div>
   );
 };
