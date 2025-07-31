@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Quiz from './components/Quiz';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Result from './components/Result';
 import OrderForm from './components/OrderForm';
 import AdminLogin from './components/AdminLogin';
@@ -121,6 +122,7 @@ export default function AppWrapper() {
     <Router>
       <App />
       <Analytics />
+      <SpeedInsights />
       <Footer />
     </Router>
   );
