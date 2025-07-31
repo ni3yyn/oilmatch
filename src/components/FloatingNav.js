@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FaPlus, FaHome, FaStore, FaQuestionCircle, FaEnvelope, FaBook, FaFileAlt, FaShieldAlt, FaBlog } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import '../FloatingNav.css';
+import { TbDropletQuestion } from "react-icons/tb";
 
 const FloatingNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,7 +70,7 @@ const FloatingNav = () => {
             {[
               { icon: <FaHome />, text: 'الصفحة الرئيسة', path: '/' },
               { icon: <FaStore />, text: 'المتجر', path: '/store' },
-              { icon: <FaQuestionCircle />, text: 'اختبار الشعر', path: '/quiz' },
+              { icon: <TbDropletQuestion />, text: 'اختبار الزيت', path: '/quiz' },
               { icon: <FaBook />, text: 'دليل الزيوت', path: '/oil-guide' },
               { icon: <FaQuestionCircle />, text: 'شكون أنا', path: '/about' },
               { icon: <FaEnvelope />, text: 'اتصل بنا', path: '/contact' },
