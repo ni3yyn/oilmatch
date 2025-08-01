@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { initAnalytics, trackPageView, trackEvent } from '../analytics';
 
 
 
@@ -80,14 +79,7 @@ function Contact() {
           {error && <p className="error-message">{error}</p>}
           
           <button type="submit">إرسال</button>
-          <button 
-  onClick={() => {
-    trackEvent('User', 'Click', 'Premium Button');
-    // Your button logic
-  }}
->
-  Upgrade
-</button>
+          
           
         </form>
       )}

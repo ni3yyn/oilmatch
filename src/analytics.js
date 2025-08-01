@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga4';
 
-const TRACKING_ID = "G-XXXXXXXXXX"; // Replace with your Measurement ID
+const TRACKING_ID = "G-H5LQPSE4WC"; // Replace with your Measurement ID
 
 export const initAnalytics = () => {
   ReactGA.initialize(TRACKING_ID);

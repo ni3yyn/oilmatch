@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
-
-
 function Quiz({ onQuizComplete }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  
+
+  // Answers
   const [gender, setGender] = useState('');
   const [climate, setClimate] = useState('');
   const [scalp, setScalp] = useState('');
@@ -19,27 +18,25 @@ function Quiz({ onQuizComplete }) {
 
   const totalSteps = 6;
 
+  /** Enhanced Oil Database with Weighted Attributes **/
   const oilsDB = [
-    { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني", "معتدل", "أنثى"] },
-    { name: "زيت بذور اليقطين", tags: ["تكثيف", 
-
-"تساقط", "ذكر", "معتدل"] },
-    { name: "زيت الأرغان", tags: ["جاف", "ترطيب", "تكثيف", "أنثى"] },
-    { name: "زيت إكليل الجبل", tags: ["تطويل", "تقوية الجذور", "تساقط", "عادي"] },
-    { name: "زيت النعناع", tags: ["دهني", "تقوية الجذور", "رطب", "ذكر"] },
-    { name: "زيت الخروع", tags: ["تساقط", "تكثيف", "جاف", "ذكر", "أنثى"] },
-    { name: "زيت الحبة السوداء", tags: ["تطويل", "تساقط", "دهني", "ذكر"] },
-    { name: "زيت بذور العنب", tags: ["معتدل", "عادي", "مهدئ", "أنثى"] },
-    { name: "زيت النيم", tags: ["رطب", "فطريات", "قشرة"] },
-    { name: "زيت شجر الشاي", tags: ["دهني", "قشرة", "فطريات"] },
-    { name: "زيت الخزامى", tags: ["عادي", "مهدئ", "هرمونات", "أنثى"] },
-    { name: "زيت الخروع الأسود", tags: ["تساقط", "تكثيف", "جاف"] },
-    { name: "زيت اللوز الحلو", tags: ["ترطيب", "جاف", "أنثى"] },
-    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف", 
-
-"حساسية", "أنثى"] },
+    { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني"], weight: { "دهني": 4, "ترطيب": 2 } },
+    { name: "زيت بذور اليقطين", tags: ["تكثيف", "تساقط", "DHT"], weight: { "تساقط": 5, "DHT": 5 } },
+    { name: "زيت الأرغان", tags: ["ترطيب", "جاف"], weight: { "جاف": 5, "ترطيب": 4 } },
+    { name: "زيت إكليل الجبل", tags: ["تطويل", "تقوية", "تساقط", "DHT"], weight: { "تساقط": 4, "DHT": 4, "تقوية": 3 } },
+    { name: "زيت النعناع", tags: ["دهني", "انتعاش", "DHT"], weight: { "دهني": 3, "DHT": 2 } },
+    { name: "زيت الخروع", tags: ["تساقط", "تكثيف"], weight: { "تساقط": 4, "تكثيف": 4 } },
+    { name: "زيت الحبة السوداء", tags: ["تطويل", "تساقط"], weight: { "تساقط": 3, "تطويل": 3 } },
+    { name: "زيت بذور العنب", tags: ["معتدل"], weight: { "دهني": 1, "جاف": 1 } },
+    { name: "زيت النيم", tags: ["فطريات", "قشرة"], weight: { "فطريات": 5, "قشرة": 4 } },
+    { name: "زيت شجر الشاي", tags: ["قشرة", "فطريات"], weight: { "قشرة": 5, "فطريات": 4 } },
+    { name: "زيت الخزامى", tags: ["مهدئ"], weight: {} },
+    { name: "زيت الخروع الأسود", tags: ["تكثيف"], weight: { "تساقط": 4, "تكثيف": 4 } },
+    { name: "زيت اللوز الحلو", tags: ["ترطيب", "جاف"], weight: { "جاف": 3, "ترطيب": 2 } },
+    { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف"], weight: { "جاف": 4, "ترطيب": 3 } },
   ];
 
+  /** Handle Answer Selection **/
   const handleOptionClick = (value) => {
     switch (step) {
       case 1: setGender(value); break;
@@ -52,18 +49,18 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
+  /** Move to Next Step or Process Results **/
   const handleNext = () => {
     if (step < totalSteps) {
       setDirection(1);
       setStep((prev) => prev + 1);
     } else {
-      // Show loading screen
       setLoading(true);
       setProgress(0);
 
       let counter = 0;
       const interval = setInterval(() => {
-        counter += 2;
+        counter += 3;
         if (counter <= 100) {
           setProgress(counter);
         } else {
@@ -71,28 +68,44 @@ function Quiz({ onQuizComplete }) {
           const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
           onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
         }
-      }, 70);
+      }, 50);
     }
   };
 
+  /** Improved Scoring System **/
   const determineBlend = ({ gender, climate, scalp, hairFall, issues, goal }) => {
-    const keywords = [gender, climate, scalp];
-    if (hairFall === 'نعم') keywords.push("تساقط");
-    if (issues === 'قشرة') keywords.push("قشرة");
-    if (issues === 'فطريات') keywords.push("فطريات");
-    if (goal) keywords.push(goal);
+    let userConditions = [];
 
+    // Main conditions
+    if (hairFall === 'نعم') userConditions.push("تساقط");
+    if (issues === 'قشرة') userConditions.push("قشرة");
+    if (issues === 'فطريات') userConditions.push("فطريات");
+    if (goal) userConditions.push(goal);
+    if (scalp) userConditions.push(scalp);
+    if (climate) userConditions.push(climate);
 
-    const scoredOils = oilsDB.map(oil => {
-      const score = oil.tags.filter(tag => keywords.includes(tag)).length;
+    // Gender + Hair Fall → Add DHT factor
+    if (gender === 'ذكر' && hairFall === 'نعم') {
+      userConditions.push("DHT");
+    }
+
+    /** Calculate Weighted Score for Each Oil **/
+    const scores = oilsDB.map(oil => {
+      let score = 0;
+      for (const condition of userConditions) {
+        if (oil.weight[condition]) {
+          score += oil.weight[condition];
+        }
+      }
       return { ...oil, score };
     });
 
-    const sorted = scoredOils.sort((a, b) => b.score - a.score);
-    const selected = sorted.slice(0, 3).map(oil => oil.name);
-    return selected.join(', ');
+    // Sort oils by score and filter top matches
+    const sorted = scores.sort((a, b) => b.score - a.score);
+    return sorted.slice(0, 3).map(oil => oil.name).join(', ');
   };
 
+  /** Options per Step **/
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
@@ -100,12 +113,12 @@ function Quiz({ onQuizComplete }) {
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
       case 5: return ['كلا', 'قشرة', 'فطريات'];
-      case 6: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية الجذور'];
+      case 6: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية'];
       default: return [];
-
     }
   };
 
+  /** Current Selection **/
   const currentSelection = () => {
     switch (step) {
       case 1: return gender;
@@ -118,41 +131,38 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
+  /** Titles & Motivations **/
   const stepTitle = () => {
-    switch (step) {
-      case 1: return 'ما هو جنسك؟';
-      case 2: return 'كيف تصف المناخ في منطقتك؟';
-      case 3: return 'ما نوع فروة رأسك؟';
-      case 4: return 'هل تعاني من تساقط الشعر؟';
-      case 5: return 'هل لديك قشرة أو فطريات؟';
-      case 6: return 'ما هو هدفك من الزيت؟';
-      default: return '';
-
-    }
+    const titles = [
+      'ما هو جنسك؟',
+      'كيف تصف المناخ في منطقتك؟',
+      'ما نوع فروة رأسك؟',
+      'هل تعاني من تساقط الشعر؟',
+      'هل لديك قشرة أو فطريات؟',
+      'ما هو هدفك من الزيت؟'
+    ];
+    return titles[step - 1];
   };
 
   const motivationText = () => {
-    switch (step) {
-      case 1: return 'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.';
-      case 2: return 'المناخ يؤثر على رطوبة شعرك، دعنا نأخذ ذلك في الحسبان.';
-      case 3: return 'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.';
-      case 4: return 'تساقط الشعر يحتاج مكونات فعالة للتقوية.';
-      case 5: return 'علاج المشاكل مثل القشرة مهم قبل التغذية.';
-      case 6: return 'هدفك هو سر الوصفة المثالية لشعرك.';
-      default: return '';
-    }
+    const texts = [
+      'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.',
+      'المناخ يؤثر على رطوبة شعرك.',
+      'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.',
+      'تساقط الشعر يحتاج مكونات فعالة للتقوية.',
+      'علاج المشاكل مثل القشرة مهم قبل التغذية.',
+      'هدفك هو سر الوصفة المثالية لشعرك.'
+    ];
+    return texts[step - 1];
   };
 
   const progressBar = Math.round((step / totalSteps) * 100);
 
   return (
-    
     <div className="quiz-container glassy">
-      
       {!loading ? (
         <>
-          <div className="progress-container" >
-          
+          <div className="progress-container">
             <div className="oil-tube">
               <div className="oil-fill" style={{ width: `${progressBar}%` }}>
                 <div className="oil-wave"></div>
@@ -167,7 +177,6 @@ function Quiz({ onQuizComplete }) {
               initial={{ x: direction === 1 ? 100 : -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: direction === 1 ? -100 : 100, opacity: 0 }}
-
               transition={{ duration: 0.25 }}
             >
               <h3 className="quiz-title">{stepTitle()}</h3>
@@ -201,7 +210,6 @@ function Quiz({ onQuizComplete }) {
             >
               ← رجوع
             </button>
-
             <button
               className="quiz-btn"
               onClick={handleNext}
@@ -212,54 +220,45 @@ function Quiz({ onQuizComplete }) {
           </div>
         </>
       ) : (
-
         <div className="loading-overlay">
-          <div className="circle-loader">
-            <svg width="160" height="160" viewBox="0 0 120 120">
-              <circle
-                cx="60"
-                cy="60"
-                r="54"
-                stroke="rgba(0, 0, 0, 0)"
-                strokeWidth="8"
-                fill="none"
-              />
-              <motion.circle
-                cx="60"
-                cy="60"
-                r="54"
-                stroke="url(#gradient)"
-                strokeWidth="8"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray="339"
-                strokeDashoffset={339 - (progress / 100) * 339}
-                transition={{ duration: 0.3 }}
-                
-
-              />
-              <defs>
-                <linearGradient id="gradient" x1="0" y1="1" x2="1" y2="0">
-                  <stop offset="0%" stopColor="rgb(0, 94, 0)" />
-                  <stop offset="100%" stopColor="rgb(0, 60, 0)" />
-                </linearGradient>
-              </defs>
-              <text
-                x="50%"
-                y="50%"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fontSize="20"
-                fill="#ccc"
-                fontFamily='Tajwal, sans serif'
-              >
-                {progress}%
-              </text>
-            </svg>
-            <p className="loading-text">جاري تحليل إجاباتك...</p>
-          </div>
-
-        </div>
+  <div className="circle-loader improved-loader">
+    <div className="loader-background"></div>
+    <svg className="progress-ring" width="160" height="160" viewBox="0 0 160 160">
+      <defs>
+        <linearGradient id="loadingGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#3edc81" />
+          <stop offset="100%" stopColor="#0f803f" />
+        </linearGradient>
+      </defs>
+      <circle
+        className="progress-ring__background"
+        cx="80"
+        cy="80"
+        r="70"
+        stroke="rgba(255,255,255,0.1)"
+        strokeWidth="10"
+        fill="none"
+      />
+      <motion.circle
+        className="progress-ring__progress"
+        cx="80"
+        cy="80"
+        r="70"
+        stroke="url(#loadingGradient)"
+        strokeWidth="10"
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray="439"
+        strokeDashoffset={439 - (progress / 100) * 439}
+        style={{ filter: 'drop-shadow(0px 0px 6px #3edc81)' }}
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+      />
+    </svg>
+    <div className="progress-text-center">{progress}%</div>
+    <p className="loading-text">جاري تحليل إجاباتك...</p>
+  </div>
+</div>
       )}
     </div>
   );
