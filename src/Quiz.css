@@ -240,34 +240,105 @@
   color: #ccc;
 }
 
-.ai-messages {
-  margin-top: 20px;
-}
-
-.ai-messages p {
-  margin: 10px 0;
-  font-size: 1rem;
-  color: #555;
-}
-
 .loading-overlay {
   
-  background: rgba(0, 0, 0, 0);
+  background: rgba(255, 255, 255, 0);
   backdrop-filter: blur(10px);
   display: flex;
+  width: auto;
+  height: auto;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   z-index: 1000;
+  overflow: visible;
 }
 
 .circle-loader svg {
   transform: rotate(-0deg);
 }
 
-
-
 .improved-loader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px; 
+  overflow: visible;
+}
+
+.loader-background {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  
+  animation: pulse-bg 2s infinite ease-in-out;
+  z-index: -1;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  overflow: visible; 
+}
+
+@keyframes pulse-bg {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+.instagram-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 20px rgba(221, 42, 123, 0.8), 0 0 40px rgba(221, 42, 123, 0.4);
+  font-family: 'Tajawal', sans-serif;
+}
+
+/* Glow pulse effect */
+.instagram-btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.25) 10%, transparent 60%);
+  animation: glowPulse 2.5s infinite ease-in-out;
+  z-index: 0;
+}
+
+.instagram-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 30px rgba(221, 42, 123, 1), 0 0 60px rgba(221, 42, 123, 0.6);
+}
+
+.instagram-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reuse the glowPulse animation */
+@keyframes glowPulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.4; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.4; }
+}
+
+
+.enhanced-loader {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -277,34 +348,114 @@
 
 .loader-background {
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(81,192,91,0.1) 0%, rgba(0,0,0,0) 70%);
-  animation: pulse-bg 2s infinite ease-in-out;
+  background: radial-gradient(circle, rgba(81,192,91,0.15) 0%, rgba(0,0,0,0) 70%);
+  animation: pulse-bg 2.5s infinite ease-in-out;
   z-index: -1;
-}
-
-.progress-ring {
-  transform: rotate(-90deg);
 }
 
 .progress-text-center {
   position: absolute;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: bold;
   color: #fff;
-  text-shadow: 0px 0px 8px rgba(62,220,129,0.8);
+  text-shadow: 0px 0px 12px rgba(62,220,129,0.8);
 }
 
 @keyframes pulse-bg {
-  0% { transform: scale(0.95); opacity: 0.5; }
+  0% { transform: scale(0.9); opacity: 0.4; }
   50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.5; }
+  100% { transform: scale(0.9); opacity: 0.4; }
 }
 
 .loading-text {
   margin-top: 20px;
   color: #ccc;
   font-size: 1.1rem;
+}
+
+.ai-messages {
+  margin-top: 25px;
+  font-size: 1.1rem;
+  color: #f1f1f1;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Soft radial glow layers */
+.soft-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(81,192,91,0.35) 0%, rgba(0,0,0,0) 70%);
+  animation: glowPulse 4s infinite ease-in-out;
+  filter: blur(60px);
+  z-index: -2;
+}
+
+.soft-glow.second {
+  width: 350px;
+  height: 350px;
+  opacity: 0.5;
+  animation-delay: 2s;
+}
+
+/* Glow pulse animation */
+@keyframes glowPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+}
+
+.oil-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.oil-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fade-slide-up 0.6s ease;
+}
+
+.oil-item:last-child {
+  border-bottom: none;
+}
+
+.oil-icon {
+  font-size: 1.8rem;
+  margin-left: 12px;
+}
+
+.oil-text h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  color: #aef8c1;
+}
+
+.oil-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #eee;
+  line-height: 1.4;
+}
+
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
