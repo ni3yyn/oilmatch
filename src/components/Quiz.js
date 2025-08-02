@@ -16,57 +16,14 @@ function Quiz({ onQuizComplete }) {
   const [issues, setIssues] = useState('');
   const [goal, setGoal] = useState('');
 
-  const [locationError, setLocationError] = useState(false);
-  const [city, setCity] = useState('');
+  // Weather state
   const [isFetchingClimate, setIsFetchingClimate] = useState(false);
+  const [locationInfo, setLocationInfo] = useState('');
+  const [locationError, setLocationError] = useState(false);
+  const [showManualOptions, setShowManualOptions] = useState(false);
 
   const totalSteps = 6;
 
-  const API_KEY = 'bb086ec12341a0771a869beb72103dc6';
-
-  /** Get User Location for Climate **/
-  useEffect(() => {
-    if (step === 2 && !climate) {
-      if (navigator.geolocation) {
-        setIsFetchingClimate(true);
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              const { latitude, longitude } = position.coords;
-              const res = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=ar`
-              );
-              const data = await res.json();
-
-              if (data && data.main) {
-                setCity(data.name);
-                const humidity = data.main.humidity;
-                if (humidity >= 70) setClimate('رطب');
-                else if (humidity <= 40) setClimate('جاف');
-                else setClimate('معتدل');
-              } else {
-                setLocationError(true);
-              }
-            } catch (error) {
-              console.error('Weather fetch error:', error);
-              setLocationError(true);
-            } finally {
-              setIsFetchingClimate(false);
-            }
-          },
-          (error) => {
-            console.error('Geolocation error:', error);
-            setLocationError(true);
-            setIsFetchingClimate(false);
-          }
-        );
-      } else {
-        setLocationError(true);
-      }
-    }
-  }, [step]);
-
-  /** Enhanced Oil Database **/
   const oilsDB = [
     { name: "زيت الجوجوبا", tags: ["ترطيب", "دهني"], weight: { "دهني": 4, "ترطيب": 2 } },
     { name: "زيت بذور اليقطين", tags: ["تكثيف", "تساقط", "DHT"], weight: { "تساقط": 5, "DHT": 5 } },
@@ -97,7 +54,78 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  /** Move to Next Step **/
+  /** Fetch Climate Automatically **/
+  useEffect(() => {
+    if (step === 2 && !climate) {
+      setIsFetchingClimate(true);
+      setLocationError(false);
+      setShowManualOptions(false);
+
+      // Show manual after 8s if still loading
+      const timeout = setTimeout(() => {
+        if (isFetchingClimate) {
+          setShowManualOptions(true);
+        }
+      }, 8000);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          try {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            const weatherRes = await fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+            );
+            const weatherData = await weatherRes.json();
+
+            const city = weatherData.name || 'مدينتك';
+            const humidity = weatherData.main.humidity;
+
+            let climateType = 'معتدل';
+            if (humidity >= 70) climateType = 'رطب';
+            else if (humidity <= 40) climateType = 'جاف';
+
+            setLocationInfo(city);
+            setClimate(climateType);
+            setIsFetchingClimate(false);
+            clearTimeout(timeout);
+          } catch (err) {
+            console.error('Weather fetch error:', err);
+            setLocationError(true);
+            setShowManualOptions(true);
+            setIsFetchingClimate(false);
+            clearTimeout(timeout);
+          }
+        }, () => {
+          setLocationError(true);
+          setShowManualOptions(true);
+          setIsFetchingClimate(false);
+          clearTimeout(timeout);
+        });
+      } else {
+        setLocationError(true);
+        setShowManualOptions(true);
+        setIsFetchingClimate(false);
+        clearTimeout(timeout);
+      }
+    }
+  }, [step, climate]);
+
+  /** Current Selection **/
+  const currentSelection = () => {
+    switch (step) {
+      case 1: return gender;
+      case 2: return climate;
+      case 3: return scalp;
+      case 4: return hairFall;
+      case 5: return issues;
+      case 6: return goal;
+      default: return '';
+    }
+  };
+
+  /** Next Step **/
   const handleNext = () => {
     if (step < totalSteps) {
       setDirection(1);
@@ -128,9 +156,7 @@ function Quiz({ onQuizComplete }) {
     if (goal) userConditions.push(goal);
     if (scalp) userConditions.push(scalp);
     if (climate) userConditions.push(climate);
-    if (gender === 'ذكر' && hairFall === 'نعم') {
-      userConditions.push("DHT");
-    }
+    if (gender === 'ذكر' && hairFall === 'نعم') userConditions.push("DHT");
 
     const scores = oilsDB.map(oil => {
       let score = 0;
@@ -150,7 +176,7 @@ function Quiz({ onQuizComplete }) {
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
-      case 2: return ['جاف', 'رطب', 'معتدل'];
+      case 2: return ['جاف', 'رطب', 'معتدل']; // manual fallback
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
       case 5: return ['كلا', 'قشرة', 'فطريات'];
@@ -159,22 +185,10 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  const currentSelection = () => {
-    switch (step) {
-      case 1: return gender;
-      case 2: return climate;
-      case 3: return scalp;
-      case 4: return hairFall;
-      case 5: return issues;
-      case 6: return goal;
-      default: return '';
-    }
-  };
-
   const stepTitle = () => {
     const titles = [
       'ما هو جنسك؟',
-      'المناخ في منطقتك',
+      'كيف تصف المناخ في منطقتك؟',
       'ما نوع فروة رأسك؟',
       'هل تعاني من تساقط الشعر؟',
       'هل لديك قشرة أو فطريات؟',
@@ -186,7 +200,7 @@ function Quiz({ onQuizComplete }) {
   const motivationText = () => {
     const texts = [
       'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.',
-      'المناخ يؤثر على رطوبة شعرك، نحدده لك أو اختر يدوياً.',
+      'المناخ يؤثر على رطوبة شعرك. نحاول تحديده تلقائيًا لك.',
       'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.',
       'تساقط الشعر يحتاج مكونات فعالة للتقوية.',
       'علاج المشاكل مثل القشرة مهم قبل التغذية.',
@@ -222,22 +236,26 @@ function Quiz({ onQuizComplete }) {
               <p className="quiz-motivation">{motivationText()}</p>
 
               {step === 2 && (
-                <div className="climate-info">
-                  {isFetchingClimate && !locationError && (
-                    <p>جارِ تحديد مناخك بناءً على موقعك...</p>
-                  )}
-                  {city && climate && (
-                    <p>✅ تم التعرف على موقعك: <strong>{city}</strong> | المناخ: <strong>{climate}</strong></p>
+                <motion.div
+                  className="climate-status"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {isFetchingClimate && <p>جارٍ تحديد المناخ المتوقع...</p>}
+                  {!isFetchingClimate && locationInfo && climate && (
+                    <p><strong>{locationInfo}</strong> - المناخ المتوقع: <strong>{climate}</strong></p>
                   )}
                   {locationError && (
-                    <p style={{ color: '#ff6b6b' }}>تعذر تحديد المناخ، اختر يدوياً:</p>
+                    <p className="error-text">تعذر تحديد المناخ تلقائيًا. اختر يدويًا أدناه.</p>
                   )}
-                </div>
+                </motion.div>
               )}
 
-              <div className="options-grid">
-                {(step !== 2 || locationError) &&
-                  getOptions().map((option) => (
+              {/* Show options normally except step 2 where it's conditional */}
+              {(step !== 2 || showManualOptions || locationError) && (
+                <div className="options-grid">
+                  {getOptions().map((option) => (
                     <motion.button
                       key={option}
                       whileHover={{ scale: 1.05 }}
@@ -248,7 +266,8 @@ function Quiz({ onQuizComplete }) {
                       {option}
                     </motion.button>
                   ))}
-              </div>
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
 
@@ -276,69 +295,7 @@ function Quiz({ onQuizComplete }) {
         </>
       ) : (
         <div className="loading-overlay">
-          <div className="circle-loader enhanced-loader">
-            <div className="soft-glow"></div>
-            <div className="soft-glow second"></div>
-            <div className="loader-background"></div>
-            <svg className="progress-ring" width="180" height="180" viewBox="0 0 180 180">
-              <defs>
-                <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3edc81" />
-                  <stop offset="100%" stopColor="#0f803f" />
-                </linearGradient>
-              </defs>
-              <circle
-                className="progress-ring__background"
-                cx="90"
-                cy="90"
-                r="80"
-                stroke="rgba(255,255,255,0.08)"
-                strokeWidth="10"
-                fill="none"
-              />
-              <motion.circle
-                className="progress-ring__progress"
-                cx="90"
-                cy="90"
-                r="80"
-                stroke="url(#loadingGradient)"
-                strokeWidth="10"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray="502"
-                strokeDashoffset={502 - (progress / 100) * 502}
-                style={{ filter: 'drop-shadow(0px 0px 12px #3edc81)' }}
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-              />
-            </svg>
-            <div className="progress-text-center">{progress}%</div>
-            <div className="ai-messages">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={Math.floor(progress / 33)}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {progress < 33
-                    ? "تحليل فروة الرأس والمناخ..."
-                    : progress < 66
-                    ? "اختيار أفضل الزيوت لمشكلتك..."
-                    : "إنشاء التركيبة المثالية لشعرك..."}
-                </motion.p>
-              </AnimatePresence>
-            </div>
-            <a
-              href="https://www.instagram.com/ni3yyn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="instagram-btn"
-            >
-              تابعنا على إنستغرام
-            </a>
-          </div>
+          {/* Loading animation */}
         </div>
       )}
     </div>
