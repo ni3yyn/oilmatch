@@ -15,11 +15,8 @@ function Quiz({ onQuizComplete }) {
   const [hairFall, setHairFall] = useState('');
   const [issues, setIssues] = useState('');
   const [goal, setGoal] = useState('');
-
-  // New states for weather
   const [locationName, setLocationName] = useState('');
-  const [autoClimateMode, setAutoClimateMode] = useState(true);
-  const [isFetchingWeather, setIsFetchingWeather] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const totalSteps = 6;
 
@@ -41,43 +38,50 @@ function Quiz({ onQuizComplete }) {
     { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف"], weight: { "جاف": 4, "ترطيب": 3 } },
   ];
 
-  /** Fetch Weather Automatically **/
+  /** Fetch Location and Weather **/
   useEffect(() => {
-    if (step === 2 && autoClimateMode) {
-      setIsFetchingWeather(true);
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
-
-        // ✅ استخدم API مجاني مثل Open-Meteo
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
-
-        try {
-          const res = await fetch(url);
-          const data = await res.json();
-          const temp = data.current_weather.temperature;
-
-          let detectedClimate = 'معتدل';
-          if (temp <= 15) detectedClimate = 'جاف';
-          if (temp > 15 && temp <= 25) detectedClimate = 'معتدل';
-          if (temp > 25) detectedClimate = 'رطب';
-
-          setClimate(detectedClimate);
-
-          // اجلب اسم المنطقة
-          const locationRes = await fetch(
-            `https://geocode.maps.co/reverse?lat=${latitude}&lon=${longitude}`
-          );
-          const locationData = await locationRes.json();
-          setLocationName(locationData.address.city || locationData.address.town || 'منطقتك');
-
-        } catch (error) {
-          console.error('خطأ في جلب المناخ:', error);
-        } finally {
-          setIsFetchingWeather(false);
+    const fetchLocationAndClimate = async () => {
+      try {
+        if (!navigator.geolocation) {
+          console.error('المتصفح لا يدعم تحديد الموقع');
+          setIsLoadingLocation(false);
+          return;
         }
-      });
-    }
-  }, [step, autoClimateMode]);
+
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude } = pos.coords;
+
+          // Fetch city name in Arabic using BigDataCloud
+          const locationResponse = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
+          );
+          const locationData = await locationResponse.json();
+          const city = locationData.city || locationData.locality || locationData.principalSubdivision || 'غير محدد';
+          setLocationName(city);
+
+          // Fetch weather from Open-Meteo
+          const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+          );
+          const weatherData = await weatherResponse.json();
+
+          if (weatherData && weatherData.current_weather) {
+            const temp = weatherData.current_weather.temperature;
+            let detectedClimate = 'معتدل';
+            if (temp < 10) detectedClimate = 'جاف';
+            else if (temp > 25) detectedClimate = 'رطب';
+            setClimate(detectedClimate);
+          }
+          setIsLoadingLocation(false);
+        });
+      } catch (error) {
+        console.error('خطأ في جلب الموقع أو المناخ:', error);
+        setIsLoadingLocation(false);
+      }
+    };
+
+    fetchLocationAndClimate();
+  }, []);
 
   /** Handle Answer Selection **/
   const handleOptionClick = (value) => {
@@ -102,7 +106,7 @@ function Quiz({ onQuizComplete }) {
       setProgress(0);
       let counter = 0;
       const interval = setInterval(() => {
-        counter += 2;
+        counter += 2; // 2% every 100ms -> ~5 seconds
         if (counter <= 100) {
           setProgress(counter);
         } else {
@@ -124,7 +128,6 @@ function Quiz({ onQuizComplete }) {
     if (goal) userConditions.push(goal);
     if (scalp) userConditions.push(scalp);
     if (climate) userConditions.push(climate);
-
     if (gender === 'ذكر' && hairFall === 'نعم') {
       userConditions.push("DHT");
     }
@@ -143,11 +146,10 @@ function Quiz({ onQuizComplete }) {
     return sorted.slice(0, 3).map(oil => oil.name).join(', ');
   };
 
-  /** Options per Step **/
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
-      case 2: return autoClimateMode ? [] : ['جاف', 'رطب', 'معتدل'];
+      case 2: return ['جاف', 'رطب', 'معتدل'];
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
       case 5: return ['كلا', 'قشرة', 'فطريات'];
@@ -156,7 +158,6 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  /** Current Selection **/
   const currentSelection = () => {
     switch (step) {
       case 1: return gender;
@@ -169,7 +170,6 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
-  /** Titles & Motivations **/
   const stepTitle = () => {
     const titles = [
       'ما هو جنسك؟',
@@ -209,6 +209,16 @@ function Quiz({ onQuizComplete }) {
             <span className="progress-text">{progressBar}%</span>
           </div>
 
+          {step === 2 && (
+            <div className="location-info">
+              {isLoadingLocation ? (
+                <p>جارٍ تحديد موقعك والمناخ...</p>
+              ) : (
+                <p>المدينة: <strong>{locationName}</strong> | المناخ المقترح: <strong>{climate}</strong></p>
+              )}
+            </div>
+          )}
+
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={step}
@@ -219,32 +229,6 @@ function Quiz({ onQuizComplete }) {
             >
               <h3 className="quiz-title">{stepTitle()}</h3>
               <p className="quiz-motivation">{motivationText()}</p>
-
-              {step === 2 && (
-                <div className="climate-section">
-                  {autoClimateMode && !climate && (
-                    <p>جاري تحديد المناخ تلقائيًا بناءً على موقعك...</p>
-                  )}
-                  {autoClimateMode && climate && (
-                    <p>
-                      ✅ تم تحديد المناخ: <strong>{climate}</strong>
-                      {locationName && ` (الموقع: ${locationName})`}
-                    </p>
-                  )}
-                  {!autoClimateMode && (
-                    <p>اختر المناخ المناسب من الخيارات أدناه:</p>
-                  )}
-                  {autoClimateMode && (
-                    <button
-                      className="toggle-mode-btn"
-                      onClick={() => setAutoClimateMode(false)}
-                    >
-                      التحديد يدويًا
-                    </button>
-                  )}
-                </div>
-              )}
-
               <div className="options-grid">
                 {getOptions().map((option) => (
                   <motion.button
@@ -277,56 +261,14 @@ function Quiz({ onQuizComplete }) {
             <button
               className="quiz-btn"
               onClick={handleNext}
-              disabled={
-                (step === 2 && !climate) || !currentSelection()
-              }
+              disabled={!currentSelection()}
             >
               {step < totalSteps ? 'التالي →' : 'النتيجة'}
             </button>
           </div>
         </>
       ) : (
-        <div className="loading-overlay">
-          {/* Loader UI remains the same */}
-          <div className="circle-loader enhanced-loader">
-            <div className="soft-glow"></div>
-            <div className="soft-glow second"></div>
-            <div className="loader-background"></div>
-            <svg className="progress-ring" width="180" height="180" viewBox="0 0 180 180">
-              <defs>
-                <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3edc81" />
-                  <stop offset="100%" stopColor="#0f803f" />
-                </linearGradient>
-              </defs>
-              <circle
-                className="progress-ring__background"
-                cx="90"
-                cy="90"
-                r="80"
-                stroke="rgba(255,255,255,0.08)"
-                strokeWidth="10"
-                fill="none"
-              />
-              <motion.circle
-                className="progress-ring__progress"
-                cx="90"
-                cy="90"
-                r="80"
-                stroke="url(#loadingGradient)"
-                strokeWidth="10"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray="502"
-                strokeDashoffset={502 - (progress / 100) * 502}
-                style={{ filter: 'drop-shadow(0px 0px 12px #3edc81)' }}
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-              />
-            </svg>
-            <div className="progress-text-center">{progress}%</div>
-          </div>
-        </div>
+        <div className="loading-overlay">جارٍ إنشاء التركيبة المثالية...</div>
       )}
     </div>
   );
