@@ -176,7 +176,7 @@ function Quiz({ onQuizComplete }) {
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
-      case 2: return ['جاف', 'رطب', 'معتدل']; // manual fallback
+      case 2: return ['جاف', 'رطب', 'معتدل'];
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
       case 5: return ['كلا', 'قشرة', 'فطريات'];
@@ -235,25 +235,81 @@ function Quiz({ onQuizComplete }) {
               <h3 className="quiz-title">{stepTitle()}</h3>
               <p className="quiz-motivation">{motivationText()}</p>
 
-              {step === 2 && (
+              {step === 2 ? (
                 <motion.div
-                  className="climate-status"
+                  className="climate-container"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  {isFetchingClimate && <p>جارٍ تحديد المناخ المتوقع...</p>}
-                  {!isFetchingClimate && locationInfo && climate && (
-                    <p><strong>{locationInfo}</strong> - المناخ المتوقع: <strong>{climate}</strong></p>
+                  {isFetchingClimate && !showManualOptions && (
+                    <div className="climate-detection">
+                      <div className="climate-loader">
+                        <div className="climate-spinner"></div>
+                        <p>جاري تحديد موقعك والمناخ المحلي...</p>
+                      </div>
+                      <div className="climate-tip">
+                        <span>💡</span> نستخدم بيانات الطقس لتحديد أفضل زيت لشعرك في مناخك
+                      </div>
+                    </div>
                   )}
+                  
+                  {!isFetchingClimate && locationInfo && climate && (
+                    <div className="climate-success">
+                      <div className="climate-icon">🌍</div>
+                      <p>
+                        <strong>تم تحديد موقعك:</strong> {locationInfo}<br />
+                        <strong>نوع المناخ:</strong> {climate}
+                      </p>
+                      <button 
+                        className="climate-change-btn"
+                        onClick={() => {
+                          setClimate('');
+                          setShowManualOptions(true);
+                        }}
+                      >
+                        تغيير النتيجة
+                      </button>
+                    </div>
+                  )}
+                  
                   {locationError && (
-                    <p className="error-text">تعذر تحديد المناخ تلقائيًا. اختر يدويًا أدناه.</p>
+                    <div className="climate-error">
+                      <div className="climate-icon">⚠️</div>
+                      <p>تعذر تحديد موقعك تلقائيًا</p>
+                      <p className="error-reason">
+                        يرجى التأكد من تفعيل خدمات الموقع أو اختيار المناخ يدويًا
+                      </p>
+                    </div>
+                  )}
+                  
+                  {(showManualOptions || locationError) && (
+                    <motion.div
+                      className="climate-manual"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="climate-divider">
+                        <span>أو اختر يدويًا</span>
+                      </div>
+                      <div className="options-grid">
+                        {getOptions().map((option) => (
+                          <motion.button
+                            key={option}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleOptionClick(option)}
+                            className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                          >
+                            {option}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
                   )}
                 </motion.div>
-              )}
-
-              {/* Show options normally except step 2 where it's conditional */}
-              {(step !== 2 || showManualOptions || locationError) && (
+              ) : (
                 <div className="options-grid">
                   {getOptions().map((option) => (
                     <motion.button
@@ -295,10 +351,166 @@ function Quiz({ onQuizComplete }) {
         </>
       ) : (
         <div className="loading-overlay">
-          {/* Loading animation */}
-        </div>
-      )}
-    </div>
+
+  <div className="circle-loader enhanced-loader">{/* Animated radial glow layers */}
+
+<div className="soft-glow"></div>
+
+<div className="soft-glow second"></div>
+
+
+
+{/* Pulsating ripple background */}
+
+<div className="loader-background"></div>
+
+
+
+{/* SVG Circle */}
+
+<svg className="progress-ring" width="180" height="180" viewBox="0 0 180 180">
+
+  <defs>
+
+    <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+
+      <stop offset="0%" stopColor="#3edc81" />
+
+      <stop offset="100%" stopColor="#0f803f" />
+
+    </linearGradient>
+
+  </defs>
+
+  <circle
+
+    className="progress-ring__background"
+
+    cx="90"
+
+    cy="90"
+
+    r="80"
+
+    stroke="rgba(255,255,255,0.08)"
+
+    strokeWidth="10"
+
+    fill="none"
+
+  />
+
+  <motion.circle
+
+    className="progress-ring__progress"
+
+    cx="90"
+
+    cy="90"
+
+    r="80"
+
+    stroke="url(#loadingGradient)"
+
+    strokeWidth="10"
+
+    fill="none"
+
+    strokeLinecap="round"
+
+    strokeDasharray="502"
+
+    strokeDashoffset={502 - (progress / 100) * 502}
+
+    style={{ filter: 'drop-shadow(0px 0px 12px #3edc81)' }}
+
+    animate={{ rotate: 360 }}
+
+    transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+
+  />
+
+</svg>
+
+
+
+{/* Progress and AI Messages */}
+
+<div className="progress-text-center">{progress}%</div>
+
+<div className="ai-messages">
+
+  <AnimatePresence mode="wait">
+
+    <motion.p
+
+      key={Math.floor(progress / 33)}
+
+      initial={{ opacity: 0, y: 10 }}
+
+      animate={{ opacity: 1, y: 0 }}
+
+      exit={{ opacity: 0, y: -10 }}
+
+      transition={{ duration: 0.5 }}
+
+    >
+
+      {progress < 33
+
+        ? "تحليل فروة الرأس والمناخ..."
+
+        : progress < 66
+
+        ? "اختيار أفضل الزيوت لمشكلتك..."
+
+        : "إنشاء التركيبة المثالية لشعرك..."}
+
+    </motion.p>
+
+  </AnimatePresence>
+
+</div>
+
+<a
+
+href="https://www.instagram.com/ni3yyn"
+
+target="_blank"
+
+rel="noopener noreferrer"
+
+className="instagram-btn"
+
+> 
+
+<svg
+
+xmlns="http://www.w3.org/2000/svg"
+
+width="20"
+
+height="20"
+
+fill="white"
+
+viewBox="0 0 24 24"
+
+style={{ marginRight: '8px' }}
+
+> 
+
+<path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 2 .2 2.5.4.6.2 1 .5 1.5 1s.8.9 1 1.5c.2.5.3 1.3.4 2.5.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 2-.4 2.5-.2.6-.5 1-1 1.5s-.9.8-1.5 1c-.5.2-1.3.3-2.5.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-2-.2-2.5-.4-.6-.2-1-.5-1.5-1s-.8-.9-1-1.5c-.2-.5-.3-1.3-.4-2.5C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-2 .4-2.5.2-.6.5-1 1-1.5s.9-.8 1.5-1c.5-.2 1.3-.3 2.5-.4C8.4 2.2 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7 .1 5.7.2 4.7.4 3.9.8c-.9.3-1.6.8-2.4 1.6C.7 3.2.3 3.9 0 4.8c-.4.8-.6 1.8-.7 3-.1 1.3-.1 1.7-.1 5s0 3.7.1 5c.1 1.2.3 2.2.7 3 .3.9.8 1.6 1.6 2.4.8.8 1.5 1.3 2.4 1.6.8.4 1.8.6 3 .7 1.3.1 1.7.1 5 .1s3.7 0 5-.1c1.2-.1 2.2-.3 3-.7.9-.3 1.6-.8 2.4-1.6.8-.8 1.3-1.5 1.6-2.4.4-.8.6-1.8.7-3 .1-1.3.1-1.7.1-5s0-3.7-.1-5c-.1-1.2-.3-2.2-.7-3-.3-.9-.8-1.6-1.6-2.4-.8-.8-1.5-1.3-2.4-1.6-.8-.4-1.8-.6-3-.7C15.7 0 15.3 0 12 0z"/>
+
+<path d="M12 5.8A6.2 6.2 0 1 0 18.2 12 6.21 6.21 0 0 0 12 5.8zm0 10.2A4 4 0 1 1 16 12a4 4 0 0 1-4 4z"/>
+
+<circle cx="18.4" cy="5.6" r="1.44"/>
+
+  </svg>تابعنا على إنستغرام
+
+</a>  </div></div>)}
+
+</div>
   );
 }
 
