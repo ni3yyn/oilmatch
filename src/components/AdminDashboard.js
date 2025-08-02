@@ -83,11 +83,14 @@ useEffect(() => {
     });
   };
 
-  const ordersUnsubscribe = onSnapshot(collection(db, 'orders'), (snapshot) => {
-    const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setOrders(ordersData);
-    calculateAnalytics(ordersData); // Now this is safe to call
-  });
+  const ordersUnsubscribe = onSnapshot(
+    query(collection(db, 'orders'), orderBy('createdAt', 'desc')), 
+    (snapshot) => {
+      const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setOrders(ordersData);
+      calculateAnalytics(ordersData);
+    }
+  );
 
   const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
     setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -359,7 +362,7 @@ useEffect(() => {
       return statusMatch && searchMatch;
     });
   }, [orders, filteredStatus, searchTerm]);
-
+  
   return (
     <div className="admin-dashboard-container">
       <div className="admin-header">
