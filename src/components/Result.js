@@ -41,7 +41,7 @@ function Result({ blend }) {
   return (
     <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
       
-      <p className="result-intro">بناءً على إجاباتك، هاهي خلطتك:</p>
+      <h3 className="result-intro">:أحسنت! هاهي النتيجة</h3>
 
       <ul className="oil-list">
         {blendArray.map((oil, index) => (
