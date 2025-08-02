@@ -473,7 +473,7 @@ function Quiz({ onQuizComplete }) {
 
 <a
 
-href="https://www.instagram.com/ni3yyn"
+href="https://www.instagram.com/xtra.takata"
 
 target="_blank"
 

@@ -277,17 +277,18 @@ function OrderForm({ productName, blend }) {
         borderRadius: '12px',
       }}
     >
-      <h2 style={{ 
+      <h2 className="talab"
+      style={{ 
         textAlign: 'center', 
         alignContent: 'center',
-        marginTop:'60px',
+        marginTop:'13px',
         marginBottom: '-20px',
         color: '#ccc',
         fontSize: '1.5rem',
         fontWeight: '600'
 
       }}>
-        قم بطلب تركيبتك الخاصة الآن
+        !قم بطلب تركيبتك الآن
       </h2>
 
       <AnimatePresence>
