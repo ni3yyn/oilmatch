@@ -59,9 +59,11 @@ function Quiz({ onQuizComplete }) {
 
               setCity(cityName);
               // Map weather to hair climate type
-              if (temp <= 15) setClimate('جاف');
-              else if (temp >= 30) setClimate('رطب');
-              else setClimate('معتدل');
+              const humidity = data.main.humidity;
+if (humidity >= 70) setClimate('رطب');
+else if (humidity <= 40) setClimate('جاف');
+else setClimate('معتدل');
+
             }
           } catch (error) {
             console.error('Weather fetch error:', error);
