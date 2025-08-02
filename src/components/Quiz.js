@@ -15,10 +15,12 @@ function Quiz({ onQuizComplete }) {
   const [hairFall, setHairFall] = useState('');
   const [issues, setIssues] = useState('');
   const [goal, setGoal] = useState('');
-  const [locationName, setLocationName] = useState('');
-  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+
+  const [city, setCity] = useState('');
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   const totalSteps = 6;
+  const API_KEY = "bb086ec12341a0771a869beb72103dc6";
 
   /** Enhanced Oil Database with Weighted Attributes **/
   const oilsDB = [
@@ -38,56 +40,45 @@ function Quiz({ onQuizComplete }) {
     { name: "زيت الأفوكادو", tags: ["ترطيب", "جاف"], weight: { "جاف": 4, "ترطيب": 3 } },
   ];
 
-  /** Fetch Location and Weather **/
+  /** Fetch Weather and City **/
   useEffect(() => {
-    const fetchLocationAndClimate = async () => {
-      try {
-        if (!navigator.geolocation) {
-          console.error('المتصفح لا يدعم تحديد الموقع');
-          setIsLoadingLocation(false);
-          return;
-        }
+    if (step === 2 && !climate) {
+      setWeatherLoading(true);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=ar`
+            );
+            const data = await response.json();
+            if (data && data.weather) {
+              const description = data.weather[0].description;
+              const temp = data.main.temp;
+              const cityName = data.name;
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          const { latitude, longitude } = pos.coords;
-
-          // Fetch city name in Arabic using BigDataCloud
-          const locationResponse = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
-          );
-          const locationData = await locationResponse.json();
-          const city = locationData.city || locationData.locality || locationData.principalSubdivision || 'غير محدد';
-          setLocationName(city);
-
-          // Fetch weather from Open-Meteo
-          const weatherResponse = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
-          );
-          const weatherData = await weatherResponse.json();
-
-          if (weatherData && weatherData.current_weather) {
-            const temp = weatherData.current_weather.temperature;
-            let detectedClimate = 'معتدل';
-            if (temp < 10) detectedClimate = 'جاف';
-            else if (temp > 25) detectedClimate = 'رطب';
-            setClimate(detectedClimate);
+              setCity(cityName);
+              // Map weather to hair climate type
+              if (temp <= 15) setClimate('جاف');
+              else if (temp >= 30) setClimate('رطب');
+              else setClimate('معتدل');
+            }
+          } catch (error) {
+            console.error('Weather fetch error:', error);
+          } finally {
+            setWeatherLoading(false);
           }
-          setIsLoadingLocation(false);
         });
-      } catch (error) {
-        console.error('خطأ في جلب الموقع أو المناخ:', error);
-        setIsLoadingLocation(false);
+      } else {
+        setWeatherLoading(false);
       }
-    };
-
-    fetchLocationAndClimate();
-  }, []);
+    }
+  }, [step]);
 
   /** Handle Answer Selection **/
   const handleOptionClick = (value) => {
     switch (step) {
       case 1: setGender(value); break;
-      case 2: setClimate(value); break;
       case 3: setScalp(value); break;
       case 4: setHairFall(value); break;
       case 5: setIssues(value); break;
@@ -122,16 +113,20 @@ function Quiz({ onQuizComplete }) {
   const determineBlend = ({ gender, climate, scalp, hairFall, issues, goal }) => {
     let userConditions = [];
 
+    // Main conditions
     if (hairFall === 'نعم') userConditions.push("تساقط");
     if (issues === 'قشرة') userConditions.push("قشرة");
     if (issues === 'فطريات') userConditions.push("فطريات");
     if (goal) userConditions.push(goal);
     if (scalp) userConditions.push(scalp);
     if (climate) userConditions.push(climate);
+
+    // Gender + Hair Fall → Add DHT factor
     if (gender === 'ذكر' && hairFall === 'نعم') {
       userConditions.push("DHT");
     }
 
+    /** Calculate Weighted Score for Each Oil **/
     const scores = oilsDB.map(oil => {
       let score = 0;
       for (const condition of userConditions) {
@@ -142,14 +137,15 @@ function Quiz({ onQuizComplete }) {
       return { ...oil, score };
     });
 
+    // Sort oils by score and filter top matches
     const sorted = scores.sort((a, b) => b.score - a.score);
     return sorted.slice(0, 3).map(oil => oil.name).join(', ');
   };
 
+  /** Options per Step **/
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
-      case 2: return ['جاف', 'رطب', 'معتدل'];
       case 3: return ['دهني', 'جاف', 'عادي'];
       case 4: return ['نعم', 'لا'];
       case 5: return ['كلا', 'قشرة', 'فطريات'];
@@ -158,6 +154,7 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
+  /** Current Selection **/
   const currentSelection = () => {
     switch (step) {
       case 1: return gender;
@@ -170,10 +167,11 @@ function Quiz({ onQuizComplete }) {
     }
   };
 
+  /** Titles & Motivations **/
   const stepTitle = () => {
     const titles = [
       'ما هو جنسك؟',
-      'كيف تصف المناخ في منطقتك؟',
+      'نحدد المناخ تلقائيًا...',
       'ما نوع فروة رأسك؟',
       'هل تعاني من تساقط الشعر؟',
       'هل لديك قشرة أو فطريات؟',
@@ -185,7 +183,11 @@ function Quiz({ onQuizComplete }) {
   const motivationText = () => {
     const texts = [
       'اختيار الزيت يبدأ بفهم طبيعتك الأساسية.',
-      'المناخ يؤثر على رطوبة شعرك.',
+      weatherLoading
+        ? 'جارٍ تحديد المناخ في موقعك...'
+        : city
+        ? `الموقع: ${city} | المناخ: ${climate}`
+        : 'نحدد الموقع تلقائيًا لتحليل المناخ.',
       'نوع فروة الرأس يحدد مكونات الترطيب أو التنظيف.',
       'تساقط الشعر يحتاج مكونات فعالة للتقوية.',
       'علاج المشاكل مثل القشرة مهم قبل التغذية.',
@@ -208,16 +210,6 @@ function Quiz({ onQuizComplete }) {
             </div>
             <span className="progress-text">{progressBar}%</span>
           </div>
-
-          {step === 2 && (
-            <div className="location-info">
-              {isLoadingLocation ? (
-                <p>جارٍ تحديد موقعك والمناخ...</p>
-              ) : (
-                <p>المدينة: <strong>{locationName}</strong> | المناخ المقترح: <strong>{climate}</strong></p>
-              )}
-            </div>
-          )}
 
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -261,14 +253,16 @@ function Quiz({ onQuizComplete }) {
             <button
               className="quiz-btn"
               onClick={handleNext}
-              disabled={!currentSelection()}
+              disabled={!currentSelection() || (step === 2 && weatherLoading)}
             >
               {step < totalSteps ? 'التالي →' : 'النتيجة'}
             </button>
           </div>
         </>
       ) : (
-        <div className="loading-overlay">جارٍ إنشاء التركيبة المثالية...</div>
+        <div className="loading-overlay">
+          <p>جارٍ تجهيز نتائجك...</p>
+        </div>
       )}
     </div>
   );
