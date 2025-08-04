@@ -3,12 +3,12 @@ body {
   font-family: 'Tajawal', sans-serif;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  
   color: #ccc;
   background-image: url('lolo.jpg');
   background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background-position: fixed;
+  
 }
 
 /* Floating Nav */
@@ -298,14 +298,7 @@ body {
   }
 }
 
-/* Existing Styles (keep these as they were) */
-.app-wrapper {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Tajawal', sans-serif;
-}
+
 
 .app-container {
   backdrop-filter: blur(14px);

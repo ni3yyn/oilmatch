@@ -1,14 +1,4 @@
-.app-wrapper {
-  background-image: url('lolo.jpg'); /* ✅ Will work if CSS is global and used in public HTML */
-  background-size: 100%;
-  
-  background-position: center;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Tajawal', sans-serif;
-}
+
 
 .landing-container {
   backdrop-filter: blur(8px);

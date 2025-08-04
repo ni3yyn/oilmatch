@@ -710,3 +710,32 @@
 .oil-progress-end {
   stop-color: #0f803f;
 }
+
+/* Enhanced option button styling */
+.option-btn {
+  transition: all 0.3s ease;
+  transform-origin: center;
+  will-change: transform, box-shadow;
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+.quiz-btn {
+  transition: all 0.2s ease;
+  transform-origin: center;
+}
+
+/* Progress wave animation */
+.oil-wave {
+  animation: wave 2s ease-in-out infinite alternate;
+}
+
+@keyframes wave {
+  from { transform: translateX(-10px) scaleY(0.9); }
+  to { transform: translateX(10px) scaleY(1.1); }
+}
