@@ -126,10 +126,11 @@ function Quiz({ onQuizComplete }) {
   };
 
   /** Next Step **/
-  const handleNext = () => {
+   /** Next Step **/
+   const handleNext = () => {
     if (step < totalSteps) {
       setDirection(1);
-      setStep((prev) => prev + 1);
+      setStep(prev => prev + 1);
     } else {
       setLoading(true);
       setProgress(0);
@@ -141,7 +142,15 @@ function Quiz({ onQuizComplete }) {
         } else {
           clearInterval(interval);
           const blend = determineBlend({ gender, climate, scalp, hairFall, issues, goal });
-          onQuizComplete({ gender, climate, scalp, hairFall, issues, goal, blend });
+          onQuizComplete({ 
+            gender, 
+            climate, 
+            scalp, 
+            hairFall, 
+            issues, 
+            goal, 
+            blend: JSON.stringify(blend) // Stringify the blend array
+          });
         }
       }, 100);
     }
@@ -168,9 +177,27 @@ function Quiz({ onQuizComplete }) {
       return { ...oil, score };
     });
 
-    const sorted = scores.sort((a, b) => b.score - a.score);
-    return sorted.slice(0, 3).map(oil => oil.name).join(', ');
+    // Filter out oils with 0 score
+    const filtered = scores.filter(oil => oil.score > 0);
+    
+    // Sort by score descending
+    const sorted = filtered.sort((a, b) => b.score - a.score);
+    
+    // Take top 3 oils
+    const topOils = sorted.slice(0, 3);
+    
+    // Calculate total score for percentage calculation
+    const totalScore = topOils.reduce((sum, oil) => sum + oil.score, 0);
+    
+    // Calculate percentage for each oil
+    const blendWithPercentages = topOils.map(oil => ({
+      name: oil.name,
+      percentage: Math.round((oil.score / totalScore) * 100)
+    }));
+
+    return blendWithPercentages;
   };
+
 
   /** Options **/
   const getOptions = () => {

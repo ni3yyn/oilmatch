@@ -36,25 +36,55 @@ function Result({ blend }) {
     "زيت الأفوكادو": "🥑"
   };
 
-  const blendArray = blend.split(',').map(o => o.trim());
+  const blendArray = JSON.parse(blend);
 
   return (
     <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
-      
       <h3 className="result-intro">:أحسنت! هاهي النتيجة</h3>
 
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <linearGradient id="oilGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" className="oil-progress-start" />
+            <stop offset="100%" className="oil-progress-end" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <ul className="oil-list">
-        {blendArray.map((oil, index) => (
-          <li key={index} className="oil-item">
-            <span className="oil-icon">{icons[oil] || "🌿"}</span>
-            <div className="oil-text">
-              <h4>{oil}</h4>
-              <p>{descriptions[oil]}</p>
-            </div>
-          </li>
-        ))}
+        {blendArray.map((oil, index) => {
+          const offset = 100 - oil.percentage;
+          return (
+            <li key={index} className="oil-item">
+              <span className="oil-icon">{icons[oil.name] || "🌿"}</span>
+              <div className="oil-text">
+                <h4>{oil.name}</h4>
+                <p>{descriptions[oil.name]}</p>
+              </div>
+              <div className="circular-progress-container">
+                <svg viewBox="0 0 36 36" className="circular-progress-svg">
+                  <path
+                    className="circular-progress-track"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="circular-progress-fill"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                    style={{ '--progress-offset': offset }}
+                  />
+                </svg>
+                <div className="circular-percentage-text">
+                  {oil.percentage}%
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
-      
     </div>
   );
 }

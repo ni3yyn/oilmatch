@@ -167,9 +167,16 @@
 
 .admin-products-cell {
   max-width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.blend-item {
+  margin: 4px 0;
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .admin-checkbox {

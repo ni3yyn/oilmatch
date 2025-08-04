@@ -410,26 +410,31 @@ function OrderForm({ productName, blend }) {
             </div>
 
             {blend && (
-              <motion.div 
-                style={{
-                  marginTop: '0.25rem',
-                  padding: '0.75rem',
-                  borderRadius: '30px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  textAlign: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                <p style={{
-                  margin: 0,
-                  color: '#ccc',
-                  fontWeight: '500',
-                  fontSize: '1.1rem'
-                }}>
-                  {blend}
-                </p>
-              </motion.div>
-            )}
+  <motion.div 
+    style={{
+      marginTop: '0.25rem',
+      padding: '0.75rem',
+      borderRadius: '30px',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      textAlign: 'center',
+      border: '1px solid rgba(255, 255, 255, 0.2)'
+    }}
+  >
+    {JSON.parse(blend).map((oil, index) => (
+      <p 
+        key={index} 
+        style={{
+          margin: '0.5rem 0',
+          color: '#ccc',
+          fontWeight: '500',
+          fontSize: '1.1rem'
+        }}
+      >
+        {oil.name} - {oil.percentage}%
+      </p>
+    ))}
+  </motion.div>
+)}
 
             {blend && (
               <motion.div 

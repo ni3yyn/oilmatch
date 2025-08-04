@@ -19,25 +19,30 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         maxWidth: '320px', // Optimal reading width
         margin: '0 auto', // Center the container
         textAlign: 'center', // Center all text
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(20px)'
+        border: '0.5px solid rgba(255, 255, 255, 0.3)',
+        
       }}
     >
       {/* Logo with delay */}
       <motion.img 
-        src={logo} 
-        alt="Logo" 
-        className="logo"
-        style={{
-          width: '120px', // Fixed size for consistency
-          height: 'auto',
-          marginBottom: '2rem' // 8-point spacing system
-        }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
-      />
+  src={logo} 
+  alt="Logo" 
+  className="logo"
+  style={{
+    width: '250px',
+    height: 'auto',
+    overflow: 'visible',
+    marginBottom: '-10px',
+    marginTop: '-30px',
+    // Add these for the glow effect
+    filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))',
+    borderRadius: '50%', // Optional: if your logo is circular
+    
+  }}
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
+/>
 
       {/* Title */}
       <motion.h1 
@@ -89,12 +94,14 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
       >
         <motion.button 
           style={{
-            padding: '1rem 1.5rem',
+            padding: '0.9rem 1.5rem',
             fontSize: '1rem',
+            fontWeight: '400',
             borderRadius: '50px',
             cursor: 'none',
             width: '100%',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            border: '0.5px solid rgba(255, 255, 255, 0.3)'
           }}
           
           onClick={() => navigate('/quiz')}
@@ -104,12 +111,14 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
         
         <motion.button 
           style={{
-            padding: '1rem 1.5rem',
+            padding: '0.9rem 1.5rem',
             fontSize: '1rem',
+            fontWeight: '400',
             borderRadius: '50px',
             cursor: 'none',
             width: '100%',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            border: '0.5px solid rgba(255, 255, 255, 0.3)'
           }}
           
           onClick={() => navigate('/store')}

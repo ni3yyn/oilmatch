@@ -1,10 +1,50 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { db, auth } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../AdminDashboard.css';
+
+// Blend Display Component
+const BlendDisplay = ({ blend, quantity }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
+      <span 
+        className="blend-trigger"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {quantity}× خلطة زيوت ▼
+      </span>
+      
+      {isOpen && (
+        <div className="blend-popover">
+          {blend.map((oil, idx) => (
+            <div key={idx} className="blend-oil-item">
+              <span>{oil.name}</span>
+              <span>{oil.percentage}%</span>
+            </div>
+          ))}
+          <div className="blend-quantity">الكمية: {quantity}</div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('orders');
@@ -40,119 +80,74 @@ function AdminDashboard() {
   });
 
   // Fetch all data
-  // Move calculateAnalytics inside useEffect to avoid dependency
-useEffect(() => {
-  const calculateAnalytics = (ordersData) => {
-    const monthlyData = ordersData.reduce((acc, order) => {
-      const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
-      const monthYear = `${date.getMonth()+1}/${date.getFullYear()}`;
+  useEffect(() => {
+    const calculateAnalytics = (ordersData) => {
+      const monthlyData = ordersData.reduce((acc, order) => {
+        const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+        const monthYear = `${date.getMonth()+1}/${date.getFullYear()}`;
+        
+        if (!acc[monthYear]) {
+          acc[monthYear] = {
+            month: date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' }),
+            orders: 0,
+            revenue: 0,
+            delivered: 0
+          };
+        }
+        
+        acc[monthYear].orders++;
+        acc[monthYear].revenue += order.total || 0;
+        if (order.delivered) acc[monthYear].delivered++;
+        
+        return acc;
+      }, {});
       
-      if (!acc[monthYear]) {
-        acc[monthYear] = {
-          month: date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' }),
-          orders: 0,
-          revenue: 0,
-          delivered: 0
-        };
-      }
-      
-      acc[monthYear].orders++;
-      acc[monthYear].revenue += order.total || 0;
-      if (order.delivered) acc[monthYear].delivered++;
-      
-      return acc;
-    }, {});
-    
-    const productSales = {};
-    ordersData.forEach(order => {
-      order.cart?.forEach(item => {
-        productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+      const productSales = {};
+      ordersData.forEach(order => {
+        order.cart?.forEach(item => {
+          productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+        });
       });
-    });
-    
-    setAnalytics({
-      totalOrders: ordersData.length,
-      totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
-      deliveredOrders: ordersData.filter(o => o.delivered).length,
-      deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
-      monthlyData: Object.values(monthlyData).reverse(),
-      popularProducts: products
-        .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
-        .sort((a,b) => b.sales - a.sales)
-        .slice(0, 5)
-    });
-  };
-
-  const ordersUnsubscribe = onSnapshot(
-    query(collection(db, 'orders'), orderBy('createdAt', 'desc')), 
-    (snapshot) => {
-      const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setOrders(ordersData);
-      calculateAnalytics(ordersData);
-    }
-  );
-
-  const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
-    setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-  });
-
-  const articlesUnsubscribe = onSnapshot(
-    query(collection(db, 'articles'), orderBy('createdAt', 'desc')), 
-    (snapshot) => {
-      setArticles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }
-  );
-
-  return () => {
-    ordersUnsubscribe();
-    productsUnsubscribe();
-    articlesUnsubscribe();
-  };
-}, [products]); // Only products remains as dependency
-
-  // Calculate analytics
-  const calculateAnalytics = (ordersData) => {
-    // Monthly data calculation
-    const monthlyData = ordersData.reduce((acc, order) => {
-      const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
-      const monthYear = `${date.getMonth()+1}/${date.getFullYear()}`;
       
-      if (!acc[monthYear]) {
-        acc[monthYear] = {
-          month: date.toLocaleString('ar-DZ', { month: 'long', year: 'numeric' }),
-          orders: 0,
-          revenue: 0,
-          delivered: 0
-        };
-      }
-      
-      acc[monthYear].orders++;
-      acc[monthYear].revenue += order.total || 0;
-      if (order.delivered) acc[monthYear].delivered++;
-      
-      return acc;
-    }, {});
-    
-    // Popular products
-    const productSales = {};
-    ordersData.forEach(order => {
-      order.cart?.forEach(item => {
-        productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+      setAnalytics({
+        totalOrders: ordersData.length,
+        totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
+        deliveredOrders: ordersData.filter(o => o.delivered).length,
+        deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
+        monthlyData: Object.values(monthlyData).reverse(),
+        popularProducts: products
+          .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
+          .sort((a,b) => b.sales - a.sales)
+          .slice(0, 5)
       });
+    };
+
+    const ordersUnsubscribe = onSnapshot(
+      query(collection(db, 'orders'), orderBy('createdAt', 'desc')), 
+      (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setOrders(ordersData);
+        calculateAnalytics(ordersData);
+      }
+    );
+
+    const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
+      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-    
-    setAnalytics({
-      totalOrders: ordersData.length,
-      totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
-      deliveredOrders: ordersData.filter(o => o.delivered).length,
-      deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
-      monthlyData: Object.values(monthlyData).reverse(),
-      popularProducts: products
-        .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
-        .sort((a,b) => b.sales - a.sales)
-        .slice(0, 5)
-    });
-  };
+
+    const articlesUnsubscribe = onSnapshot(
+      query(collection(db, 'articles'), orderBy('createdAt', 'desc')), 
+      (snapshot) => {
+        setArticles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      }
+    );
+
+    return () => {
+      ordersUnsubscribe();
+      productsUnsubscribe();
+      articlesUnsubscribe();
+    };
+  }, [products]);
 
   const handleLogout = async () => {
     try {
@@ -228,7 +223,7 @@ useEffect(() => {
         description: prodDesc.trim(),
         thumbnail: thumbnailUrl,
         images: uploadedImages,
-        displayPrice: `${price} دج`,
+        displayPrice: `دج ${price}` ,
         searchName: prodName.toLowerCase().trim(),
         updatedAt: new Date()
       };
@@ -391,7 +386,7 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Analytics Section - Visible on all tabs */}
+      {/* Analytics Section */}
       <div className="admin-analytics-section">
         <h3>التحليلات والإحصائيات</h3>
         
@@ -503,9 +498,17 @@ useEffect(() => {
                       {!order.deliveryType && '---'}
                     </td>
                     <td className="admin-products-cell">
-                      {order.cart?.map((item, i) => (
-                        <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>
-                      ))}
+                      {order.cart?.map((item, i) => {
+                        if (item.name.startsWith('[')) {
+                          try {
+                            const blend = JSON.parse(item.name);
+                            return <BlendDisplay key={i} blend={blend} quantity={item.quantity} />;
+                          } catch (e) {
+                            return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
+                          }
+                        }
+                        return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
+                      })}
                     </td>
                     <td>{order.total} دج</td>
                     <td>{order.phone}</td>

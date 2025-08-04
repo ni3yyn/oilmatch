@@ -644,3 +644,69 @@
   overflow: hidden;
 }
 
+/* Circular Percentage Styles */
+/* Circular Progress Styles */
+.circular-progress-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin-left: 12px;
+}
+
+.circular-progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.circular-progress-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.circular-progress-fill {
+  fill: none;
+  stroke: url(#oilGradient);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform-origin: 50% 50%;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: progress-fill 1.5s ease-out forwards;
+}
+
+@keyframes progress-fill {
+  to {
+    stroke-dashoffset: var(--progress-offset);
+  }
+}
+
+.circular-percentage-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  opacity: 0;
+  animation: fade-in 1s ease-out 0.5s forwards;
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Oil Gradient */
+.oil-progress-start {
+  stop-color: #3edc81;
+}
+
+.oil-progress-end {
+  stop-color: #0f803f;
+}
