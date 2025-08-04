@@ -60,48 +60,75 @@ function Quiz({ onQuizComplete }) {
       setIsFetchingClimate(true);
       setLocationError(false);
       setShowManualOptions(false);
-
+  
       const timeout = setTimeout(() => {
         if (isFetchingClimate) {
           setShowManualOptions(true);
         }
-      }, 8000);
-
+      }, 5000); // Reduced from 8s to 5s
+  
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          try {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-
-            const weatherRes = await fetch(
-              `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
-            );
-            const weatherData = await weatherRes.json();
-
-            const city = weatherData.name || 'مدينتك';
-            const humidity = weatherData.main.humidity;
-
-            let climateType = 'معتدل';
-            if (humidity >= 70) climateType = 'رطب';
-            else if (humidity <= 40) climateType = 'جاف';
-
-            setLocationInfo(city);
-            setClimate(climateType);
-            setIsFetchingClimate(false);
-            clearTimeout(timeout);
-          } catch (err) {
-            console.error('Weather fetch error:', err);
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            try {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+  
+              // 1. First try: OpenWeatherMap
+              let weatherData = await fetchWeatherData(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+              );
+  
+              // 2. Fallback: WeatherAPI if OpenWeatherMap fails
+              if (!weatherData) {
+                weatherData = await fetchWeatherData(
+                  `https://api.weatherapi.com/v1/current.json?key=bb086ec12341a0771a869beb72103dc6
+                  &q=${lat},${lon}&lang=ar`
+                );
+              }
+  
+              if (weatherData) {
+                const city = weatherData.name || weatherData.location?.name || 'موقعك الحالي';
+                const humidity = weatherData.main?.humidity || weatherData.current?.humidity;
+                const temp = weatherData.main?.temp || weatherData.current?.temp_c;
+  
+                let climateType = 'معتدل';
+                if (humidity >= 70) {
+                  climateType = 'رطب';
+                } else if (humidity <= 40) {
+                  climateType = 'جاف';
+                }
+  
+                // Additional temperature-based check
+                if (temp > 30 && humidity < 50) {
+                  climateType = 'جاف'; // Hot and low humidity
+                } else if (temp < 10 && humidity > 70) {
+                  climateType = 'رطب'; // Cold and high humidity
+                }
+  
+                setLocationInfo(`${city} (${Math.round(temp)}°C)`);
+                setClimate(climateType);
+              } else {
+                throw new Error('No weather data received');
+              }
+            } catch (err) {
+              console.error('Weather fetch error:', err);
+              setLocationError(true);
+              setShowManualOptions(true);
+            } finally {
+              setIsFetchingClimate(false);
+              clearTimeout(timeout);
+            }
+          },
+          (err) => {
+            console.error('Geolocation error:', err);
             setLocationError(true);
             setShowManualOptions(true);
             setIsFetchingClimate(false);
             clearTimeout(timeout);
-          }
-        }, () => {
-          setLocationError(true);
-          setShowManualOptions(true);
-          setIsFetchingClimate(false);
-          clearTimeout(timeout);
-        });
+          },
+          { timeout: 4000 } // Geolocation timeout
+        );
       } else {
         setLocationError(true);
         setShowManualOptions(true);
@@ -110,6 +137,18 @@ function Quiz({ onQuizComplete }) {
       }
     }
   }, [step, climate]);
+  
+  // Helper function for weather API calls
+  async function fetchWeatherData(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      console.error('Fetch failed:', err);
+      return null;
+    }
+  }
 
   /** Current Selection **/
   const currentSelection = () => {
@@ -327,6 +366,7 @@ function Quiz({ onQuizComplete }) {
                         <strong>تم تحديد موقعك:</strong> {locationInfo}<br />
                         <strong>نوع المناخ:</strong> {climate}
                       </p>
+                      
                       <motion.button 
                         className="climate-change-btn"
                         whileHover={{ scale: 1.05 }}
