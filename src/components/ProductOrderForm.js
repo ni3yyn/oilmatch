@@ -432,18 +432,18 @@ function ProductOrderForm({ productName, productPrice }) {
                     color: '#e5e7eb'
                   }}>
                     <span>التوصيل:</span>
-                    <span>{deliveryFee} دج</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: '0.5rem',
-                    paddingTop: '0.5rem',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#f8f9fa',
-                    fontWeight: '600',
-                    fontSize: '1.1rem'
-                  }}>
+                  <span>{deliveryFee} دج</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '0.5rem',
+                  paddingTop: '0.5rem',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#f8f9fa',
+                  fontWeight: '600',
+                  fontSize: '1.1rem'
+                }}>
                     <span>المجموع الكلي:</span>
                     <span>{finalTotal} دج</span>
                   </div>

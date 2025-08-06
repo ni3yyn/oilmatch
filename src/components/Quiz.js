@@ -56,99 +56,48 @@ function Quiz({ onQuizComplete }) {
 
   /** Fetch Climate Automatically **/
   useEffect(() => {
-    if (step === 2 && !climate) {
-      setIsFetchingClimate(true);
-      setLocationError(false);
-      setShowManualOptions(false);
-  
-      const timeout = setTimeout(() => {
-        if (isFetchingClimate) {
-          setShowManualOptions(true);
-        }
-      }, 5000); // Reduced from 8s to 5s
-  
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            try {
-              const lat = pos.coords.latitude;
-              const lon = pos.coords.longitude;
-  
-              // 1. First try: OpenWeatherMap
-              let weatherData = await fetchWeatherData(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
-              );
-  
-              // 2. Fallback: WeatherAPI if OpenWeatherMap fails
-              if (!weatherData) {
-                weatherData = await fetchWeatherData(
-                  `https://api.weatherapi.com/v1/current.json?key=bb086ec12341a0771a869beb72103dc6
-                  &q=${lat},${lon}&lang=ar`
-                );
-              }
-  
-              if (weatherData) {
-                const city = weatherData.name || weatherData.location?.name || 'موقعك الحالي';
-                const humidity = weatherData.main?.humidity || weatherData.current?.humidity;
-                const temp = weatherData.main?.temp || weatherData.current?.temp_c;
-  
-                let climateType = 'معتدل';
-                if (humidity >= 70) {
-                  climateType = 'رطب';
-                } else if (humidity <= 40) {
-                  climateType = 'جاف';
-                }
-  
-                // Additional temperature-based check
-                if (temp > 30 && humidity < 50) {
-                  climateType = 'جاف'; // Hot and low humidity
-                } else if (temp < 10 && humidity > 70) {
-                  climateType = 'رطب'; // Cold and high humidity
-                }
-  
-                setLocationInfo(`${city} (${Math.round(temp)}°C)`);
-                setClimate(climateType);
-              } else {
-                throw new Error('No weather data received');
-              }
-            } catch (err) {
-              console.error('Weather fetch error:', err);
-              setLocationError(true);
-              setShowManualOptions(true);
-            } finally {
-              setIsFetchingClimate(false);
-              clearTimeout(timeout);
-            }
-          },
-          (err) => {
-            console.error('Geolocation error:', err);
-            setLocationError(true);
-            setShowManualOptions(true);
-            setIsFetchingClimate(false);
-            clearTimeout(timeout);
-          },
-          { timeout: 4000 } // Geolocation timeout
-        );
-      } else {
-        setLocationError(true);
-        setShowManualOptions(true);
-        setIsFetchingClimate(false);
-        clearTimeout(timeout);
-      }
+    if (step === 2 && !climate && !showManualOptions) {
+      detectClimate(); // Extract the detection logic to a separate function
     }
-  }, [step, climate]);
+  }, [step, climate, showManualOptions]);
   
-  // Helper function for weather API calls
-  async function fetchWeatherData(url) {
+  // New standalone function for climate detection
+  const detectClimate = async () => {
+    setIsFetchingClimate(true);
+    setLocationError(false);
+    setRetryCount(prev => prev + 1); // Track retry attempts
+  
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return await res.json();
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+      });
+  
+      const weatherRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+      );
+      
+      if (!weatherRes.ok) throw new Error('Weather API failed');
+      
+      const weatherData = await weatherRes.json();
+      const city = weatherData.name || 'موقعك الحالي';
+      const humidity = weatherData.main.humidity;
+  
+      let climateType = 'معتدل';
+      if (humidity >= 70) climateType = 'رطب';
+      else if (humidity <= 40) climateType = 'جاف';
+  
+      setLocationInfo(city);
+      setClimate(climateType);
     } catch (err) {
-      console.error('Fetch failed:', err);
-      return null;
+      console.error('Detection failed:', err);
+      setLocationError(true);
+    } finally {
+      setIsFetchingClimate(false);
     }
-  }
+  };
+  
+  // Add this state near your other state declarations
+  const [retryCount, setRetryCount] = useState(0);
 
   /** Current Selection **/
   const currentSelection = () => {
@@ -392,6 +341,22 @@ function Quiz({ onQuizComplete }) {
                       <p className="error-reason">
                         يرجى التأكد من تفعيل خدمات الموقع أو اختيار المناخ يدويًا
                       </p>
+                      <motion.button
+        className="retry-btn"
+        onClick={detectClimate}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        disabled={isFetchingClimate}
+      >
+        {isFetchingClimate ? (
+          <>
+            <span className="retry-spinner"></span>
+            جاري المحاولة مرة أخرى...
+          </>
+        ) : (
+          'إعادة المحاولة'
+        )}
+      </motion.button>
                     </motion.div>
                   )}
                   

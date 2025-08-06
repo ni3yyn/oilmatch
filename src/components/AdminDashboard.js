@@ -58,6 +58,7 @@ function AdminDashboard() {
   const [editingArticle, setEditingArticle] = useState(null);
   const [prodName, setProdName] = useState('');
   const [price, setPrice] = useState('');
+  const [discount, setDiscount] = useState(0);
   const [prodDesc, setProdDesc] = useState('');
   const [articleTitle, setArticleTitle] = useState('');
   const [articleContent, setArticleContent] = useState('');
@@ -75,6 +76,8 @@ function AdminDashboard() {
     totalRevenue: 0,
     deliveredOrders: 0,
     deliveredRevenue: 0,
+    discountRevenue: 0,
+    discountOrders: 0,
     monthlyData: [],
     popularProducts: []
   });
@@ -91,7 +94,8 @@ function AdminDashboard() {
             month: date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' }),
             orders: 0,
             revenue: 0,
-            delivered: 0
+            delivered: 0,
+            discountAmount: 0
           };
         }
         
@@ -99,14 +103,31 @@ function AdminDashboard() {
         acc[monthYear].revenue += order.total || 0;
         if (order.delivered) acc[monthYear].delivered++;
         
+        // Calculate discount amounts
+        order.cart?.forEach(item => {
+          if (item.discount && item.discount > 0) {
+            const discountAmount = item.price * item.quantity * (item.discount/100);
+            acc[monthYear].discountAmount += discountAmount;
+          }
+        });
+        
         return acc;
       }, {});
       
       const productSales = {};
+      let totalDiscountRevenue = 0;
+      let totalDiscountOrders = 0;
+      
       ordersData.forEach(order => {
+        let hasDiscount = false;
         order.cart?.forEach(item => {
           productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+          if (item.discount && item.discount > 0) {
+            totalDiscountRevenue += (item.price * item.quantity * item.discount/100);
+            hasDiscount = true;
+          }
         });
+        if (hasDiscount) totalDiscountOrders++;
       });
       
       setAnalytics({
@@ -114,6 +135,9 @@ function AdminDashboard() {
         totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
         deliveredOrders: ordersData.filter(o => o.delivered).length,
         deliveredRevenue: ordersData.filter(o => o.delivered).reduce((sum, order) => sum + (order.total || 0), 0),
+        discountRevenue: totalDiscountRevenue,
+        discountOrders: totalDiscountOrders,
+        discountPercentage: (totalDiscountOrders / ordersData.length) * 100,
         monthlyData: Object.values(monthlyData).reverse(),
         popularProducts: products
           .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
@@ -217,13 +241,22 @@ function AdminDashboard() {
         }
       }
 
+      
+
+      const discountedPrice = discount > 0 
+        ? Math.round(Number(price) * (1 - discount/100))
+        : Number(price);
+
       const productData = {
         name: prodName.trim(),
         price: Number(price),
+        discount: Number(discount) || 0,
+        discountedPrice,
         description: prodDesc.trim(),
         thumbnail: thumbnailUrl,
         images: uploadedImages,
-        displayPrice: `دج ${price}` ,
+        displayPrice: `${discountedPrice} دج`,
+        originalPrice: Number(price),
         searchName: prodName.toLowerCase().trim(),
         updatedAt: new Date()
       };
@@ -247,6 +280,7 @@ function AdminDashboard() {
   const resetProductForm = () => {
     setProdName('');
     setPrice('');
+    setDiscount(0);
     setProdDesc('');
     setThumbnailFile(null);
     setAdditionalImages([]);
@@ -256,7 +290,8 @@ function AdminDashboard() {
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     setProdName(product.name);
-    setPrice(product.price.toString());
+    setPrice(product.originalPrice?.toString() || product.price.toString());
+    setDiscount(product.discount || 0);
     setProdDesc(product.description || '');
     setShowProductModal(true);
   };
@@ -414,6 +449,20 @@ function AdminDashboard() {
             </div>
             <div className="admin-stat-label">إيرادات مسلمة</div>
           </div>
+
+          <div className="admin-stat-card discount">
+            <div className="admin-stat-value">
+              {analytics.discountRevenue.toLocaleString('ar-DZ')} دج
+            </div>
+            <div className="admin-stat-label">إجمالي الخصومات</div>
+          </div>
+
+          <div className="admin-stat-card discount">
+            <div className="admin-stat-value">
+              {Math.round(analytics.discountPercentage || 0)}%
+            </div>
+            <div className="admin-stat-label">نسبة الطلبات المخفضة</div>
+          </div>
         </div>
       </div>
 
@@ -465,6 +514,7 @@ function AdminDashboard() {
                   <th>طريقة التوصيل</th>
                   <th>المنتجات</th>
                   <th>المجموع</th>
+                  <th>الخصم</th>
                   <th>الهاتف</th>
                   <th>ملاحظة</th>
                   <th>تم التأكيد</th>
@@ -473,72 +523,96 @@ function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders().map((order, index) => (
-                  <tr key={order.id} className={order.delivered ? 'admin-delivered-row' : ''}>
-                    <td>{orders.length - index}</td>
-                    <td>
-                      {order.createdAt?.toDate ? 
-                        new Date(order.createdAt.toDate()).toLocaleString('ar-DZ', {
-                          day: 'numeric',
-                          month: 'numeric',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                          hour12: true
-                        }) : 
-                        '---'
-                      }
-                    </td>
-                    <td>{order.name}</td>
-                    <td>{order.address}</td>
-                    <td>{order.wilaya || '---'}</td>
-                    <td>
-                      {order.deliveryType === 'home' && 'المنزل'}
-                      {order.deliveryType === 'office' && 'مكتب البريد'}
-                      {!order.deliveryType && '---'}
-                    </td>
-                    <td className="admin-products-cell">
-                      {order.cart?.map((item, i) => {
-                        if (item.name.startsWith('[')) {
-                          try {
-                            const blend = JSON.parse(item.name);
-                            return <BlendDisplay key={i} blend={blend} quantity={item.quantity} />;
-                          } catch (e) {
-                            return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
-                          }
+                {filteredOrders().map((order, index) => {
+                  const orderDiscount = order.cart?.reduce((sum, item) => {
+                    return sum + (item.discount ? (item.price * item.quantity * item.discount/100) : 0);
+                  }, 0) || 0;
+                  
+                  return (
+                    <tr key={order.id} className={order.delivered ? 'admin-delivered-row' : ''}>
+                      <td>{orders.length - index}</td>
+                      <td>
+                        {order.createdAt?.toDate ? 
+                          new Date(order.createdAt.toDate()).toLocaleString('ar-DZ', {
+                            day: 'numeric',
+                            month: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                          }) : 
+                          '---'
                         }
-                        return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
-                      })}
-                    </td>
-                    <td>{order.total} دج</td>
-                    <td>{order.phone}</td>
-                    <td>{order.note || '---'}</td>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={!!order.confirmed}
-                        onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
-                        className="admin-checkbox"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={!!order.delivered}
-                        onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
-                        className="admin-checkbox"
-                      />
-                    </td>
-                    <td>
-                      <button 
-                        className="admin-delete-btn" 
-                        onClick={() => handleDeleteOrder(order.id)}
-                      >
-                        حذف
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>{order.name}</td>
+                      <td>{order.address}</td>
+                      <td>{order.wilaya || '---'}</td>
+                      <td>
+                        {order.deliveryType === 'home' && 'المنزل'}
+                        {order.deliveryType === 'office' && 'مكتب البريد'}
+                        {!order.deliveryType && '---'}
+                      </td>
+                      <td className="admin-products-cell">
+                        {order.cart?.map((item, i) => {
+                          if (item.name.startsWith('[')) {
+                            try {
+                              const blend = JSON.parse(item.name);
+                              return <BlendDisplay key={i} blend={blend} quantity={item.quantity} />;
+                            } catch (e) {
+                              return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
+                            }
+                          }
+                          return (
+                            <div key={i}>
+                              {item.name} - {item.quantity}×
+                              {item.discount > 0 ? (
+                                <>
+                                  <span className="original-price">{item.price} دج</span>
+                                  <span className="discounted-price">
+                                    {Math.round(item.price * (1 - item.discount/100))} دج
+                                  </span>
+                                  <span className="discount-badge">-{item.discount}%</span>
+                                </>
+                              ) : (
+                                <span>{item.price} دج</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </td>
+                      <td>{order.total} دج</td>
+                      <td className={orderDiscount > 0 ? 'discount-cell' : ''}>
+                        {orderDiscount > 0 ? `-${orderDiscount.toLocaleString('ar-DZ')} دج` : '---'}
+                      </td>
+                      <td>{order.phone}</td>
+                      <td>{order.note || '---'}</td>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={!!order.confirmed}
+                          onChange={() => handleCheckboxChange(order.id, 'confirmed', order.confirmed)}
+                          className="admin-checkbox"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={!!order.delivered}
+                          onChange={() => handleCheckboxChange(order.id, 'delivered', order.delivered)}
+                          className="admin-checkbox"
+                        />
+                      </td>
+                      <td>
+                        <button 
+                          className="admin-delete-btn" 
+                          onClick={() => handleDeleteOrder(order.id)}
+                        >
+                          حذف
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -564,6 +638,9 @@ function AdminDashboard() {
             {products.map(product => (
               <div key={product.id} className="admin-product-card">
                 <div className="admin-product-image-container">
+                  {product.discount > 0 && (
+                    <div className="admin-discount-badge">-{product.discount}%</div>
+                  )}
                   <img 
                     src={product.thumbnail} 
                     alt={product.name} 
@@ -576,7 +653,18 @@ function AdminDashboard() {
                 </div>
                 <div className="admin-product-info">
                   <h3 className="admin-product-title">{product.name}</h3>
-                  <p className="admin-product-price">{product.price} دج</p>
+                  <div className="admin-product-pricing">
+                    {product.discount > 0 ? (
+                      <>
+                        <span className="original-price">{product.originalPrice || product.price} دج</span>
+                        <span className="discounted-price">
+                          {product.discountedPrice || Math.round(product.price * (1 - product.discount/100))} دج
+                        </span>
+                      </>
+                    ) : (
+                      <span className="product-price">{product.price} دج</span>
+                    )}
+                  </div>
                   <p className="admin-product-desc">
                     {product.description?.length > 100 
                       ? `${product.description.substring(0, 100)}...` 
@@ -618,14 +706,32 @@ function AdminDashboard() {
                 </div>
                 
                 <div className="admin-form-group">
-                  <label className="admin-form-label">السعر *</label>
+                  <label className="admin-form-label">السعر الأصلي *</label>
                   <input
                     type="number"
+                    min="0"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     className="admin-form-input"
                     required
                   />
+                </div>
+                
+                <div className="admin-form-group">
+                  <label className="admin-form-label">نسبة الخصم (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={discount}
+                    onChange={(e) => setDiscount(e.target.value)}
+                    className="admin-form-input"
+                  />
+                  {discount > 0 && (
+                    <div className="price-preview">
+                      السعر بعد الخصم: {Math.round(Number(price) * (1 - discount/100))} دج
+                    </div>
+                  )}
                 </div>
                 
                 <div className="admin-form-group">

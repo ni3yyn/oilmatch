@@ -7,7 +7,6 @@ import { FaHome } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-
 function Store({ onGoHome }) {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,9 +16,11 @@ function Store({ onGoHome }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [zoomImage, setZoomImage] = useState(null);
   const navigate = useNavigate();
 
   const PAGE_SIZE = 8;
+  const skeletonItems = Array(PAGE_SIZE).fill(null);
 
   const fetchProducts = async (isLoadMore = false) => {
     try {
@@ -39,7 +40,6 @@ function Store({ onGoHome }) {
         const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   
         setProducts(prev => {
-          // ✅ Remove duplicates using Set
           const allProducts = [...prev, ...newProducts];
           const uniqueProducts = Array.from(new Map(allProducts.map(item => [item.id, item])).values());
           return uniqueProducts;
@@ -56,14 +56,12 @@ function Store({ onGoHome }) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Search filter
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -90,6 +88,22 @@ function Store({ onGoHome }) {
     });
   };
 
+  const handleImageClick = () => {
+    setZoomImage(
+      selectedProduct.images?.[currentImageIndex] || selectedProduct.thumbnail
+    );
+  };
+
+  const closeZoom = (e) => {
+    if (e.target === e.currentTarget) {
+      setZoomImage(null);
+    }
+  };
+
+  const calculateDiscountedPrice = (price, discount) => {
+    return Math.round(price * (1 - discount / 100));
+  };
+
   return (
     <div className="store-wrapper">
       <div className="app-container glass">
@@ -106,7 +120,7 @@ function Store({ onGoHome }) {
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.2 }}
             >
-              <h2 className="store-title"> المتجر</h2>
+              <h2 className="store-title">المتجر</h2>
               <input
                 type="text"
                 placeholder="🔍 ابحث عن منتج..."
@@ -115,57 +129,96 @@ function Store({ onGoHome }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
 
-              {/* Skeleton Loader */}
               {loading ? (
                 <div className="product-grid">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="product-card skeleton"></div>
+                  {skeletonItems.map((_, index) => (
+                    <motion.div
+                      key={`skeleton-${index}`}
+                      className="product-card skeleton"
+                      initial={{ opacity: 0.5, y: 20 }}
+                      animate={{ 
+                        opacity: [0.5, 1, 0.5],
+                        y: 0,
+                        transition: { 
+                          repeat: Infinity, 
+                          duration: 1.8,
+                          delay: index * 0.08,
+                          ease: "easeInOut"
+                        } 
+                      }}
+                    >
+                      <div className="skeleton-img"></div>
+                      <div className="skeleton-info">
+                        <div className="skeleton-title"></div>
+                        <div className="skeleton-price"></div>
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
                 <div className="product-grid">
-                  {filteredProducts.length === 0 ? (
-                    <p className="empty-text">لا توجد منتجات مطابقة.</p>
+          {filteredProducts.map((product) => (
+            <motion.div
+              className="product-card glass"
+              key={product.id}
+              onClick={() => handleProductClick(product)}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {product.discount > 0 && (
+                <div className="discount-badge">
+                  -{product.discount}%
+                </div>
+              )}
+              <img
+                src={product.thumbnail}
+                alt={product.name}
+                className="product-img"
+                loading="lazy"
+              />
+              <div className="product-info">
+                <div className="product-name-wrapper">
+                  <div className={`product-name-inner ${product.name.length > 13 ? 'scroll' : ''}`}>
+                    {product.name}
+                  </div>
+                </div>
+                <div className="product-price-wrapper">
+                  {product.discount > 0 ? (
+                    <>
+                      <span className="original-price">{product.price} دج</span>
+                      <span className="discounted-price">
+                        {Math.round(product.price * (1 - product.discount/100))} دج
+                      </span>
+                    </>
                   ) : (
-                    filteredProducts.map((product) => (
-                      <motion.div
-                        className="product-card glass"
-                        key={product.id}
-                        onClick={() => handleProductClick(product)}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <img
-                          src={product.thumbnail}
-                          alt={product.name}
-                          className="product-img"
-                          loading="lazy"
-                        />
-                        <div className="product-info">
-                          <div className="product-name-wrapper">
-                            <div className={`product-name-inner ${product.name.length > 13 ? 'scroll' : ''}`}>
-                              {product.name}
-                            </div>
-                          </div>
-                          <p className="product-price">
-                            {product.displayPrice || `${product.price} دج`}
-                          </p>
-                        </div>
-                      </motion.div>
-                    
-                    ))
+                    <span className="product-price">{product.price} دج</span>
                   )}
+                </div>
+              </div>
+            </motion.div>
+                      ))}                            
                 </div>
               )}
 
-              {/* Load More */}
               {!loading && hasMore && (
-                <button className="load-more-btn" onClick={() => fetchProducts(true)}>
-                  {loadingMore ? 'جار التحميل...' : 'تحميل المزيد'}
-                </button>
+                <motion.button 
+                  className="load-more-btn" 
+                  onClick={() => fetchProducts(true)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {loadingMore ? (
+                    <>
+                      <span className="loading-dots">
+                        <span>.</span><span>.</span><span>.</span>
+                      </span>
+                      جار التحميل
+                    </>
+                  ) : 'تحميل المزيد'}
+                </motion.button>
               )}
             </motion.div>
           ) : (
@@ -181,7 +234,6 @@ function Store({ onGoHome }) {
                 ← رجوع
               </button>
 
-              {/* Slideshow */}
               <div className="slideshow">
                 <button className="slide-btn" onClick={() => handleSlide('prev')}>
                   ‹
@@ -200,6 +252,7 @@ function Store({ onGoHome }) {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                     transition={{ duration: 0.2 }}
+                    onClick={handleImageClick}
                   />
                 </AnimatePresence>
                 <button className="slide-btn" onClick={() => handleSlide('next')}>
@@ -207,16 +260,65 @@ function Store({ onGoHome }) {
                 </button>
               </div>
 
-              {/* Details */}
               <h2 className="product-title">{selectedProduct.name}</h2>
               <p className="product-description">{selectedProduct.description}</p>
-              <p className="product-price detail-price">{selectedProduct.price} دج</p>
+              
+              <div className="product-pricing-detail">
+                {selectedProduct.discount > 0 ? (
+                  <>
+                    <div className="price-with-discount">
+                      <span className="original-price">{selectedProduct.price} دج</span>
+                      <span className="discounted-price">
+                        {calculateDiscountedPrice(selectedProduct.price, selectedProduct.discount)} دج
+                      </span>
+                    </div>
+                    <div className="discount-badge-detail">
+                      وفر {selectedProduct.discount}%
+                    </div>
+                  </>
+                ) : (
+                  <span className="product-price">{selectedProduct.price} دج</span>
+                )}
+              </div>
 
-              {/* Order form */}
               <ProductOrderForm
                 productName={selectedProduct.name}
-                productPrice={selectedProduct.price}
+                productPrice={
+                  selectedProduct.discount > 0
+                    ? calculateDiscountedPrice(selectedProduct.price, selectedProduct.discount)
+                    : selectedProduct.price
+                }
               />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {zoomImage && (
+            <motion.div
+              className="image-zoom-modal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeZoom}
+            >
+              <motion.img
+                src={zoomImage}
+                alt="Zoomed product"
+                className="zoomed-image"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <button 
+                className="close-zoom-btn" 
+                onClick={() => setZoomImage(null)}
+                whileHover={{ rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                ✕
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
