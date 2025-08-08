@@ -4,7 +4,7 @@ body {
   margin: 0;
   padding: 0;
   
-  color: #ccc;
+  color: #B3B7B9;
   background-image: url('lolo.jpg');
   background-size: cover;
   background-position: fixed;
@@ -397,7 +397,7 @@ body {
   line-height: 1.8;
   margin-bottom: 20px;
   font-size: 1.1rem;
-  color: #ccc;
+  color: #B3B7B9;
 }
 
 .content-section {

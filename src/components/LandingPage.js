@@ -53,7 +53,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
           lineHeight: '1.3',
           width: '100%',
           marginBottom: '1.5rem', // Space before subtitle
-          color: '#ccc' // Darker for better readability
+          color: '#b3b7b9' // Darker for better readability
         }}
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -69,7 +69,7 @@ function LandingPage({ onChooseMatcher, onChooseStore }) {
           fontSize: '1.125rem', // 18px
           lineHeight: '1.6',
           marginBottom: '3rem', // More space before buttons (Fitts's Law)
-          color: '#ccc' // Slightly lighter than title
+          color: '#b3b7b9' // Slightly lighter than title
         }}
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}

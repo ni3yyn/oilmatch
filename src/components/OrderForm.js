@@ -197,7 +197,7 @@ function OrderForm({ productName, blend }) {
             background: 'rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            color: '#ccc',
+            color: '#B3B7B9',
             fontSize: '1rem',
             cursor: 'none',
             display: 'flex',
@@ -254,7 +254,7 @@ function OrderForm({ productName, blend }) {
                   style={{
                     padding: '0.75rem 1rem',
                     cursor: 'pointer',
-                    color: value === option ? '#ccc' : '#e6eaf0',
+                    color: value === option ? '#B3B7B9' : '#e6eaf0',
                     background: value === option ? 'e6eaf0' : 'transparent',
                     borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                   }}
@@ -283,12 +283,12 @@ function OrderForm({ productName, blend }) {
         alignContent: 'center',
         marginTop:'13px',
         marginBottom: '-20px',
-        color: '#ccc',
+        color: '#B3B7B9',
         fontSize: '1.5rem',
         fontWeight: '600'
 
       }}>
-        !قم بطلب تركيبتك الآن
+        !امتلك تركيبتك الآن
       </h2>
 
       <AnimatePresence>
@@ -313,7 +313,7 @@ function OrderForm({ productName, blend }) {
                   padding: '0.75rem 1rem',
                   borderRadius: '50px',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ccc',
+                  color: '#B3B7B9',
                   fontSize: '1rem',
                   outline: 'none',
                   marginBottom: '0.33rem',
@@ -334,7 +334,7 @@ function OrderForm({ productName, blend }) {
                   padding: '0.75rem 1rem',
                   borderRadius: '50px',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ccc',
+                  color: '#B3B7B9',
                   fontSize: '1rem',
                   outline: 'none',
                   marginBottom: '0.33rem',
@@ -375,7 +375,7 @@ function OrderForm({ productName, blend }) {
                   padding: '0.75rem 1rem',
                   borderRadius: '50px',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ccc',
+                  color: '#B3B7B9',
                   fontSize: '1rem',
                   outline: 'none',
                   marginBottom: '0.33rem',
@@ -398,7 +398,7 @@ function OrderForm({ productName, blend }) {
                   padding: '0.75rem 1rem',
                   borderRadius: '50px',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ccc',
+                  color: '#B3B7B9',
                   fontSize: '1rem',
                   marginTop: '0.1rem',
                   outline: 'none',
@@ -425,7 +425,7 @@ function OrderForm({ productName, blend }) {
         key={index} 
         style={{
           margin: '0.5rem 0',
-          color: '#ccc',
+          color: '#B3B7B9',
           fontWeight: '500',
           fontSize: '1.1rem'
         }}
