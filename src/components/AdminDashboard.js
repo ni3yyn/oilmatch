@@ -22,6 +22,8 @@ const BlendDisplay = ({ blend, quantity }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const safeBlend = Array.isArray(blend) ? blend : [];
+
   return (
     <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
       <span 
@@ -33,10 +35,10 @@ const BlendDisplay = ({ blend, quantity }) => {
       
       {isOpen && (
         <div className="blend-popover">
-          {blend.map((oil, idx) => (
+          {safeBlend.map((oil, idx) => (
             <div key={idx} className="blend-oil-item">
-              <span>{oil.name}</span>
-              <span>{oil.percentage}%</span>
+              <span>{oil.name || 'زيت غير معروف'}</span>
+              <span>{oil.percentage || 0}%</span>
             </div>
           ))}
           <div className="blend-quantity">الكمية: {quantity}</div>
@@ -552,34 +554,34 @@ function AdminDashboard() {
                         {order.deliveryType === 'office' && 'مكتب البريد'}
                         {!order.deliveryType && '---'}
                       </td>
-                      <td className="admin-products-cell">
-                        {order.cart?.map((item, i) => {
-                          if (item.name.startsWith('[')) {
-                            try {
-                              const blend = JSON.parse(item.name);
-                              return <BlendDisplay key={i} blend={blend} quantity={item.quantity} />;
-                            } catch (e) {
-                              return <div key={i}>{item.name} - {item.quantity}×{item.price} دج</div>;
-                            }
-                          }
-                          return (
-                            <div key={i}>
-                              {item.name} - {item.quantity}×
-                              {item.discount > 0 ? (
-                                <>
-                                  <span className="original-price">{item.price} دج</span>
-                                  <span className="discounted-price">
-                                    {Math.round(item.price * (1 - item.discount/100))} دج
-                                  </span>
-                                  <span className="discount-badge">-{item.discount}%</span>
-                                </>
-                              ) : (
-                                <span>{item.price} دج</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </td>
+                    
+<td className="admin-products-cell">
+  {order.cart?.map((item, i) => {
+    // Handle custom blend case
+    if (item.blend) {
+      return <BlendDisplay key={i} blend={item.blend} quantity={item.quantity} />;
+    }
+    
+    // Handle regular product case
+    const productName = typeof item.name === 'string' ? item.name : 'منتج غير معروف';
+    return (
+      <div key={i}>
+        {productName} - {item.quantity}×
+        {item.discount > 0 ? (
+          <>
+            <span className="original-price">{item.price} دج</span>
+            <span className="discounted-price">
+              {Math.round(item.price * (1 - item.discount/100))} دج
+            </span>
+            <span className="discount-badge">-{item.discount}%</span>
+          </>
+        ) : (
+          <span>{item.price} دج</span>
+        )}
+      </div>
+    );
+  })}
+</td>
                       <td>{order.total} دج</td>
                       <td className={orderDiscount > 0 ? 'discount-cell' : ''}>
                         {orderDiscount > 0 ? `-${orderDiscount.toLocaleString('ar-DZ')} دج` : '---'}

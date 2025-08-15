@@ -10,13 +10,9 @@ function Result({ blend }) {
     "زيت النعناع": "ينعش الفروة الدهنية ويقوي الجذور.",
     "زيت الخروع": "مقوي فعال للشعر الضعيف والمتساقط.",
     "زيت الحبة السوداء": "يساعد على نمو الشعر ويقلل الالتهابات.",
-    "زيت بذور العنب": "خيار خفيف يرطب بدون إثقال الفروة.",
     "زيت النيم": "يحارب القشرة والفطريات بشكل قوي.",
-    "زيت شجر الشاي": "مطهر طبيعي للفروة ضد القشرة.",
-    "زيت الخزامى": "مهدئ للفروة مع لمسة عطرية مميزة.",
-    "زيت الخروع الأسود": "يدعم التكثيف في مناطق الشعر الخفيف.",
     "زيت اللوز الحلو": "لطيف للشعر الجاف مع تغذية عالية.",
-    "زيت الأفوكادو": "الأفضل لترطيب عميق للشعر الجاف جداً."
+    "زيت جوز الهند": "لترطيب الشعر الجاف جدا."
   };
 
   const icons = {
@@ -27,16 +23,33 @@ function Result({ blend }) {
     "زيت النعناع": "🍃",
     "زيت الخروع": "🌱",
     "زيت الحبة السوداء": "⚫",
-    "زيت بذور العنب": "🍇",
     "زيت النيم": "🌳",
-    "زيت شجر الشاي": "🌲",
-    "زيت الخزامى": "💜",
-    "زيت الخروع الأسود": "🖤",
     "زيت اللوز الحلو": "🌸",
-    "زيت الأفوكادو": "🥑"
+    "زيت جوز الهند": "⚫"
   };
 
-  const blendArray = JSON.parse(blend);
+  // Safe blend parsing with error handling
+  const parseBlend = () => {
+    try {
+      if (!blend) return [];
+      if (Array.isArray(blend)) return blend;
+      return JSON.parse(blend);
+    } catch (e) {
+      console.error("Error parsing blend:", e);
+      return [];
+    }
+  };
+
+  const blendArray = parseBlend();
+
+  if (blendArray.length === 0) {
+    return (
+      <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
+        <h3 className="result-intro">عذراً، حدث خطأ في تحميل التركيبة</h3>
+        <p className="error-message">الرجاء المحاولة مرة أخرى أو اختيار تركيبة أخرى</p>
+      </div>
+    );
+  }
 
   return (
     <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
@@ -53,13 +66,16 @@ function Result({ blend }) {
 
       <ul className="oil-list">
         {blendArray.map((oil, index) => {
-          const offset = 100 - oil.percentage;
+          const offset = 100 - (oil.percentage || 0);
+          const icon = icons[oil.name] || "🌿";
+          const description = descriptions[oil.name] || "زيت مفيد لصحة شعرك.";
+
           return (
             <li key={index} className="oil-item">
-              <span className="oil-icon">{icons[oil.name] || "🌿"}</span>
+              <span className="oil-icon">{icon}</span>
               <div className="oil-text">
-                <h4>{oil.name}</h4>
-                <p>{descriptions[oil.name]}</p>
+                <h4>{oil.name || "زيت مخصص"}</h4>
+                <p>{description}</p>
               </div>
               <div className="circular-progress-container">
                 <svg viewBox="0 0 36 36" className="circular-progress-svg">
@@ -78,7 +94,7 @@ function Result({ blend }) {
                   />
                 </svg>
                 <div className="circular-percentage-text">
-                  {oil.percentage}%
+                  {oil.percentage || 0}%
                 </div>
               </div>
             </li>

@@ -740,4 +740,49 @@
   from { transform: translateX(-10px) scaleY(0.9); }
   to { transform: translateX(10px) scaleY(1.1); }
 }
+.compact-porosity-guide {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
 
+.guide-toggle {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.guide-steps {
+  padding: 0.5rem;
+  background: rgba(0,0,0,0.1);
+  border-radius: 0 0 6px 6px;
+  margin-top: 1px;
+  direction: rtl;
+}
+
+
+
+.results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+.icon {
+  font-size: 1rem;
+}

@@ -14,6 +14,7 @@ function OrderForm({ productName, blend }) {
   const [loading, setLoading] = useState(false);
   const [errorFields, setErrorFields] = useState([]);
   const [error, setError] = useState('');
+  const parsedBlend = typeof blend === 'string' ? JSON.parse(blend) : blend;
 
   // Custom select states
   const [isWilayaOpen, setIsWilayaOpen] = useState(false);
@@ -146,22 +147,29 @@ function OrderForm({ productName, blend }) {
 
     setLoading(true);
 
-    const cartItem = blend
-      ? { name: blend, price: productPrice, quantity }
-      : { name: productName, quantity };
+    const cartItem = parsedBlend
+  ? { 
+      name: "خلطة", // Simple name instead of JSON
+      price: productPrice, 
+      quantity,
+      blend: parsedBlend // Store the blend array separately
+    }
+  : { name: productName, quantity };
 
-    const orderData = {
-      name: name.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      wilaya,
-      deliveryType,
-      cart: [cartItem],
-      total: finalTotal,
-      confirmed: false,
-      delivered: false,
-      createdAt: Timestamp.now()
-    };
+    // In OrderForm.js, update the orderData creation:
+const orderData = {
+  name: name.trim(),
+  phone: phone.trim(),
+  address: address.trim(),
+  wilaya,
+  deliveryType,
+  cart: [cartItem],
+  blend: parsedBlend, // Store the parsed blend data
+  total: finalTotal,
+  confirmed: false,
+  delivered: false,
+  createdAt: Timestamp.now()
+};
 
     try {
       await addDoc(collection(db, 'orders'), orderData);
@@ -409,7 +417,7 @@ function OrderForm({ productName, blend }) {
               />
             </div>
 
-            {blend && (
+            {parsedBlend && (
   <motion.div 
     style={{
       marginTop: '0.25rem',
@@ -420,11 +428,12 @@ function OrderForm({ productName, blend }) {
       border: '1px solid rgba(255, 255, 255, 0.2)'
     }}
   >
-    {JSON.parse(blend).map((oil, index) => (
+    <h4 style={{ marginBottom: '0.5rem', color: '#B3B7B9' }}>تركيبتك المخصصة</h4>
+    {parsedBlend.map((oil, index) => (
       <p 
         key={index} 
         style={{
-          margin: '0.5rem 0',
+          margin: '0.5rem',
           color: '#B3B7B9',
           fontWeight: '500',
           fontSize: '1.1rem'
