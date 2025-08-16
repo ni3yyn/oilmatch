@@ -385,25 +385,87 @@ function ProductOrderForm({ productName, productPrice }) {
                 animate={errorFields.includes('address') ? shakeAnimation : {}}
               />
 
-              <motion.input
+<motion.div
                 ref={quantityRef}
-                type="number"
-                min="1"
-                placeholder="الكمية المطلوبة"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
                 style={{
-                  padding: '0.75rem 1rem',
-                  borderRadius: '50px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ccc',
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '0.33rem',
+                  marginTop: '0.1rem'
                 }}
                 animate={errorFields.includes('quantity') ? shakeAnimation : {}}
-              />
+              >
+                <motion.button
+                  type="button"
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '50px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    color: '#B3B7B9',
+                    fontSize: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    cursor: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '40px',
+                    height: '40px'
+                  }}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  -
+                </motion.button>
+
+<motion.input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    setQuantity(Number.isNaN(value) ? 1 : Math.max(1, value));
+                  }}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '50px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    color: '#B3B7B9',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    border: errorFields.includes('quantity')
+                      ? '1px solid rgba(239, 68, 68, 0.8)'
+                      : '1px solid rgba(255, 255, 255, 0.2)',
+                    textAlign: 'center',
+                    flex: 1,
+                    maxWidth: '100px'
+                  }}
+                />
+                <motion.button
+                  type="button"
+                  onClick={() => setQuantity((prev) => prev + 1)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '50px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    color: '#B3B7B9',
+                    fontSize: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    cursor: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '40px',
+                    height: '40px'
+                  }}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  +
+                </motion.button>
+                </motion.div>
             </div>
 
             <motion.div 
