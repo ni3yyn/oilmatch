@@ -510,6 +510,7 @@ function Quiz({ onQuizComplete }) {
     setLocationError(false);
   
     try {
+      // --- تحديد الموقع ---
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 7000 });
       });
@@ -521,23 +522,29 @@ function Quiz({ onQuizComplete }) {
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`
       );
       const geoData = await geoRes.json();
-      const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || "موقعك الحالي";
+      const city =
+        geoData.address?.city ||
+        geoData.address?.town ||
+        geoData.address?.village ||
+        geoData.address?.county ||
+        geoData.address?.state ||
+        "موقعك الحالي";
   
       // --- forecast للحصول على أعلى temp ورطوبة ---
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
       );
-      if (!forecastRes.ok) throw new Error('Forecast API failed');
+      if (!forecastRes.ok) throw new Error("Forecast API failed");
       const forecastData = await forecastRes.json();
   
-      const todayDate = new Date().toISOString().split('T')[0];
-      const todayList = forecastData.list.filter(entry =>
+      const todayDate = new Date().toISOString().split("T")[0];
+      const todayList = forecastData.list.filter((entry) =>
         entry.dt_txt.startsWith(todayDate)
       );
   
       let maxTemp = -Infinity;
       let maxHumidity = -Infinity;
-      todayList.forEach(entry => {
+      todayList.forEach((entry) => {
         if (entry.main.temp_max > maxTemp) maxTemp = entry.main.temp_max;
         if (entry.main.humidity > maxHumidity) maxHumidity = entry.main.humidity;
       });
@@ -545,13 +552,16 @@ function Quiz({ onQuizComplete }) {
       const temp = maxTemp === -Infinity ? 22 : maxTemp;
       const humidity = maxHumidity === -Infinity ? 50 : maxHumidity;
   
+      const nearCoast = isNearCoast(latitude, longitude);
+  
+      // --- المنطق النهائي لتبسيط المناخ ---
       let climateType = "معتدل";
   
-      if (temp >= 25 && humidity >= 60) climateType = "رطب";
-      else if (temp >= 25 && humidity <= 35) climateType = "جاف";
-      else if (temp <= 15 && humidity <= 40) climateType = "جاف";
-      else if (temp <= 15 && humidity >= 65) climateType = "رطب";
-      else climateType = "معتدل";
+      if (temp >= 25 && humidity >= 60) climateType = "رطب";                 // حر رطب
+      else if (temp >= 25 && humidity <= 40) climateType = nearCoast ? "رطب" : "جاف";  
+      else if (temp <= 15 && humidity >= 65) climateType = "رطب";            // برد رطب
+      else if (temp <= 15 && humidity <= 40) climateType = "جاف";            // برد جاف
+      else climateType = nearCoast ? "رطب" : "معتدل";                        // منطقة وسطية
   
       setLocationInfo(city);
       setClimate(climateType);
@@ -564,7 +574,34 @@ function Quiz({ onQuizComplete }) {
     }
   };
   
-  
+  // --- دالة لحساب المسافة بين نقطتين (Haversine formula) ---
+const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // نصف قطر الأرض كم
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// --- بعض نقاط تقريبية للسواحل (ممكن توسعها لاحقًا) ---
+const coastPoints = [
+  { lat: 30.0, lon: 31.2 },  // البحر المتوسط - الإسكندرية
+  { lat: 25.0, lon: 55.2 },  // الخليج العربي - دبي
+  { lat: 21.5, lon: 39.2 },  // البحر الأحمر - جدة
+  { lat: 36.8, lon: 10.3 },  // تونس
+  { lat: 34.0, lon: -6.8 },  // المحيط الأطلسي - المغرب
+];
+
+const isNearCoast = (lat, lon) => {
+  return coastPoints.some(point => getDistanceKm(lat, lon, point.lat, point.lon) <= 50);
+};
+
   
   // ======= FLOW =======
   const handleNext = () => {
@@ -754,7 +791,7 @@ function Quiz({ onQuizComplete }) {
                         animate={{ rotate: 360 }}
                         transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
                       >
-                        <FaSpinner size={28} />
+                        
                       </motion.div>
                       <p>جاري تحديد موقعك والمناخ المحلي...</p>
                     </div>
