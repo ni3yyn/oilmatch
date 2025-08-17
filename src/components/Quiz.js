@@ -515,7 +515,7 @@ function Quiz({ onQuizComplete }) {
   
       const { latitude, longitude } = position.coords;
   
-      // --- API واحد يجيب المدينة بالعربية (Current weather) ---
+      // --- الطقس الحالي: للحصول على اسم المدينة بالعربية ---
       const weatherRes = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
       );
@@ -525,45 +525,40 @@ function Quiz({ onQuizComplete }) {
       const city = weatherData.name || 'موقعك الحالي';
       const desc = (weatherData.weather?.[0]?.main || '').toLowerCase();
   
-      // --- API ثاني يجيب daily forecast (أعلى حرارة ورطوبة) ---
+      // --- forecast 5 days: نطلع منه أعلى حرارة ورطوبة لليوم ---
       const forecastRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=minutely,hourly,alerts&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
       );
       if (!forecastRes.ok) throw new Error('Forecast API failed');
       const forecastData = await forecastRes.json();
   
-      const today = forecastData.daily?.[0];
-      const temp = today?.temp?.max ?? 22;
-      const humidity = today?.humidity ?? 50;
+      const todayDate = new Date().toISOString().split('T')[0];
+      const todayList = forecastData.list.filter(entry =>
+        entry.dt_txt.startsWith(todayDate)
+      );
   
+      let maxTemp = -Infinity;
+      let maxHumidity = -Infinity;
+      todayList.forEach(entry => {
+        if (entry.main.temp_max > maxTemp) maxTemp = entry.main.temp_max;
+        if (entry.main.humidity > maxHumidity) maxHumidity = entry.main.humidity;
+      });
+  
+      const temp = maxTemp === -Infinity ? weatherData.main.temp : maxTemp;
+      const humidity = maxHumidity === -Infinity ? weatherData.main.humidity : maxHumidity;
+  
+      // --- المناخ النهائي (مطبع لرطب/جاف/معتدل) ---
       let climateType = 'معتدل';
   
-      // --- قاعدة أساسية حسب temp & humidity ---
-      if (temp >= 25 && humidity >= 60) climateType = 'رطب';     // حار + رطب
-      else if (temp >= 25 && humidity <= 35) climateType = 'جاف'; // حار + جاف
-      else if (temp <= 15 && humidity <= 40) climateType = 'جاف'; // بارد + جاف
-      else if (temp <= 15 && humidity >= 65) climateType = 'رطب'; // بارد + رطب
+      if (temp >= 25 && humidity >= 60) climateType = 'رطب';
+      else if (temp >= 25 && humidity <= 35) climateType = 'جاف';
+      else if (temp <= 15 && humidity <= 40) climateType = 'جاف';
+      else if (temp <= 15 && humidity >= 65) climateType = 'رطب';
       else climateType = 'معتدل';
   
-      // --- تعديل بناءً على وصف الطقس ---
       if (/rain|storm|drizzle|mist|snow|cloud/.test(desc)) climateType = 'رطب';
       if (/desert|dust|sand|clear/.test(desc) && humidity < 45) climateType = 'جاف';
   
-      // --- Bias جغرافي ---
-      if (Math.abs(latitude) <= 20) {
-        // مناطق استوائية/صحراوية
-        if (humidity > 60) climateType = 'رطب'; // استوائي
-        else climateType = 'جاف';               // صحراوي
-      }
-  
-      // تقدير ساحلي مقابل داخلي (تبسيط)
-      const coastalLongitudes = [-180, -120, -80, -40, 0, 40, 80, 120, 180];
-      const isNearCoast = coastalLongitudes.some(cl => Math.abs(longitude - cl) < 2);
-  
-      if (isNearCoast && humidity >= 55) climateType = 'رطب';
-      if (!isNearCoast && humidity <= 40 && temp >= 20) climateType = 'جاف';
-  
-      // --- إخراج النتيجة ---
       setLocationInfo(city);
       setClimate(climateType);
   
@@ -574,6 +569,7 @@ function Quiz({ onQuizComplete }) {
       setIsFetchingClimate(false);
     }
   };
+  
   
   
 
