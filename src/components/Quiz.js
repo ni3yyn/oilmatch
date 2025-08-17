@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaSpinner, FaLightbulb, FaCheckCircle, FaExclamationTriangle, FaSyncAlt } from "react-icons/fa";
 import '../Quiz.css';
 
 function Quiz({ onQuizComplete }) {
@@ -736,126 +737,131 @@ function Quiz({ onQuizComplete }) {
 
               {step === 7 ? (
                 <motion.div
-                  className="climate-container"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {isFetchingClimate && !showManualOptions && (
+                className="climate-container"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                {isFetchingClimate && !showManualOptions && (
+                  <motion.div 
+                    className="climate-detection"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className="climate-loader">
+                      <motion.div 
+                        className="climate-spinner"
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+                      >
+                        <FaSpinner size={28} />
+                      </motion.div>
+                      <p>جاري تحديد موقعك والمناخ المحلي...</p>
+                    </div>
                     <motion.div 
-                      className="climate-detection"
+                      className="climate-tip"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
                     >
-                      <div className="climate-loader">
-                        <motion.div 
-                          className="climate-spinner"
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-                        ></motion.div>
-                        <p>جاري تحديد موقعك والمناخ المحلي...</p>
-                      </div>
-                      <motion.div 
-                        className="climate-tip"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                      >
-                        <span>💡</span> نستخدم بيانات الطقس لتكييف مزجتك مع مناخك.
-                      </motion.div>
+                      <FaLightbulb className="tip-icon" /> نستخدم بيانات الطقس لتكييف مزجتك مع مناخك.
                     </motion.div>
-                  )}
-                  
-                  {!isFetchingClimate && locationInfo && climate && (
-  <motion.div 
-    className="climate-success fancy-card"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-  >
-    <h4 className="climate-title">تم تحديد مناخك بدقة</h4>
-    <div className="climate-info">
-      <p>الموقع: <span>{locationInfo}</span></p>
-      <p>المناخ: <span className="highlight">{climate}</span></p>
-    </div>
-    <motion.button 
-      className="climate-change-btn"
-      whileHover={{ scale: 1.05, backgroundColor: '#eee' }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => {
-        setClimate('');
-        setShowManualOptions(true);
-      }}
-    >
-      تغيير النتيجة
-    </motion.button>
-  </motion.div>
-)}
-                  
-                  {locationError && (
+                  </motion.div>
+                )}
+                
+                {!isFetchingClimate && locationInfo && climate && (
+                  <motion.div 
+                    className="climate-success fancy-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <FaCheckCircle className="success-icon" />
+                    <h4 className="climate-title">تم تحديد مناخك بدقة</h4>
+                    <div className="climate-info">
+                      <p>الموقع: <span>{locationInfo}</span></p>
+                      <p>المناخ: <span className="highlight">{climate}</span></p>
+                    </div>
+                    <motion.button 
+                      className="climate-change-btn"
+                      whileHover={{ scale: 1.05, backgroundColor: '#eee' }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setClimate('');
+                        setShowManualOptions(true);
+                      }}
+                    >
+                      تغيير النتيجة
+                    </motion.button>
+                  </motion.div>
+                )}
+                
+                {locationError && (
+                  <motion.div 
+                    className="climate-error"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <FaExclamationTriangle className="climate-icon error" />
+                    <p>تعذر تحديد موقعك تلقائيًا</p>
+                    <p className="error-reason">
+                      يرجى التأكد من تفعيل خدمات الموقع أو اختيار المناخ يدويًا
+                    </p>
+                    <motion.button
+                      className="retry-btn"
+                      onClick={detectClimate}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      disabled={isFetchingClimate}
+                    >
+                      {isFetchingClimate ? (
+                        <>
+                          <FaSyncAlt className="retry-spinner" /> جاري المحاولة مرة أخرى...
+                        </>
+                      ) : (
+                        <>
+                          <FaSyncAlt className="retry-icon" /> إعادة المحاولة
+                        </>
+                      )}
+                    </motion.button>
+                  </motion.div>
+                )}
+                
+                {(showManualOptions || locationError) && (
+                  <motion.div
+                    className="climate-manual"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <motion.div 
-                      className="climate-error"
+                      className="climate-divider"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
                     >
-                      <div className="climate-icon">⚠️</div>
-                      <p>تعذر تحديد موقعك تلقائيًا</p>
-                      <p className="error-reason">
-                        يرجى التأكد من تفعيل خدمات الموقع أو اختيار المناخ يدويًا
-                      </p>
-                      <motion.button
-                        className="retry-btn"
-                        onClick={detectClimate}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        disabled={isFetchingClimate}
-                      >
-                        {isFetchingClimate ? (
-                          <>
-                            <span className="retry-spinner"></span>
-                            جاري المحاولة مرة أخرى...
-                          </>
-                        ) : (
-                          'إعادة المحاولة'
-                        )}
-                      </motion.button>
+                      <span>أو اختر يدويًا</span>
                     </motion.div>
-                  )}
-                  
-                  {(showManualOptions || locationError) && (
-                    <motion.div
-                      className="climate-manual"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <motion.div 
-                        className="climate-divider"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <span>أو اختر يدويًا</span>
-                      </motion.div>
-                      <div className="options-grid">
-                        {getOptions().map((option, index) => (
-                          <motion.button
-                            key={option}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 * index }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleOptionClick(option)}
-                            className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
-                          >
-                            {option}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </motion.div>
+                    <div className="options-grid">
+                      {getOptions().map((option, index) => (
+                        <motion.button
+                          key={option}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 * index }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleOptionClick(option)}
+                          className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                        >
+                          {option}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+              
               ) : step === 6 ? (
                 <>
                   <motion.div 
