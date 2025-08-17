@@ -575,32 +575,51 @@ function Quiz({ onQuizComplete }) {
   };
   
   // --- دالة لحساب المسافة بين نقطتين (Haversine formula) ---
-const getDistanceKm = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // نصف قطر الأرض كم
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-// --- بعض نقاط تقريبية للسواحل (ممكن توسعها لاحقًا) ---
-const coastPoints = [
-  { lat: 30.0, lon: 31.2 },  // البحر المتوسط - الإسكندرية
-  { lat: 25.0, lon: 55.2 },  // الخليج العربي - دبي
-  { lat: 21.5, lon: 39.2 },  // البحر الأحمر - جدة
-  { lat: 36.8, lon: 10.3 },  // تونس
-  { lat: 34.0, lon: -6.8 },  // المحيط الأطلسي - المغرب
-];
-
-const isNearCoast = (lat, lon) => {
-  return coastPoints.some(point => getDistanceKm(lat, lon, point.lat, point.lon) <= 50);
-};
+  const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat/2)**2 +
+      Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+      Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+  
+  // نقاط ساحلية أوسع (الجزائر + المغرب + تونس + ليبيا، وتقدر تزيد لاحقًا)
+  const coastPoints = [
+    // الجزائر (متوسط)
+    { lat: 36.7538, lon: 3.0588 },   // الجزائر العاصمة
+    { lat: 36.5920, lon: 2.4470 },   // تيبازة
+    { lat: 36.6100, lon: 2.1900 },   // شرشال
+    { lat: 35.6970, lon: -0.6300 },  // وهران
+    { lat: 36.7500, lon: 5.0700 },   // بجاية
+    { lat: 36.8200, lon: 5.7500 },   // جيجل
+    { lat: 36.9000, lon: 7.7700 },   // عنابة
+    { lat: 36.4500, lon: 6.2600 },   // سكيكدة
+    { lat: 36.8800, lon: 6.9100 },   // القالة
+    // تونس
+    { lat: 36.8000, lon: 10.1800 },  // العاصمة
+    { lat: 35.7800, lon: 10.8300 },  // سوسة/المنستير
+    // المغرب
+    { lat: 34.0209, lon: -6.8416 },  // الرباط/المحيط
+    { lat: 33.5731, lon: -7.5898 },  // الدار البيضاء
+    { lat: 35.7595, lon: -5.8340 },  // طنجة
+    // ليبيا (متوسط)
+    { lat: 32.8872, lon: 13.1913 },  // طرابلس
+  ];
+  
+  const isNearCoast = (lat, lon, thresholdKm = 50) =>
+    coastPoints.some(p => getDistanceKm(lat, lon, p.lat, p.lon) <= thresholdKm);
+  
+  // تحويل طابع وقت forecast إلى تاريخ محلي حسب إزاحة OWM
+  const toLocalDateStr = (unixSec, tzOffsetSec) => {
+    const d = new Date((unixSec + tzOffsetSec) * 1000);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
 
   
   // ======= FLOW =======
