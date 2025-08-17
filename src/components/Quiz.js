@@ -515,18 +515,14 @@ function Quiz({ onQuizComplete }) {
   
       const { latitude, longitude } = position.coords;
   
-      // --- الطقس الحالي: للحصول على اسم المدينة بالعربية ---
-      const weatherRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+      // --- اسم المدينة بالعربية باستخدام Nominatim ---
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`
       );
-      if (!weatherRes.ok) throw new Error('Weather API failed');
-      const weatherData = await weatherRes.json();
+      const geoData = await geoRes.json();
+      const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || "موقعك الحالي";
   
-      const city = await getCityArabicName(latitude, longitude);
-
-      const desc = (weatherData.weather?.[0]?.main || '').toLowerCase();
-  
-      // --- forecast 5 days: نطلع منه أعلى حرارة ورطوبة لليوم ---
+      // --- forecast للحصول على أعلى temp ورطوبة ---
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
       );
@@ -545,43 +541,30 @@ function Quiz({ onQuizComplete }) {
         if (entry.main.humidity > maxHumidity) maxHumidity = entry.main.humidity;
       });
   
-      const temp = maxTemp === -Infinity ? weatherData.main.temp : maxTemp;
-      const humidity = maxHumidity === -Infinity ? weatherData.main.humidity : maxHumidity;
+      const temp = maxTemp === -Infinity ? 22 : maxTemp;
+      const humidity = maxHumidity === -Infinity ? 50 : maxHumidity;
   
-      // --- المناخ النهائي (مطبع لرطب/جاف/معتدل) ---
-      let climateType = 'معتدل';
+      let climateType = "معتدل";
   
-      if (temp >= 25 && humidity >= 60) climateType = 'رطب';
-      else if (temp >= 25 && humidity <= 35) climateType = 'جاف';
-      else if (temp <= 15 && humidity <= 40) climateType = 'جاف';
-      else if (temp <= 15 && humidity >= 65) climateType = 'رطب';
-      else climateType = 'معتدل';
-  
-      if (/rain|storm|drizzle|mist|snow|cloud/.test(desc)) climateType = 'رطب';
-      if (/desert|dust|sand|clear/.test(desc) && humidity < 45) climateType = 'جاف';
+      if (temp >= 25 && humidity >= 60) climateType = "رطب";
+      else if (temp >= 25 && humidity <= 35) climateType = "جاف";
+      else if (temp <= 15 && humidity <= 40) climateType = "جاف";
+      else if (temp <= 15 && humidity >= 65) climateType = "رطب";
+      else climateType = "معتدل";
   
       setLocationInfo(city);
       setClimate(climateType);
   
     } catch (err) {
-      console.error('Detection failed:', err);
+      console.error("Detection failed:", err);
       setLocationError(true);
     } finally {
       setIsFetchingClimate(false);
     }
   };
   
-  const getCityArabicName = async (lat, lon) => {
-    const res = await fetch(
-      `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=bb086ec12341a0771a869beb72103dc6`
-    );
-    if (!res.ok) throw new Error('Geo API failed');
-    const data = await res.json();
-    return data[0]?.local_names?.ar || data[0]?.name || 'موقعك الحالي';
-  };
   
   
-
   // ======= FLOW =======
   const handleNext = () => {
     if (step < totalSteps) {
