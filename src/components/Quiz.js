@@ -522,7 +522,8 @@ function Quiz({ onQuizComplete }) {
       if (!weatherRes.ok) throw new Error('Weather API failed');
       const weatherData = await weatherRes.json();
   
-      const city = weatherData.name || 'موقعك الحالي';
+      const city = await getCityArabicName(latitude, longitude);
+
       const desc = (weatherData.weather?.[0]?.main || '').toLowerCase();
   
       // --- forecast 5 days: نطلع منه أعلى حرارة ورطوبة لليوم ---
@@ -570,6 +571,14 @@ function Quiz({ onQuizComplete }) {
     }
   };
   
+  const getCityArabicName = async (lat, lon) => {
+    const res = await fetch(
+      `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=bb086ec12341a0771a869beb72103dc6`
+    );
+    if (!res.ok) throw new Error('Geo API failed');
+    const data = await res.json();
+    return data[0]?.local_names?.ar || data[0]?.name || 'موقعك الحالي';
+  };
   
   
 
