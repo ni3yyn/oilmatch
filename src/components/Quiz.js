@@ -2,14 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../Quiz.css';
 
-/**
- * ULTIMATE QUIZ.JS — Self‑contained, drop‑in replacement built on your original structure.
- * - Keeps your steps, UI animations, and climate detection.
- * - Adds an expert‑system scoring engine: base weights + penalties + synergies + climate/season tuning + safety rules.
- * - Produces: top blend (3–5 oils), alternatives, reasoning trace, and confidence.
- * - No external data files required.
- */
-
 function Quiz({ onQuizComplete }) {
   // ======= STATE (kept from your file, with a few additions) =======
   const [step, setStep] = useState(1);
@@ -515,29 +507,66 @@ function Quiz({ onQuizComplete }) {
   const detectClimate = async () => {
     setIsFetchingClimate(true);
     setLocationError(false);
-    setRetryCount(prev => prev + 1);
-
+  
     try {
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 7000 });
       });
-
+  
+      const { latitude, longitude } = position.coords;
+  
+      // --- API واحد يجيب المدينة بالعربية (Current weather) ---
       const weatherRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
       );
-
       if (!weatherRes.ok) throw new Error('Weather API failed');
-
       const weatherData = await weatherRes.json();
+  
       const city = weatherData.name || 'موقعك الحالي';
-      const humidity = weatherData.main.humidity;
-
+      const desc = (weatherData.weather?.[0]?.main || '').toLowerCase();
+  
+      // --- API ثاني يجيب daily forecast (أعلى حرارة ورطوبة) ---
+      const forecastRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=minutely,hourly,alerts&appid=bb086ec12341a0771a869beb72103dc6&units=metric&lang=ar`
+      );
+      if (!forecastRes.ok) throw new Error('Forecast API failed');
+      const forecastData = await forecastRes.json();
+  
+      const today = forecastData.daily?.[0];
+      const temp = today?.temp?.max ?? 22;
+      const humidity = today?.humidity ?? 50;
+  
       let climateType = 'معتدل';
-      if (humidity >= 70) climateType = 'رطب';
-      else if (humidity <= 40) climateType = 'جاف';
-
+  
+      // --- قاعدة أساسية حسب temp & humidity ---
+      if (temp >= 25 && humidity >= 60) climateType = 'رطب';     // حار + رطب
+      else if (temp >= 25 && humidity <= 35) climateType = 'جاف'; // حار + جاف
+      else if (temp <= 15 && humidity <= 40) climateType = 'جاف'; // بارد + جاف
+      else if (temp <= 15 && humidity >= 65) climateType = 'رطب'; // بارد + رطب
+      else climateType = 'معتدل';
+  
+      // --- تعديل بناءً على وصف الطقس ---
+      if (/rain|storm|drizzle|mist|snow|cloud/.test(desc)) climateType = 'رطب';
+      if (/desert|dust|sand|clear/.test(desc) && humidity < 45) climateType = 'جاف';
+  
+      // --- Bias جغرافي ---
+      if (Math.abs(latitude) <= 20) {
+        // مناطق استوائية/صحراوية
+        if (humidity > 60) climateType = 'رطب'; // استوائي
+        else climateType = 'جاف';               // صحراوي
+      }
+  
+      // تقدير ساحلي مقابل داخلي (تبسيط)
+      const coastalLongitudes = [-180, -120, -80, -40, 0, 40, 80, 120, 180];
+      const isNearCoast = coastalLongitudes.some(cl => Math.abs(longitude - cl) < 2);
+  
+      if (isNearCoast && humidity >= 55) climateType = 'رطب';
+      if (!isNearCoast && humidity <= 40 && temp >= 20) climateType = 'جاف';
+  
+      // --- إخراج النتيجة ---
       setLocationInfo(city);
       setClimate(climateType);
+  
     } catch (err) {
       console.error('Detection failed:', err);
       setLocationError(true);
@@ -545,6 +574,8 @@ function Quiz({ onQuizComplete }) {
       setIsFetchingClimate(false);
     }
   };
+  
+  
 
   // ======= FLOW =======
   const handleNext = () => {
@@ -748,30 +779,30 @@ function Quiz({ onQuizComplete }) {
                   )}
                   
                   {!isFetchingClimate && locationInfo && climate && (
-                    <motion.div 
-                      className="climate-success"
-                      initial={{ scale: 0.9 }}
-                      animate={{ scale: 1 }}
-                    >
-                      <div className="climate-icon">🌍</div>
-                      <p>
-                        <strong>تم تحديد موقعك:</strong> {locationInfo}<br />
-                        <strong>نوع المناخ:</strong> {climate}
-                      </p>
-                      
-                      <motion.button 
-                        className="climate-change-btn"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setClimate('');
-                          setShowManualOptions(true);
-                        }}
-                      >
-                        تغيير النتيجة
-                      </motion.button>
-                    </motion.div>
-                  )}
+  <motion.div 
+    className="climate-success fancy-card"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+  >
+    <h4 className="climate-title">تم تحديد مناخك بدقة</h4>
+    <div className="climate-info">
+      <p>الموقع: <span>{locationInfo}</span></p>
+      <p>المناخ: <span className="highlight">{climate}</span></p>
+    </div>
+    <motion.button 
+      className="climate-change-btn"
+      whileHover={{ scale: 1.05, backgroundColor: '#eee' }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => {
+        setClimate('');
+        setShowManualOptions(true);
+      }}
+    >
+      تغيير النتيجة
+    </motion.button>
+  </motion.div>
+)}
                   
                   {locationError && (
                     <motion.div 
