@@ -558,7 +558,7 @@ function Quiz({ onQuizComplete }) {
       let climateType = "معتدل";
   
       if (temp >= 25 && humidity >= 60) climateType = "رطب";                 // حر رطب
-      else if (temp >= 25 && humidity <= 40) climateType = nearCoast ? "رطب" : "جاف";  
+      else if (temp >= 25 && humidity <= 40) climateType = nearCoast ? "معتدل" : "جاف";  
       else if (temp <= 15 && humidity >= 65) climateType = "رطب";            // برد رطب
       else if (temp <= 15 && humidity <= 40) climateType = "جاف";            // برد جاف
       else climateType = nearCoast ? "رطب" : "معتدل";                        // منطقة وسطية
