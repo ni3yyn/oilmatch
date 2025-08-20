@@ -704,47 +704,59 @@ function Quiz({ onQuizComplete }) {
 
   
   // ======= FLOW =======
-  const handleNext = () => {
-    if (step < totalSteps) {
-      setDirection(1);
-      setStep(prev => prev + 1);
-    } else {
-      setLoading(true);
-      setProgress(0);
-      let counter = 0;
-      const interval = setInterval(() => {
-        counter += 2;
-        if (counter <= 100) {
-          setProgress(counter);
-        } else {
-          clearInterval(interval);
-          const result = determineBlendEnhanced();
-          onQuizComplete({
-            gender,
-            hairFall,
-            scalp,
-            issues,
-            washFrequency,
-            porosity,
-            climate,
-            goals: JSON.stringify(goals),
-            hairType,
-            ageGroup,
-            season,
-            scentPreference,
-            allergies,
-            mode,
-            blend: JSON.stringify(result.blend),
-            alternatives: JSON.stringify(result.alternatives),
-            confidence: result.confidence,
-            reasoning: result.reasoning,
-            warnings: JSON.stringify(result.warnings),
-            trace: JSON.stringify(result.trace)
-          });
-        }
-      }, 100);
-    }
-  };
+  // Add this function at the top of your Quiz component (with other helper functions)
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
+// Then update your handleNext function to include scrolling
+const handleNext = () => {
+  if (step < totalSteps) {
+    setDirection(1);
+    setStep(prev => prev + 1);
+  } else {
+    // Scroll to top before showing results
+    scrollToTop();
+    
+    setLoading(true);
+    setProgress(0);
+    let counter = 0;
+    const interval = setInterval(() => {
+      counter += 2;
+      if (counter <= 100) {
+        setProgress(counter);
+      } else {
+        clearInterval(interval);
+        const result = determineBlendEnhanced();
+        onQuizComplete({
+          gender,
+          ageGroup,
+          hairType,
+          hairFall,
+          scalp,
+          issues,
+          washFrequency,
+          porosity,
+          climate,
+          goals: JSON.stringify(goals),
+          season,
+          scentPreference,
+          allergies,
+          mode,
+          blend: JSON.stringify(result.blend),
+          alternatives: JSON.stringify(result.alternatives),
+          confidence: result.confidence,
+          reasoning: result.reasoning,
+          warnings: JSON.stringify(result.warnings),
+          trace: JSON.stringify(result.trace)
+        });
+      }
+    }, 100);
+  }
+};
 
   // ======= OPTIONS & LABELS (kept + extended) =======
   const getOptions = () => {
