@@ -802,14 +802,15 @@ function Quiz({ onQuizComplete }) {
     return (
       <div className="compact-porosity-guide">
         <button className="guide-toggle" onClick={() => setExpanded(!expanded)}>
-          <span>💧 اختبار المسامية</span>
+          <span>اختبار المسامية</span>
           <span>{expanded ? '▲' : '▼'}</span>
         </button>
 
         {expanded && (
           <div className="guide-steps">
-            <div className="step"><span>1.</span> خصلة شعر نظيفة في كوب ماء</div>
+            <div className="step"><span>1.</span> ضع كومة شعر في كوب ماء</div>
             <div className="step"><span>2.</span> انتظر 2-4 دقائق</div>
+            <div className="step"><span>3.</span> لاحظ مكان الكومة</div>
             <div className="results">
               <div className="result"><span className="icon">🔼</span> تطفو = منخفضة</div>
               <div className="result"><span className="icon">⏸️</span> منتصف = متوسطة</div>
