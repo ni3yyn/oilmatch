@@ -17,8 +17,10 @@ function Quiz({ onQuizComplete }) {
   const [issues, setIssues] = useState('');
   const [washFrequency, setWashFrequency] = useState('');
   const [porosity, setPorosity] = useState('');
-  const [climate, setClimate] = useState('');
-  const [goal, setGoal] = useState('');
+  const [climate, setClimate] = useState(''); 
+  const [goals, setGoals] = useState([]); // Changed from goal to goals
+  const [ageGroup, setAgeGroup] = useState(''); // الفئة العمرية
+  const [hairType, setHairType] = useState(''); // نوع الشعر
 
   // Extended inputs (optional toggles shown at the end)
   const [season, setSeason] = useState(''); // الشتاء/الصيف/الربيع/الخريف
@@ -33,7 +35,7 @@ function Quiz({ onQuizComplete }) {
   const [showManualOptions, setShowManualOptions] = useState(false);
   const [retryCount, setRetryCount] = useState(0); // Add this line
 
-  const totalSteps = 8;
+  const totalSteps = 10;
 
   // ======= EXPERT DATA MODEL (richer than before; inline & editable) =======
   /**
@@ -53,12 +55,16 @@ function Quiz({ onQuizComplete }) {
       absorption: 'سريع',
       heaviness: 'خفيف',
       scent: 'محايد',
-      maxPercentage: 100, // No limit
+      maxPercentage: 100,
       idealRange: [20, 100],
       climateSuitability: ['رطب', 'معتدل'],
       seasonalSuitability: ['الصيف', 'الربيع'],
-      weights: { 'ترطيب': 2, 'دهني': 4, 'خفيف': 3, 'غسيل متكرر': 3, 'تقوية': 1 },
-      penalties: { 'جاف شديد': 0.5 },
+      weights: { 
+        'ترطيب': 2, 'دهني': 4, 'خفيف': 3, 'غسيل متكرر': 3, 'تقوية': 1,
+        'أقل من 18 سنة': 4, '18-35 سنة': 3, '36-50 سنة': 2, 'أكثر من 50 سنة': 1,
+        'ناعم': 5, 'مجعد': 2, 'خشن': 1, 'ملون/مصفف': 3
+      },
+      penalties: { 'جاف شديد': 0.5, 'شعر_خشن': 0.7 },
       synergy: { 'زيت الأرغان': 1.05, 'زيت إكليل الجبل': 1.05 },
       contraindications: []
     },
@@ -73,9 +79,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [10, 40],
       climateSuitability: ['معتدل'],
       seasonalSuitability: ['الخريف', 'الشتاء'],
-      weights: { 'تكثيف': 4, 'تساقط': 5, 'DHT': 5, 'متوسط': 3 },
-      penalties: { 'دهني': 0.5 },
-      synergy: { 'زيت الخروع': 1.08 },
+      weights: { 
+        'تكثيف': 4, 'تساقط': 5, 'DHT': 5, 'متوسط': 3,
+        '18-35 سنة': 4, '36-50 سنة': 5, 'أكثر من 50 سنة': 3,
+        'ناعم': 2, 'مجعد': 4, 'خشن': 5, 'ملون/مصفف': 3
+      },
+      penalties: { 'دهني': 0.5, 'أقل من 18 سنة': 0.3 },
+      synergy: { 'زيت الخروع': 1.08, 'زيت الروزماري': 1.05 },
       contraindications: []
     },
     {
@@ -89,9 +99,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [15, 50],
       climateSuitability: ['جاف', 'معتدل'],
       seasonalSuitability: ['الشتاء', 'الخريف'],
-      weights: { 'ترطيب': 4, 'جاف': 5, 'متوسط': 3, 'غسيل نادر': 4, 'تقوية': 2 },
-      penalties: { 'دهني': 1 },
-      synergy: { 'زيت الجوجوبا': 1.05 },
+      weights: { 
+        'ترطيب': 4, 'جاف': 5, 'متوسط': 3, 'غسيل نادر': 4, 'تقوية': 2,
+        '36-50 سنة': 4, 'أكثر من 50 سنة': 5,
+        'ناعم': 3, 'مجعد': 5, 'خشن': 4, 'ملون/مصفف': 5
+      },
+      penalties: { 'دهني': 1, 'أقل من 18 سنة': 0.5 },
+      synergy: { 'زيت الجوجوبا': 1.05, 'زيت اللوز الحلو': 1.03 },
       contraindications: []
     },
     {
@@ -101,12 +115,16 @@ function Quiz({ onQuizComplete }) {
       absorption: 'سريع',
       heaviness: 'خفيف',
       scent: 'عشبي',
-      maxPercentage: 5, // Hard limit
+      maxPercentage: 5,
       idealRange: [1, 3],
       climateSuitability: ['معتدل', 'جاف'],
       seasonalSuitability: ['الربيع', 'الخريف'],
-      weights: { 'تطويل': 3, 'تقوية': 3, 'تساقط': 4, 'DHT': 4, 'خفيف': 2 },
-      penalties: { 'حساسية روائح': 0.5 },
+      weights: { 
+        'إطالة': 3, 'تقوية': 3, 'تساقط': 4, 'DHT': 4, 'خفيف': 2,
+        '18-35 سنة': 4, '36-50 سنة': 3,
+        'ناعم': 3, 'مجعد': 2, 'خشن': 4, 'ملون/مصفف': 2
+      },
+      penalties: { 'حساسية روائح': 0.5, 'أكثر من 50 سنة': 0.3 },
       synergy: { 'زيت النعناع': 1.06, 'زيت الجوجوبا': 1.04 },
       contraindications: ['حمل']
     },
@@ -117,13 +135,17 @@ function Quiz({ onQuizComplete }) {
       absorption: 'سريع',
       heaviness: 'خفيف',
       scent: 'منعش',
-      maxPercentage: 3, // Lower than other essentials
+      maxPercentage: 3,
       idealRange: [0.5, 2],
       climateSuitability: ['رطب', 'معتدل'],
       seasonalSuitability: ['الصيف'],
-      weights: { 'دهني': 3, 'DHT': 2, 'انتعاش': 4, 'خفيف': 3, 'تقوية': 1 },
-      penalties: { 'حساسية روائح': 0.8 },
-      synergy: { 'زيت إكليل الجبل': 1.06 },
+      weights: { 
+        'دهني': 3, 'DHT': 2, 'انتعاش': 4, 'خفيف': 3, 'تقوية': 1,
+        'أقل من 18 سنة': 4, '18-35 سنة': 3,
+        'ناعم': 4, 'مجعد': 2, 'خشن': 1, 'ملون/مصفف': 2
+      },
+      penalties: { 'حساسية روائح': 0.8, 'أكثر من 50 سنة': 0.6 },
+      synergy: { 'زيت إكليل الجبل': 1.06, 'زيت الجوجوبا': 1.03 },
       contraindications: ['حمل']
     },
     {
@@ -133,13 +155,17 @@ function Quiz({ onQuizComplete }) {
       absorption: 'بطيء',
       heaviness: 'ثقيل',
       scent: 'قوي',
-      maxPercentage: 20, // Absolute max
+      maxPercentage: 20,
       idealRange: [10, 15],
       climateSuitability: ['جاف', 'معتدل'],
       seasonalSuitability: ['الشتاء'],
-      weights: { 'تساقط': 4, 'تكثيف': 4, 'ثقيل': 5, 'غسيل نادر': 5 },
-      penalties: { 'دهني': 2, 'غسيل متكرر': 1 },
-      synergy: { 'زيت بذور اليقطين': 1.08 },
+      weights: { 
+        'تساقط': 4, 'تكثيف': 4, 'ثقيل': 5, 'غسيل نادر': 5,
+        '18-35 سنة': 4, '36-50 سنة': 5,
+        'مجعد': 5, 'خشن': 5, 'ملون/مصفف': 3
+      },
+      penalties: { 'دهني': 2, 'غسيل متكرر': 1, 'ناعم': 1.5 },
+      synergy: { 'زيت بذور اليقطين': 1.08, 'زيت الجوجوبا': 1.1 },
       contraindications: [],
       usageTips: 'يخلط دائماً مع زيوت خفيفة لتحسين الامتصاص'
     },
@@ -154,9 +180,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [5, 10],
       climateSuitability: ['جاف'],
       seasonalSuitability: ['الشتاء', 'الخريف'],
-      weights: { 'تطويل': 3, 'تساقط': 3, 'ثقيل': 4, 'تقوية': 2 },
-      penalties: { 'دهني': 1 },
-      synergy: { 'زيت الأرغان': 1.03 },
+      weights: { 
+        'إطالة': 3, 'تساقط': 3, 'ثقيل': 4, 'تقوية': 2,
+        '36-50 سنة': 4, 'أكثر من 50 سنة': 5,
+        'مجعد': 4, 'خشن': 5, 'ملون/مصفف': 2
+      },
+      penalties: { 'دهني': 1, 'أقل من 18 سنة': 0.7 },
+      synergy: { 'زيت الأرغان': 1.03, 'زيت الزيتون': 1.02 },
       contraindications: [],
       usageTips: 'يستخدم بحذر على البشرة الحساسة'
     },
@@ -171,9 +201,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [2, 4],
       climateSuitability: ['رطب'],
       seasonalSuitability: ['الصيف'],
-      weights: { 'فطريات': 5, 'قشرة': 4, 'ثقيل': 3, 'تقوية': 1 },
-      penalties: { 'حساسية روائح': 1.2, 'دهني': 1 },
-      synergy: { 'زيت الجوجوبا': 1.02 },
+      weights: { 
+        'فطريات': 5, 'قشرة': 4, 'ثقيل': 3, 'تقوية': 1,
+        '18-35 سنة': 4, '36-50 سنة': 3,
+        'ناعم': 1, 'مجعد': 3, 'خشن': 4
+      },
+      penalties: { 'حساسية روائح': 1.2, 'دهني': 1, 'أكثر من 50 سنة': 0.5 },
+      synergy: { 'زيت الجوجوبا': 1.02, 'زيت شجرة الشاي': 1.04 },
       contraindications: []
     },
     {
@@ -187,9 +221,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [20, 70],
       climateSuitability: ['معتدل'],
       seasonalSuitability: ['الربيع', 'الخريف'],
-      weights: { 'ترطيب': 2, 'جاف': 3, 'متوسط': 3, 'محايد': 2 },
-      penalties: { 'حساسية لوز': 5 },
-      synergy: { 'زيت الأرغان': 1.02 },
+      weights: { 
+        'ترطيب': 2, 'جاف': 3, 'متوسط': 3, 'محايد': 2,
+        'أقل من 18 سنة': 4, '18-35 سنة': 3, 'أكثر من 50 سنة': 2,
+        'ناعم': 5, 'مجعد': 3, 'خشن': 2, 'ملون/مصفف': 4
+      },
+      penalties: { 'حساسية لوز': 5, 'دهني': 0.3 },
+      synergy: { 'زيت الأرغان': 1.02, 'زيت الجوجوبا': 1.03 },
       contraindications: ['لوز']
     },
     {
@@ -203,9 +241,13 @@ function Quiz({ onQuizComplete }) {
       idealRange: [15, 25],
       climateSuitability: ['جاف'],
       seasonalSuitability: ['الشتاء'],
-      weights: { 'ترطيب': 3, 'تقوية': 2, 'ثقيل': 4 },
-      penalties: { 'دهني': 2, 'منخفضة': 0.5 },
-      synergy: { 'زيت الأرغان': 1.03 },
+      weights: { 
+        'ترطيب': 3, 'تقوية': 2, 'ثقيل': 4,
+        '18-35 سنة': 3, '36-50 سنة': 4,
+        'مجعد': 5, 'خشن': 5, 'ملون/مصفف': 2
+      },
+      penalties: { 'دهني': 2, 'منخفضة': 0.5, 'ناعم': 1.2 },
+      synergy: { 'زيت الأرغان': 1.03, 'زيت الخروع': 1.05 },
       contraindications: [],
       usageTips: 'يتصلب في البرد - يسخن قبل الاستخدام'
     }
@@ -238,23 +280,51 @@ function Quiz({ onQuizComplete }) {
   // Build user conditions vector from answers
   const userConditions = useMemo(() => {
     const c = [];
+    if (gender) c.push(gender);
+    if (ageGroup) c.push(ageGroup);
+    if (hairType) c.push(hairType);
     if (hairFall === 'نعم') c.push('تساقط');
+    if (scalp) c.push(scalp);
     if (issues === 'قشرة') c.push('قشرة');
     if (issues === 'فطريات') c.push('فطريات');
-    if (goal) c.push(goal);
-    if (scalp) c.push(scalp);
-    if (climate) c.push(climate);
-    if (gender === 'ذكر' && hairFall === 'نعم') c.push('DHT');
+    if (washFrequency) c.push(washFrequency);
     if (porosity === 'منخفضة') c.push('خفيف');
     if (porosity === 'عالية') c.push('ثقيل');
     if (porosity === 'متوسطة') c.push('متوسط');
+    if (climate) c.push(climate);
+    if (goals) c.push(goals);
+    if (scentPreference) c.push(scentPreference);
+    
+    // Add specific conditions based on combinations
+    if (gender === 'ذكر' && hairFall === 'نعم') c.push('DHT');
     if (washFrequency === 'كل يوم') c.push('غسيل متكرر');
     if (washFrequency === 'كل أسبوعين') c.push('غسيل نادر');
-    if (scentPreference === 'عشبي') c.push('عشبي');
-    if (scentPreference === 'محايد') c.push('محايد');
-    return c;
-  }, [gender, hairFall, scalp, issues, washFrequency, porosity, climate, goal, scentPreference]);
+    
+    
+    
+    // Add hair type specific conditions
+    if (hairType === 'مجعد') c.push('مجعد');
+    if (hairType === 'خشن') c.push('خشن');
+    if (hairType === 'ناعم') c.push('ناعم');
+    if (hairType === 'ملون/مصفف') c.push('ملون/مصفف');
 
+    goals.forEach(goal => {
+      c.push(goal);
+    });
+  
+    return c;
+  }, [
+    gender, 
+    ageGroup, 
+    hairType, 
+    hairFall, 
+    scalp, 
+    issues, 
+    washFrequency, 
+    porosity, 
+    climate, 
+    goals
+  ]);
   // ======= CORE ENGINE =======
   function determineBlendEnhanced() {
     const trace = [];
@@ -293,7 +363,7 @@ function Quiz({ onQuizComplete }) {
         const effect = (oil.weights?.['تساقط'] || 0) + 
                       (oil.weights?.['تقوية'] || 0) + 
                       (oil.weights?.['تكثيف'] || 0) + 
-                      (oil.weights?.['تطويل'] || 0);
+                      (oil.weights?.['إطالة'] || 0);
         const boost = effect * 0.05;
         if (boost) {
           scores[oil.name] += boost;
@@ -434,7 +504,7 @@ function Quiz({ onQuizComplete }) {
       }));
   
     // 16. Calculate confidence
-    const answeredQuestions = [gender, hairFall, scalp, issues, washFrequency, porosity, climate, goal]
+    const answeredQuestions = [gender, hairType, ageGroup, hairFall, scalp, issues, washFrequency, porosity, climate, goals]
       .filter(Boolean).length;
     const completeness = answeredQuestions / totalSteps;
     const topScore = ranked[0]?.[1] || 1;
@@ -472,13 +542,22 @@ function Quiz({ onQuizComplete }) {
   const handleOptionClick = (value) => {
     switch (step) {
       case 1: setGender(value); break;
-      case 2: setHairFall(value); break;
-      case 3: setScalp(value); break;
-      case 4: setIssues(value); break;
-      case 5: setWashFrequency(value); break;
-      case 6: setPorosity(value); break;
-      case 7: setClimate(value); break;
-      case 8: setGoal(value); break;
+      case 2: setAgeGroup(value); break; // جديد
+      case 3: setHairType(value); break; // جديد 
+      case 4: setHairFall(value); break;
+      case 5: setScalp(value); break;
+      case 6: setIssues(value); break;
+      case 7: setWashFrequency(value); break;
+      case 8: setPorosity(value); break;
+      case 9: setClimate(value); break;
+      case 10: 
+      // Toggle selection for goals
+      setGoals(prev => 
+        prev.includes(value) 
+          ? prev.filter(g => g !== value) 
+          : [...prev, value]
+      );
+      break;
       default: break;
     }
   };
@@ -486,13 +565,15 @@ function Quiz({ onQuizComplete }) {
   const currentSelection = () => {
     switch (step) {
       case 1: return gender;
-      case 2: return hairFall;
-      case 3: return scalp;
-      case 4: return issues;
-      case 5: return washFrequency;
-      case 6: return porosity;
-      case 7: return climate;
-      case 8: return goal;
+      case 2: return ageGroup; // جديد
+      case 3: return hairType; // جديد
+      case 4: return hairFall;
+      case 5: return scalp;
+      case 6: return issues;
+      case 7: return washFrequency;
+      case 8: return porosity;
+      case 9: return climate;
+      case 10: return goals.length > 0 ? goals.join(', ') : ''; // Return joined string for display
       default: return '';
     }
   };
@@ -646,7 +727,9 @@ function Quiz({ onQuizComplete }) {
             washFrequency,
             porosity,
             climate,
-            goal,
+            goals: JSON.stringify(goals),
+            hairType,
+            ageGroup,
             season,
             scentPreference,
             allergies,
@@ -667,13 +750,15 @@ function Quiz({ onQuizComplete }) {
   const getOptions = () => {
     switch (step) {
       case 1: return ['ذكر', 'أنثى'];
-      case 2: return ['نعم', 'لا'];
-      case 3: return ['دهني', 'جاف', 'عادي'];
-      case 4: return ['كلا', 'قشرة', 'فطريات'];
-      case 5: return ['كل يوم', '2-3 مرات أسبوعيًا', 'مرة أسبوعيًا', 'كل أسبوعين'];
-      case 6: return ['منخفضة', 'متوسطة', 'عالية'];
-      case 7: return ['جاف', 'رطب', 'معتدل'];
-      case 8: return ['ترطيب', 'تطويل', 'تكثيف', 'تقوية'];
+      case 2: return ['أقل من 18 سنة', '18-35 سنة', '36-50 سنة', 'أكثر من 50 سنة']; // جديد
+      case 3: return ['ناعم', 'مجعد', 'خشن', 'ملون/مصفف']; // جديد
+      case 4: return ['نعم', 'لا'];
+      case 5: return ['دهني', 'جاف', 'عادي'];
+      case 6: return ['كلا', 'قشرة', 'فطريات'];
+      case 7: return ['كل يوم', '2-3 مرات أسبوعيًا', 'مرة أسبوعيًا', 'كل أسبوعين'];
+      case 8: return ['منخفضة', 'متوسطة', 'عالية'];
+      case 9: return ['جاف', 'رطب', 'معتدل'];
+      case 10: return ['ترطيب', 'إطالة', 'تكثيف', 'تقوية'];
       default: return [];
     }
   };
@@ -681,6 +766,8 @@ function Quiz({ onQuizComplete }) {
   const stepTitle = () => {
     const titles = [
       'ما هو جنسك؟',
+      'ما هي فئتك العمرية؟', // جديد
+      'ما هو نوع شعرك؟', // جديد
       'هل تعاني من تساقط الشعر؟',
       'ما نوع فروة رأسك؟',
       'هل لديك مشاكل في فروة الرأس؟',
@@ -695,6 +782,8 @@ function Quiz({ onQuizComplete }) {
   const motivationText = () => {
     const texts = [
       'الجنس يؤثر على هرمونات الشعر واستجابته للزيوت.',
+      'العمر يحدد كثافة الزيوت الطبيعية التي تنتجها فروة الرأس.', // جديد
+      'نوع الشعر يحدد قدرة الامتصاص والزيوت المناسبة له.', // جديد
       'التساقط يحتاج زيوت موجهة للجذور وتقليل DHT.',
       'نوع الفروة يحدد وزن الزيت وسرعة امتصاصه.',
       'عالج المشكلة أولًا ثم غذِّ الشعر.',
@@ -791,7 +880,235 @@ function Quiz({ onQuizComplete }) {
                 {motivationText()}
               </motion.p>
 
-              {step === 7 ? (
+              {/* Step 1: Gender */}
+              {step === 1 && (
+                <motion.div 
+                  className="options-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 2: Age Group */}
+              {step === 2 && (
+                <motion.div 
+                className="options-grid"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {getOptions().map((option, index) => (
+                  <motion.button
+                    key={option}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleOptionClick(option)}
+                    className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                  >
+                    {option}
+                  </motion.button>
+                ))}
+              </motion.div>
+            )}
+
+              {/* Step 3: Hair Type */}
+              {step === 3 && (
+                <motion.div 
+                  className="options-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 4: Hair Fall */}
+              {step === 4 && (
+                <motion.div 
+                  className="options-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 5: Scalp Type */}
+              {step === 5 && (
+                <motion.div 
+                  className="options-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 6: Scalp Issues */}
+              {step === 6 && (
+                <motion.div 
+                  className="options-grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 7: Wash Frequency */}
+              {step === 7 && (
+                <motion.div 
+                  className="options-grid frequency-options"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {getOptions().map((option, index) => (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOptionClick(option)}
+                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                    >
+                      {option}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Step 8: Porosity */}
+              {step === 8 && (
+                <>
+                  <motion.div 
+                    className="options-grid"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {getOptions().map((option, index) => (
+                      <motion.button
+                        key={option}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 * index }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleOptionClick(option)}
+                        className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
+                      >
+                        {option}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                  <PorosityGuide />
+                </>
+              )}
+
+              {/* Step 9: Climate */}
+              {step === 9 && (
                 <motion.div
                 className="climate-container"
                 initial={{ opacity: 0, y: 10 }}
@@ -917,63 +1234,56 @@ function Quiz({ onQuizComplete }) {
                   </motion.div>
                 )}
               </motion.div>
-              
-              ) : step === 6 ? (
-                <>
-                  <motion.div 
-                    className="options-grid"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {getOptions().map((option, index) => (
-                      <motion.button
-                        key={option}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 * index }}
-                        whileHover={{ 
-                          scale: 1.05,
-                          boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleOptionClick(option)}
-                        className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
-                      >
-                        {option}
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                  <PorosityGuide />
-                </>
-              ) : (
-                <motion.div 
-                  className={`options-grid ${step === 5 ? 'frequency-options' : ''}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  {getOptions().map((option, index) => (
-                    <motion.button
-                      key={option}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * index }}
-                      whileHover={{ 
-                        scale: 1.05,
-                        boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleOptionClick(option)}
-                      className={`option-btn ${currentSelection() === option ? 'selected' : ''}`}
-                    >
-                      {option}
-                    </motion.button>
-                  ))}
-                </motion.div>
-              )}
+                  )}
+                
 
-          
+              
+              {/* Step 10: Goals (Multiple Selection) */}
+{step === 10 && (
+  <motion.div 
+    className="options-grid"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.3 }}
+  >
+    {getOptions().map((option, index) => (
+      <motion.div
+        key={option}
+        className={`option-btn ${goals.includes(option) ? 'selected' : ''}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 * index }}
+        whileHover={{ 
+          scale: 1.02,
+          boxShadow: '0 8px 20px rgba(0,0,0,0.12)'
+        }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => handleOptionClick(option)}
+      >
+        <div className="option-content">
+          <h4>{option}</h4>
+          <p className="option-description">
+            {option === 'ترطيب' && 'ترطيب عميق للشعر الجاف والمتضرر'}
+            {option === 'إطالة' && 'تحفيز نمو الشعر وتمديده'}
+            {option === 'تكثيف' && 'زيادة كثافة الشعر'}
+            {option === 'تقوية' && 'تقوية جذور الشعر وإيقاف التساقط'}
+          </p>
+        </div>
+        <div className="multi-select-indicator">
+          {goals.includes(option) ? (
+            <div className="checkmark">✓</div>
+          ) : (
+            <div className="empty-circle"></div>
+          )}
+        </div>
+      </motion.div>
+    ))}
+
+      
+    
+  </motion.div>
+)}
+
             </motion.div>
           </AnimatePresence>
 
