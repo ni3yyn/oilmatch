@@ -1,6 +1,18 @@
 import React from 'react';
 import '../Quiz.css';
 
+// Import all icons
+import jojobaIcon from '../icons/jojoba.png';
+import pumpkinseedsIcon from '../icons/pumpkinseeds.png';
+import arganIcon from '../icons/argan.png';
+import rosemaryIcon from '../icons/rosemary.png';
+import peppermintIcon from '../icons/peppermint.png';
+import castorIcon from '../icons/castor.png';
+import blackseedIcon from '../icons/blackseed.png';
+import neemIcon from '../icons/neem.png';
+import almondIcon from '../icons/sweetalmond.png';
+import coconutIcon from '../icons/coconut.png';
+
 function Result({ blend }) {
   const descriptions = {
     "زيت الجوجوبا": "مطابق كيميائياً لزيت الشعر الطبيعي - يوازن الإفرازات الدهنية ويمنع الانسداد",
@@ -16,16 +28,29 @@ function Result({ blend }) {
   };
 
   const icons = {
-    "زيت الجوجوبا": "⚖️", // Balance
-    "زيت بذور اليقطين": "💪", // Strength
-    "زيت الأرغان": "✨", // Shine
-    "زيت إكليل الجبل": "🔄", // Circulation
-    "زيت النعناع": "❄️", // Cooling
-    "زيت الخروع": "📈", // Growth
-    "زيت الحبة السوداء": "🛡️", // Protection
-    "زيت النيم": "🧴", // Cleansing
-    "زيت اللوز الحلو": "🤲", // Gentleness
-    "زيت جوز الهند": "🛡️" // Protection
+    "زيت الجوجوبا": jojobaIcon,
+    "زيت بذور اليقطين": pumpkinseedsIcon,
+    "زيت الأرغان": arganIcon,
+    "زيت إكليل الجبل": rosemaryIcon,
+    "زيت النعناع": peppermintIcon,
+    "زيت الخروع": castorIcon,
+    "زيت الحبة السوداء": blackseedIcon,
+    "زيت النيم": neemIcon,
+    "زيت اللوز الحلو": almondIcon,
+    "زيت جوز الهند": coconutIcon
+  };
+
+  const emojiFallbacks = {
+    "زيت الجوجوبا": "⚖️",
+    "زيت بذور اليقطين": "💪",
+    "زيت الأرغان": "✨",
+    "زيت إكليل الجبل": "🔄",
+    "زيت النعناع": "❄️",
+    "زيت الخروع": "📈",
+    "زيت الحبة السوداء": "🛡️",
+    "زيت النيم": "🧴",
+    "زيت اللوز الحلو": "🤲",
+    "زيت جوز الهند": "🛡️"
   };
 
   // Safe blend parsing with error handling
@@ -44,15 +69,41 @@ function Result({ blend }) {
 
   if (blendArray.length === 0) {
     return (
-      <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
+      <div className="resultcontainer glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
         <h3 className="result-intro">عذراً، حدث خطأ في تحميل التركيبة</h3>
         <p className="error-message">الرجاء المحاولة مرة أخرى أو اختيار تركيبة أخرى</p>
       </div>
     );
   }
 
+  // Helper function to render icon (image or emoji)
+  const renderIcon = (oilName) => {
+    const iconSrc = icons[oilName];
+    const fallbackEmoji = emojiFallbacks[oilName] || "🌿";
+    
+    if (!iconSrc) {
+      return fallbackEmoji;
+    }
+
+    return (
+      <img 
+        src={iconSrc} 
+        alt={oilName}
+        className="oil-icon-img"
+        onError={(e) => {
+          // If image fails to load, show emoji instead
+          e.target.style.display = 'none';
+          const span = document.createElement('span');
+          span.className = 'emoji-fallback';
+          span.textContent = fallbackEmoji;
+          e.target.parentNode.appendChild(span);
+        }}
+      />
+    );
+  };
+
   return (
-    <div className="quiz-container glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
+    <div className="resultcontainer glassy animate-fade-slide" style={{ padding: '40px 25px' }}>
       <h3 className="result-intro">:أحسنت! هاهي النتيجة</h3>
 
       <svg width="0" height="0" style={{ position: 'absolute' }}>
@@ -67,12 +118,13 @@ function Result({ blend }) {
       <ul className="oil-list">
         {blendArray.map((oil, index) => {
           const offset = 100 - (oil.percentage || 0);
-          const icon = icons[oil.name] || "🌿";
           const description = descriptions[oil.name] || "زيت مفيد لصحة شعرك.";
 
           return (
             <li key={index} className="oil-item">
-              <span className="oil-icon">{icon}</span>
+              <span className="oil-icon">
+                {renderIcon(oil.name)}
+              </span>
               <div className="oil-text">
                 <h4>{oil.name || "زيت مخصص"}</h4>
                 <p>{description}</p>
