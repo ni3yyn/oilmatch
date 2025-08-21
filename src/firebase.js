@@ -20,3 +20,4 @@ const auth = getAuth(app);
 
 
 export { db, auth };
+export { collection, addDoc, serverTimestamp } from 'firebase/firestore';

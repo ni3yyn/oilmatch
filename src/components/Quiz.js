@@ -2,6 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSpinner, FaLightbulb, FaCheckCircle, FaExclamationTriangle, FaSyncAlt } from "react-icons/fa";
 import '../Quiz.css';
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+
 
 function Quiz({ onQuizComplete }) {
   // ======= STATE (kept from your file, with a few additions) =======
@@ -85,7 +89,7 @@ function Quiz({ onQuizComplete }) {
         'ناعم': 2, 'مجعد': 4, 'خشن': 5, 'ملون/مصفف': 3
       },
       penalties: { 'دهني': 0.5, 'أقل من 18 سنة': 0.3 },
-      synergy: { 'زيت الخروع': 1.08, 'زيت الروزماري': 1.05 },
+      synergy: { 'زيت الخروع': 1.08, 'زيت إكليل الجبل': 1.05 },
       contraindications: []
     },
     {
@@ -292,7 +296,7 @@ function Quiz({ onQuizComplete }) {
     if (porosity === 'عالية') c.push('ثقيل');
     if (porosity === 'متوسطة') c.push('متوسط');
     if (climate) c.push(climate);
-    if (goals) c.push(goals);
+    if (goals.length > 0) goals.forEach(g => c.push(g));
     if (scentPreference) c.push(scentPreference);
     
     // Add specific conditions based on combinations
@@ -370,8 +374,8 @@ function Quiz({ onQuizComplete }) {
           trace.push(`${oil.name}: +${boost.toFixed(2)} وضع علاجي`);
         }
       } else if (mode === 'cosmetic') {
-        const lightness = oil.props?.heaviness === 'خفيف' ? 0.6 : 
-                          oil.props?.heaviness === 'متوسط' ? 0.2 : -0.4;
+        const lightness = oil.heaviness === 'خفيف' ? 0.6 :
+                  oil.heaviness === 'متوسط' ? 0.2 : -0.4;
         scores[oil.name] += lightness;
         trace.push(`${oil.name}: ${lightness >= 0 ? '+' : ''}${lightness.toFixed(2)} وضع تجميلي`);
       }
@@ -537,6 +541,49 @@ function Quiz({ onQuizComplete }) {
       trace
     };
   }
+
+  // Update the saveResultsToFirebase function
+const saveResultsToFirebase = async (orderId, userData, result) => {
+  try {
+    const resultData = {
+      orderId: orderId,
+      timestamp: serverTimestamp(),
+      userData: {
+        gender: userData.gender,
+        ageGroup: userData.ageGroup,
+        hairType: userData.hairType,
+        hairFall: userData.hairFall,
+        scalp: userData.scalp,
+        issues: userData.issues,
+        washFrequency: userData.washFrequency,
+        porosity: userData.porosity,
+        climate: userData.climate,
+        goals: userData.goals,
+        allergies: userData.allergies || [],
+        season: userData.season,
+        scentPreference: userData.scentPreference,
+        mode: userData.mode
+      },
+      result: {
+        blend: result.blend,
+        alternatives: result.alternatives,
+        confidence: result.confidence,
+        reasoning: result.reasoning,
+        warnings: result.warnings,
+        trace: result.trace
+      },
+      status: 'completed'
+    };
+
+    // Changed from "orders" to "resultdata"
+    await setDoc(doc(db, "resultdata", orderId), resultData);
+    console.log("Result data saved successfully with ID:", orderId);
+    return orderId;
+  } catch (error) {
+    console.error("Error saving result data to Firebase:", error);
+    throw error;
+  }
+};
 
   // ======= UI HELPERS (mostly from your code) =======
   const handleOptionClick = (value) => {
@@ -713,7 +760,7 @@ const scrollToTop = () => {
 };
 
 // Then update your handleNext function to include scrolling
-const handleNext = () => {
+const handleNext = async () => {
   if (step < totalSteps) {
     setDirection(1);
     setStep(prev => prev + 1);
@@ -724,38 +771,88 @@ const handleNext = () => {
     setLoading(true);
     setProgress(0);
     let counter = 0;
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       counter += 2;
       if (counter <= 100) {
         setProgress(counter);
       } else {
         clearInterval(interval);
-        const result = determineBlendEnhanced();
-        onQuizComplete({
-          gender,
-          ageGroup,
-          hairType,
-          hairFall,
-          scalp,
-          issues,
-          washFrequency,
-          porosity,
-          climate,
-          goals: JSON.stringify(goals),
-          season,
-          scentPreference,
-          allergies,
-          mode,
-          blend: JSON.stringify(result.blend),
-          alternatives: JSON.stringify(result.alternatives),
-          confidence: result.confidence,
-          reasoning: result.reasoning,
-          warnings: JSON.stringify(result.warnings),
-          trace: JSON.stringify(result.trace)
-        });
+        
+        try {
+          const result = determineBlendEnhanced();
+          const orderId = generateOrderId();
+          
+          // Prepare user data
+          const userData = {
+            gender,
+            ageGroup,
+            hairType,
+            hairFall,
+            scalp,
+            issues,
+            washFrequency,
+            porosity,
+            climate,
+            goals: JSON.stringify(goals),
+            allergies: allergies, // Add this when you implement allergies
+            season,
+            scentPreference,
+            mode
+          };
+
+          // Save to Firebase
+          await saveResultsToFirebase(orderId, userData, result);
+          
+          // Pass orderId to onQuizComplete
+          onQuizComplete({
+            ...userData,
+            orderId, // Add orderId to the result
+            blend: JSON.stringify(result.blend),
+            alternatives: JSON.stringify(result.alternatives),
+            confidence: result.confidence,
+            reasoning: result.reasoning,
+            warnings: JSON.stringify(result.warnings),
+            trace: JSON.stringify(result.trace)
+          });
+
+        } catch (error) {
+          console.error("Error processing results:", error);
+          // Fallback - still show results even if Firebase fails
+          const result = determineBlendEnhanced();
+          onQuizComplete({
+            gender,
+            ageGroup,
+            hairType,
+            hairFall,
+            scalp,
+            issues,
+            washFrequency,
+            porosity,
+            climate,
+            goals: JSON.stringify(goals),
+            allergies: allergies,
+            season,
+            scentPreference,
+            mode,
+            blend: JSON.stringify(result.blend),
+            alternatives: JSON.stringify(result.alternatives),
+            confidence: result.confidence,
+            reasoning: result.reasoning,
+            warnings: JSON.stringify(result.warnings),
+            trace: JSON.stringify(result.trace),
+            orderId: 'ERROR_SAVING' // Indicate save error
+          });
+        }
       }
     }, 100);
   }
+};
+
+// Add this function in your Quiz component or a separate utility file
+const generateOrderId = () => {
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substring(2, 8);
+  return `DATA_${timestamp}_${randomStr}`.toUpperCase();
 };
 
   // ======= OPTIONS & LABELS (kept + extended) =======

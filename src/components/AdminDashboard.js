@@ -10,6 +10,7 @@ import '../AdminDashboard.css';
 const BlendDisplay = ({ blend, quantity }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
+  
 
   // Close when clicking outside
   useEffect(() => {
@@ -69,7 +70,8 @@ function AdminDashboard() {
   const [additionalImages, setAdditionalImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [resultData, setResultData] = useState([]);
+  const [analyticsTab, setAnalyticsTab] = useState('overview'); // 'overview', 'demographics', 'oils'
   const navigate = useNavigate();
 
   // Analytics state
@@ -83,6 +85,7 @@ function AdminDashboard() {
     monthlyData: [],
     popularProducts: []
   });
+
 
   // Fetch all data
   useEffect(() => {
@@ -157,6 +160,16 @@ function AdminDashboard() {
       }
     );
 
+    
+
+    const resultDataUnsubscribe = onSnapshot(
+      query(collection(db, 'resultdata'), orderBy('timestamp', 'desc')), 
+      (snapshot) => {
+        const resultData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setResultData(resultData);
+      }
+    );
+
     const productsUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
       setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
@@ -172,8 +185,27 @@ function AdminDashboard() {
       ordersUnsubscribe();
       productsUnsubscribe();
       articlesUnsubscribe();
+      resultDataUnsubscribe();
     };
   }, [products]);
+
+  const getSeasonName = (season) => {
+    const seasons = {
+      winter: 'الشتاء',
+      summer: 'الصيف', 
+      spring: 'الربيع',
+      autumn: 'الخريف'
+    };
+    return seasons[season] || season;
+  };
+  
+  const getMonthName = (monthNumber) => {
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    return months[monthNumber - 1] || monthNumber;
+  };
 
   const handleLogout = async () => {
     try {
@@ -194,6 +226,14 @@ function AdminDashboard() {
     }
   };
 
+  // Helper function to get season
+const getSeason = (month) => {
+  if (month >= 2 && month <= 4) return 'spring';
+  if (month >= 5 && month <= 7) return 'summer';
+  if (month >= 8 && month <= 10) return 'autumn';
+  return 'winter';
+};
+
   const handleDeleteOrder = async (id) => {
     if (window.confirm('هل أنت متأكد أنك تريد حذف هذا الطلب؟')) {
       try {
@@ -204,7 +244,27 @@ function AdminDashboard() {
       }
     }
   };
-
+  
+  const parseBlendData = (blend) => {
+    if (!blend) return [];
+    
+    try {
+      // Case 1: Already an array
+      if (Array.isArray(blend)) return blend;
+      
+      // Case 2: Stringified JSON
+      if (typeof blend === 'string') {
+        const parsed = JSON.parse(blend);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      
+      // Case 3: Other formats (unlikely)
+      return [];
+    } catch (e) {
+      console.error('Failed to parse blend:', e, blend);
+      return [];
+    }
+  };
   // Products functions
   const handleAddProduct = async (e) => {
     e.preventDefault();
@@ -352,6 +412,13 @@ function AdminDashboard() {
     setUploading(false);
   };
 
+  // Create targeted products for specific problems
+const problemSpecificBlends = {
+  'قشرة': ['زيت النيم', 'زيت شجرة الشاي', 'زيت الجوجوبا'],
+  'تساقط': ['زيت بذور اليقطين', 'زيت إكليل الجبل', 'زيت الخروع'],
+  'دهني': ['زيت الجوجوبا', 'زيت بذور العنب', 'زيت النعناع']
+};
+
   const resetArticleForm = () => {
     setArticleTitle('');
     setArticleContent('');
@@ -376,6 +443,260 @@ function AdminDashboard() {
       }
     }
   };
+
+  // Add this to your analytics calculation
+const demographicCrossAnalysis = {
+  ageHairType: {},
+  genderGoals: {},
+  climateScalp: {},
+  ageGoals: {}
+};
+
+resultData.forEach(result => {
+  const age = result.userData?.ageGroup || 'غير محدد';
+  const hairType = result.userData?.hairType || 'غير محدد';
+  const gender = result.userData?.gender || 'غير محدد';
+  const climate = result.userData?.climate || 'غير محدد';
+  const scalp = result.userData?.scalp || 'غير محدد';
+  
+  // Age vs Hair Type
+  const ageHairKey = `${age}||${hairType}`;
+  demographicCrossAnalysis.ageHairType[ageHairKey] = (demographicCrossAnalysis.ageHairType[ageHairKey] || 0) + 1;
+  
+  // Gender vs Goals
+  if (result.userData?.goals) {
+    try {
+      const goals = JSON.parse(result.userData.goals);
+      goals.forEach(goal => {
+        const genderGoalKey = `${gender}||${goal}`;
+        demographicCrossAnalysis.genderGoals[genderGoalKey] = (demographicCrossAnalysis.genderGoals[genderGoalKey] || 0) + 1;
+      });
+    } catch (e) {}
+  }
+  
+  // Climate vs Scalp
+  const climateScalpKey = `${climate}||${scalp}`;
+  demographicCrossAnalysis.climateScalp[climateScalpKey] = (demographicCrossAnalysis.climateScalp[climateScalpKey] || 0) + 1;
+});
+
+// Add oil effectiveness analysis
+const oilEffectiveness = {};
+
+resultData.forEach(result => {
+  const blendData = parseBlendData(result.result?.blend);
+  const confidence = result.result?.confidence || 50;
+  
+  if (blendData.length > 0) {
+    blendData.forEach(oil => {
+      if (!oilEffectiveness[oil.name]) {
+        oilEffectiveness[oil.name] = {
+          total: 0,
+          sumConfidence: 0,
+          averageConfidence: 0,
+          count: 0
+        };
+      }
+      
+      oilEffectiveness[oil.name].count++;
+      oilEffectiveness[oil.name].sumConfidence += confidence;
+      oilEffectiveness[oil.name].averageConfidence = 
+        oilEffectiveness[oil.name].sumConfidence / oilEffectiveness[oil.name].count;
+    });
+  }
+});
+
+// Convert to sorted array
+const sortedOilEffectiveness = Object.entries(oilEffectiveness)
+  .map(([name, data]) => ({
+    name,
+    averageConfidence: Math.round(data.averageConfidence),
+    count: data.count
+  }))
+  .sort((a, b) => b.averageConfidence - a.averageConfidence);
+
+  // Add seasonal analysis
+const monthlyTrends = {};
+const seasonalOilPreferences = {
+  winter: {},
+  summer: {},
+  spring: {},
+  autumn: {}
+};
+
+resultData.forEach(result => {
+  const timestamp = result.timestamp?.toDate ? result.timestamp.toDate() : new Date();
+  const month = timestamp.getMonth();
+  const season = getSeason(month);
+  
+  // Monthly trends
+  const monthKey = `${timestamp.getMonth() + 1}/${timestamp.getFullYear()}`;
+  monthlyTrends[monthKey] = (monthlyTrends[monthKey] || 0) + 1;
+  
+  // Seasonal oil preferences
+  const blendData = parseBlendData(result.result?.blend);
+  blendData.forEach(oil => {
+    seasonalOilPreferences[season][oil.name] = (seasonalOilPreferences[season][oil.name] || 0) + 1;
+  });
+});
+
+// Add problem-solution analysis
+// Replace the problemSolutions code with this:
+const problemSolutions = {
+  'قشرة': {},
+  'فطريات': {},
+  'تساقط': {},
+  'دهني': {},
+  'جاف': {},
+  'عادي': {}
+};
+
+resultData.forEach(result => {
+  const issues = result.userData?.issues;
+  const hairFall = result.userData?.hairFall;
+  const scalpType = result.userData?.scalp;
+  const blendData = parseBlendData(result.result?.blend);
+  
+  if (!blendData.length) return;
+
+  // Analyze based on specific issues
+  if (issues && issues !== 'كلا') {
+    blendData.forEach(oil => {
+      problemSolutions[issues][oil.name] = (problemSolutions[issues][oil.name] || 0) + 1;
+    });
+  }
+  
+  // Analyze hair fall problems
+  if (hairFall === 'نعم') {
+    blendData.forEach(oil => {
+      problemSolutions['تساقط'][oil.name] = (problemSolutions['تساقط'][oil.name] || 0) + 1;
+    });
+  }
+  
+  // Analyze scalp type solutions
+  if (scalpType && problemSolutions[scalpType]) {
+    blendData.forEach(oil => {
+      problemSolutions[scalpType][oil.name] = (problemSolutions[scalpType][oil.name] || 0) + 1;
+    });
+  }
+});
+
+// Convert to sorted arrays for each problem
+const sortedProblemSolutions = {};
+Object.entries(problemSolutions).forEach(([problem, oils]) => {
+  sortedProblemSolutions[problem] = Object.entries(oils)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 5);
+});
+  // Add these functions before your return statement
+const calculateResultAnalytics = useCallback(() => {
+  if (resultData.length === 0) return {};
+
+  // Basic statistics
+  const totalResults = resultData.length;
+  const today = new Date();
+  const lastWeekResults = resultData.filter(result => {
+    const resultDate = result.timestamp?.toDate ? result.timestamp.toDate() : new Date();
+    return (today - resultDate) <= 7 * 24 * 60 * 60 * 1000;
+  }).length;
+
+  // Demographic analysis
+  const ageDistribution = {};
+  const genderDistribution = {};
+  const hairTypeDistribution = {};
+  const scalpTypeDistribution = {};
+
+  // Goal analysis
+  const goalDistribution = {};
+  const climateDistribution = {};
+  
+  // Oil popularity
+  const oilPopularity = {};
+  const oilCombinations = {};
+
+  resultData.forEach(result => {
+    // Age distribution
+    const age = result.userData?.ageGroup || 'غير محدد';
+    ageDistribution[age] = (ageDistribution[age] || 0) + 1;
+
+    // Gender distribution
+    const gender = result.userData?.gender || 'غير محدد';
+    genderDistribution[gender] = (genderDistribution[gender] || 0) + 1;
+
+    // Hair type distribution
+    const hairType = result.userData?.hairType || 'غير محدد';
+    hairTypeDistribution[hairType] = (hairTypeDistribution[hairType] || 0) + 1;
+
+    // Scalp type distribution
+    const scalp = result.userData?.scalp || 'غير محدد';
+    scalpTypeDistribution[scalp] = (scalpTypeDistribution[scalp] || 0) + 1;
+
+    // Goals distribution
+    if (result.userData?.goals) {
+      try {
+        const goals = JSON.parse(result.userData.goals);
+        goals.forEach(goal => {
+          goalDistribution[goal] = (goalDistribution[goal] || 0) + 1;
+        });
+      } catch (e) {
+        console.error('Error parsing goals:', e);
+      }
+    }
+
+    // Climate distribution
+    const climate = result.userData?.climate || 'غير محدد';
+    climateDistribution[climate] = (climateDistribution[climate] || 0) + 1;
+
+    const blendData = parseBlendData(result.result?.blend);
+  
+  if (blendData.length > 0) {
+    // Count oil popularity
+    blendData.forEach(oil => {
+      oilPopularity[oil.name] = (oilPopularity[oil.name] || 0) + 1;
+    });
+    
+    // Count UNIQUE combinations only once per blend
+    const uniquePairs = new Set();
+    
+    for (let i = 0; i < blendData.length; i++) {
+      for (let j = i + 1; j < blendData.length; j++) {
+        if (blendData[i].name !== blendData[j].name) {
+          const combination = [blendData[i].name, blendData[j].name].sort().join(' + ');
+          uniquePairs.add(combination);
+        }
+      }
+    }
+    
+    // Add each unique pair only once for this blend
+    uniquePairs.forEach(combination => {
+      oilCombinations[combination] = (oilCombinations[combination] || 0) + 1;
+    });
+  }
+});
+  // Convert to arrays and sort
+  const sortedOils = Object.entries(oilPopularity)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 10);
+
+  const sortedCombinations = Object.entries(oilCombinations)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 10);
+
+  return {
+    totalResults,
+    lastWeekResults,
+    ageDistribution: Object.entries(ageDistribution).sort(([,a], [,b]) => b - a),
+    genderDistribution: Object.entries(genderDistribution).sort(([,a], [,b]) => b - a),
+    hairTypeDistribution: Object.entries(hairTypeDistribution).sort(([,a], [,b]) => b - a),
+    scalpTypeDistribution: Object.entries(scalpTypeDistribution).sort(([,a], [,b]) => b - a),
+    goalDistribution: Object.entries(goalDistribution).sort(([,a], [,b]) => b - a),
+    climateDistribution: Object.entries(climateDistribution).sort(([,a], [,b]) => b - a),
+    popularOils: sortedOils,
+    popularCombinations: sortedCombinations,
+    averageConfidence: resultData.reduce((sum, result) => sum + (result.result?.confidence || 0), 0) / totalResults
+  };
+}, [resultData]);
+
+const analyticsData = calculateResultAnalytics();
 
   // Filtering
   const filteredOrders = useCallback(() => {
@@ -421,6 +742,12 @@ function AdminDashboard() {
         >
           المقالات
         </button>
+        <button 
+  className={`admin-tab-btn ${activeTab === 'analytics' ? 'admin-tab-active' : ''}`} 
+  onClick={() => setActiveTab('analytics')}
+>
+  تحليلات النتائج
+</button>
       </div>
 
       {/* Analytics Section */}
@@ -819,6 +1146,337 @@ function AdminDashboard() {
           )}
         </div>
       )}
+
+      {/* Analytics Tab */}
+{activeTab === 'analytics' && (
+  <div className="admin-tab-content">
+    <div className="admin-analytics-header">
+      <h3>تحليلات نتائج اختبار الزيوت</h3>
+      <div className="admin-analytics-stats">
+        <div className="admin-analytics-stat">
+          <span className="stat-number">{analyticsData.totalResults || 0}</span>
+          <span className="stat-label">إجمالي النتائج</span>
+        </div>
+        <div className="admin-analytics-stat">
+          <span className="stat-number">{analyticsData.lastWeekResults || 0}</span>
+          <span className="stat-label">نتائج هذا الأسبوع</span>
+        </div>
+        <div className="admin-analytics-stat">
+          <span className="stat-number">{Math.round(analyticsData.averageConfidence || 0)}%</span>
+          <span className="stat-label">متوسط الثقة</span>
+        </div>
+      </div>
+    </div>
+
+    // Add more tabs to your analytics interface
+<div className="admin-analytics-tabs">
+  <button className={`analytics-tab-btn ${analyticsTab === 'overview' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('overview')}>
+    نظرة عامة
+  </button>
+  <button className={`analytics-tab-btn ${analyticsTab === 'demographics' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('demographics')}>
+    الديموغرافيا
+  </button>
+  <button className={`analytics-tab-btn ${analyticsTab === 'oils' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('oils')}>
+    تحليل الزيوت
+  </button>
+  <button className={`analytics-tab-btn ${analyticsTab === 'effectiveness' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('effectiveness')}>
+    فعالية الزيوت
+  </button>
+  <button className={`analytics-tab-btn ${analyticsTab === 'seasonal' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('seasonal')}>
+    trends موسمية
+  </button>
+  <button className={`analytics-tab-btn ${analyticsTab === 'problems' ? 'analytics-tab-active' : ''}`} onClick={() => setAnalyticsTab('problems')}>
+    حلول المشاكل
+  </button>
+</div>
+
+    {/* Overview Tab */}
+    {analyticsTab === 'overview' && (
+      <div className="analytics-tab-content">
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h4>توزيع الأهداف</h4>
+            <div className="distribution-list">
+              {analyticsData.goalDistribution?.map(([goal, count]) => (
+                <div key={goal} className="distribution-item">
+                  <span className="distribution-label">{goal}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="analytics-card">
+            <h4>توزيع المناخ</h4>
+            <div className="distribution-list">
+              {analyticsData.climateDistribution?.map(([climate, count]) => (
+                <div key={climate} className="distribution-item">
+                  <span className="distribution-label">{climate}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+{analyticsTab === 'problems' && (
+  <div className="analytics-tab-content">
+    <div className="analytics-grid">
+      {Object.entries(sortedProblemSolutions).map(([problem, solutions]) => (
+        solutions.length > 0 && (
+          <div key={problem} className="analytics-card">
+            <h4>
+              {problem === 'قشرة' && '🔴 حلول القشرة'}
+              {problem === 'فطريات' && '🟠 حلول الفطريات'}
+              {problem === 'تساقط' && '💪 حلول التساقط'}
+              {problem === 'دهني' && '✨ حلول الفروة الدهنية'}
+              {problem === 'جاف' && '💧 حلول الفروة الجافة'}
+              {problem === 'عادي' && '🌿 عناية الفروة العادية'}
+            </h4>
+            <div className="distribution-list">
+              {solutions.map(([oil, count]) => (
+                <div key={oil} className="distribution-item">
+                  <span className="distribution-label">{oil}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / Math.max(...solutions.map(([,c]) => c))) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {solutions.length === 0 && (
+              <p className="no-data-message">لا توجد بيانات كافية بعد</p>
+            )}
+          </div>
+        )
+      ))}
+    </div>
+  </div>
+)}
+    {/* Demographics Tab */}
+    {analyticsTab === 'demographics' && (
+      <div className="analytics-tab-content">
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h4>توزيع الفئات العمرية</h4>
+            <div className="distribution-list">
+              {analyticsData.ageDistribution?.map(([age, count]) => (
+                <div key={age} className="distribution-item">
+                  <span className="distribution-label">{age}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="analytics-card">
+            <h4>توزيع الجنس</h4>
+            <div className="distribution-list">
+              {analyticsData.genderDistribution?.map(([gender, count]) => (
+                <div key={gender} className="distribution-item">
+                  <span className="distribution-label">{gender}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="analytics-card">
+            <h4>توزيع أنواع الشعر</h4>
+            <div className="distribution-list">
+              {analyticsData.hairTypeDistribution?.map(([hairType, count]) => (
+                <div key={hairType} className="distribution-item">
+                  <span className="distribution-label">{hairType}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="analytics-card">
+            <h4>توزيع أنواع الفروة</h4>
+            <div className="distribution-list">
+              {analyticsData.scalpTypeDistribution?.map(([scalp, count]) => (
+                <div key={scalp} className="distribution-item">
+                  <span className="distribution-label">{scalp}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+// Effectiveness Tab
+{analyticsTab === 'effectiveness' && (
+  <div className="analytics-tab-content">
+    <div className="analytics-card">
+      <h4>فعالية الزيوت بناءً على ثقة النظام</h4>
+      <div className="distribution-list">
+        {sortedOilEffectiveness.slice(0, 10).map((oil, index) => (
+          <div key={oil.name} className="distribution-item">
+            <span className="distribution-label">{oil.name}</span>
+            <span className="distribution-value">{oil.averageConfidence}%</span>
+            <div className="distribution-bar">
+              <div 
+                className="distribution-bar-fill effectiveness-bar"
+                style={{ width: `${oil.averageConfidence}%` }}
+              ></div>
+            </div>
+            <span className="distribution-count">({oil.count} مرة)</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
+
+// Seasonal Tab
+{analyticsTab === 'seasonal' && (
+  <div className="analytics-tab-content">
+    <div className="analytics-grid">
+      {['winter', 'summer', 'spring', 'autumn'].map(season => (
+        <div key={season} className="analytics-card">
+          <h4>الزيوت المفضلة في {getSeasonName(season)}</h4>
+          <div className="distribution-list">
+            {Object.entries(seasonalOilPreferences[season] || {})
+              .sort(([,a], [,b]) => b - a)
+              .slice(0, 5)
+              .map(([oil, count]) => (
+                <div key={oil} className="distribution-item">
+                  <span className="distribution-label">{oil}</span>
+                  <span className="distribution-value">{count}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+    {/* Oils Tab */}
+    {analyticsTab === 'oils' && (
+      <div className="analytics-tab-content">
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h4>الزيوت الأكثر شيوعاً</h4>
+            <div className="distribution-list">
+              {analyticsData.popularOils?.map(([oil, count]) => (
+                <div key={oil} className="distribution-item">
+                  <span className="distribution-label">{oil}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="analytics-card">
+            <h4>أفضل التركيبات</h4>
+            <div className="distribution-list">
+              {analyticsData.popularCombinations?.map(([combination, count]) => (
+                <div key={combination} className="distribution-item">
+                  <span className="distribution-label">{combination}</span>
+                  <span className="distribution-value">{count}</span>
+                  <div className="distribution-bar">
+                    <div 
+                      className="distribution-bar-fill"
+                      style={{ 
+                        width: `${(count / analyticsData.totalResults) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Data Export */}
+    <div className="analytics-export">
+      <button 
+        className="export-btn"
+        onClick={() => {
+          const dataStr = JSON.stringify(resultData, null, 2);
+          const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+          const exportFileDefaultName = 'oil_results_data.json';
+          
+          const linkElement = document.createElement('a');
+          linkElement.setAttribute('href', dataUri);
+          linkElement.setAttribute('download', exportFileDefaultName);
+          linkElement.click();
+        }}
+      >
+        تصدير البيانات الخام
+      </button>
+    </div>
+  </div>
+)}
 
       {/* Articles Tab */}
       {activeTab === 'articles' && (
