@@ -21,6 +21,7 @@ import ArticleDetail from './components/ArticleDetail';
 import FloatingNav from './components/FloatingNav';
 import Footer from './components/Footer';
 import { FaHome } from 'react-icons/fa';
+import { useQuizLogic } from './components/QuizLogic';
 import './App.css';
 
 function App() {
