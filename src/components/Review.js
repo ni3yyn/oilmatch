@@ -467,7 +467,7 @@ const Review = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <label>كيف أصبح شعرك يشعر بعد استخدام الخلطة؟</label>
+              <label>كيف أصبح شعرك بعد استخدام الخلطة؟</label>
               <textarea 
                 value={feedback.hairFeel}
                 onChange={(e) => handleFeedbackChange('hairFeel', e.target.value)}
