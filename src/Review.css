@@ -82,6 +82,7 @@
 
 .star.selected {
   color: #ffc107;
+  transform: scale(1.9);
 }
 
 .feedback-section {
