@@ -1,5 +1,5 @@
 // File: Review.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
@@ -13,6 +13,9 @@ const Review = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const topOfPageRef = useRef(null);
+  const reviewFormRef = useRef(null);
 
   // Review state - تم التبسيط
   const [ratings, setRatings] = useState({
@@ -75,10 +78,33 @@ const Review = () => {
     fetchOrderData();
   }, [orderId]);
 
+  const scrollToTop = () => {
+    if (topOfPageRef.current) {
+      topOfPageRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    } else {
+      // Fallback if ref is not available
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const submitReview = async () => {
     // Check if both ratings are selected
     if (ratings.effectiveness === 0 || ratings.treatment === 0) {
       alert('يرجى تقييم جميع النقاط قبل الإرسال');
+      
+      // Scroll to the form if ratings are missing
+      if (reviewFormRef.current) {
+        reviewFormRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
       return;
     }
     
@@ -116,6 +142,9 @@ const Review = () => {
         reviewTimestamp: serverTimestamp()
       };
       await updateDoc(doc(db, 'orders', orderId), orderUpdate);
+      
+      // Scroll to top before showing success message
+      scrollToTop();
       
       setSubmitted(true);
       
@@ -166,6 +195,8 @@ const Review = () => {
   if (loading) {
     return (
       <div className="review-container premium-green">
+
+<div ref={topOfPageRef} style={{ position: 'absolute', top: 0 }}></div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -304,7 +335,7 @@ const Review = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <i className="icon-star"></i>
+            
             تقييم خلطة الزيوت
           </motion.h1>
           <motion.p 
@@ -320,10 +351,10 @@ const Review = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="blend-summary glass-card"
+          className="blendsummary glass-card"
         >
           <h2>
-            <i className="icon-oil"></i>
+            
             خلطتك الخاصة
           </h2>
           <div className="blend-composition">
@@ -333,13 +364,13 @@ const Review = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 * index }}
-                className="oil-item"
+                className="oilitem"
               >
-                <span className="oil-name">
-                  <i className="icon-drop"></i>
+                <span className="oilname">
+                  
                   {oil.name}
                 </span>
-                <span className="oil-percentage">{oil.percentage}%</span>
+                <span className="oilpercentage">{oil.percentage}%</span>
               </motion.div>
             ))}
           </div>
@@ -424,14 +455,14 @@ const Review = () => {
             </div>
           </div>
           
-          <div className="feedback-section">
+          <div className="feedbacksection">
             <h3>
               <i className="icon-feedback"></i>
               ملاحظات إضافية
             </h3>
             
             <motion.div 
-              className="form-group"
+              className="formgroup"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
@@ -440,28 +471,28 @@ const Review = () => {
               <textarea 
                 value={feedback.hairFeel}
                 onChange={(e) => handleFeedbackChange('hairFeel', e.target.value)}
-                placeholder="صفي لنا كيف أصبح ملمس شعرك، رطوبته، ومظهره العام..."
+                placeholder="صف لنا كيف أصبح شعرك، رطوبته، ومظهره العام..."
                 rows="3"
               />
             </motion.div>
             
             <motion.div 
-              className="form-group"
+              className="formgroup"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <label>ماذا يمكننا تحسين في الخلطة؟</label>
+              <label>ما اقتراحاتك؟</label>
               <textarea 
                 value={feedback.improvements}
                 onChange={(e) => handleFeedbackChange('improvements', e.target.value)}
-                placeholder="أخبرنا بما يمكننا فعله لجعل الخلطة أفضل لشعرك..."
+                placeholder="أخبرنا بما يمكننا فعله لجعل المنتج أفضل ..."
                 rows="3"
               />
             </motion.div>
             
             <motion.div 
-              className="form-group"
+              className="formgroup"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
