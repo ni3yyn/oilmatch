@@ -22,6 +22,8 @@ import FloatingNav from './components/FloatingNav';
 import Footer from './components/Footer';
 import { FaHome } from 'react-icons/fa';
 import { useQuizLogic } from './components/QuizLogic';
+import Review from './components/Review';
+import MLTraining from './components/mltraining';
 import './App.css';
 
 function App() {
@@ -45,6 +47,9 @@ function App() {
   const handleQuizComplete = (data) => {
     setQuizData(data);
     trackEvent('Quiz', 'Completed', data.blend);
+    
+    // Store the orderId in localStorage or state for later use in OrderForm
+    localStorage.setItem('quizOrderId', data.orderId);
   };
 
   useEffect(() => {
@@ -139,11 +144,9 @@ function App() {
         <Route path="/blog" element={<><Blog /><Analytics /><SpeedInsights /></>} />
         <Route path="/blog/:id" element={<><ArticleDetail /><Analytics /><SpeedInsights /></>} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
+        <Route path="/ml" element={ <> <MLTraining /> <Analytics /> <SpeedInsights /> </> } />
+        <Route path="/review/:orderId" element={<Review />} />
+        <Route path="/admin/dashboard" element={ <ProtectedRoute> <AdminDashboard /> </ProtectedRoute> } />
       </Routes>
     </>
   );

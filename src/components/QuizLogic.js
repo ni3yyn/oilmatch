@@ -540,46 +540,47 @@ function determineBlendEnhanced() {
 }
 
 // Update the saveResultsToFirebase function
+// Update the saveResultsToFirebase function
 const saveResultsToFirebase = async (orderId, userData, result) => {
-try {
-  const resultData = {
-    orderId: orderId,
-    timestamp: serverTimestamp(),
-    userData: {
-      gender: userData.gender,
-      ageGroup: userData.ageGroup,
-      hairType: userData.hairType,
-      hairFall: userData.hairFall,
-      scalp: userData.scalp,
-      issues: userData.issues,
-      washFrequency: userData.washFrequency,
-      porosity: userData.porosity,
-      climate: userData.climate,
-      goals: userData.goals,
-      allergies: userData.allergies || [],
-      season: userData.season,
-      scentPreference: userData.scentPreference,
-      mode: userData.mode
-    },
-    result: {
-      blend: result.blend,
-      alternatives: result.alternatives,
-      confidence: result.confidence,
-      reasoning: result.reasoning,
-      warnings: result.warnings,
-      trace: result.trace
-    },
-    status: 'completed'
-  };
+  try {
+    const resultData = {
+      orderId: orderId,
+      timestamp: serverTimestamp(),
+      userData: {
+        gender: userData.gender,
+        ageGroup: userData.ageGroup,
+        hairType: userData.hairType,
+        hairFall: userData.hairFall,
+        scalp: userData.scalp,
+        issues: userData.issues,
+        washFrequency: userData.washFrequency,
+        porosity: userData.porosity,
+        climate: userData.climate,
+        goals: userData.goals,
+        allergies: userData.allergies || [],
+        season: userData.season,
+        scentPreference: userData.scentPreference,
+        mode: userData.mode
+      },
+      result: {
+        blend: result.blend,
+        alternatives: result.alternatives,
+        confidence: result.confidence,
+        reasoning: result.reasoning,
+        warnings: result.warnings,
+        trace: result.trace
+      },
+      status: 'completed'
+    };
 
-  // Changed from "orders" to "resultdata"
-  await setDoc(doc(db, "resultdata", orderId), resultData);
-  console.log("Result data saved successfully with ID:", orderId);
-  return orderId;
-} catch (error) {
-  console.error("Error saving result data to Firebase:", error);
-  throw error;
-}
+    // Save to resultdata collection with the same orderId
+    await setDoc(doc(db, "resultdata", orderId), resultData);
+    console.log("Result data saved successfully with ID:", orderId);
+    return orderId;
+  } catch (error) {
+    console.error("Error saving result data to Firebase:", error);
+    throw error;
+  }
 };
 
 // ======= UI HELPERS (mostly from your code) =======
@@ -758,99 +759,98 @@ window.scrollTo({
 
 // Then update your handleNext function to include scrolling
 const handleNext = async () => {
-if (step < totalSteps) {
-  setDirection(1);
-  setStep(prev => prev + 1);
-} else {
-  // Scroll to top before showing results
-  scrollToTop();
-  
-  setLoading(true);
-  setProgress(0);
-  let counter = 0;
-  const interval = setInterval(async () => {
-    counter += 2;
-    if (counter <= 100) {
-      setProgress(counter);
-    } else {
-      clearInterval(interval);
-      
-      try {
-        const result = determineBlendEnhanced();
-        const orderId = generateOrderId();
+  if (step < totalSteps) {
+    setDirection(1);
+    setStep(prev => prev + 1);
+  } else {
+    // Scroll to top before showing results
+    scrollToTop();
+    
+    setLoading(true);
+    setProgress(0);
+    let counter = 0;
+    const interval = setInterval(async () => {
+      counter += 2;
+      if (counter <= 100) {
+        setProgress(counter);
+      } else {
+        clearInterval(interval);
         
-        // Prepare user data
-        const userData = {
-          gender,
-          ageGroup,
-          hairType,
-          hairFall,
-          scalp,
-          issues,
-          washFrequency,
-          porosity,
-          climate,
-          goals: JSON.stringify(goals),
-          allergies: allergies, // Add this when you implement allergies
-          season,
-          scentPreference,
-          mode
-        };
+        try {
+          const result = determineBlendEnhanced();
+          const orderId = generateOrderId(); // Generate the ID here
+          
+          // Prepare user data
+          const userData = {
+            gender,
+            ageGroup,
+            hairType,
+            hairFall,
+            scalp,
+            issues,
+            washFrequency,
+            porosity,
+            climate,
+            goals: JSON.stringify(goals),
+            allergies: allergies,
+            season,
+            scentPreference,
+            mode,
+            orderId // Include the orderId in userData
+          };
 
-        // Save to Firebase
-        await saveResultsToFirebase(orderId, userData, result);
-        
-        // Pass orderId to onQuizComplete
-        onQuizComplete({
-          ...userData,
-          orderId, // Add orderId to the result
-          blend: JSON.stringify(result.blend),
-          alternatives: JSON.stringify(result.alternatives),
-          confidence: result.confidence,
-          reasoning: result.reasoning,
-          warnings: JSON.stringify(result.warnings),
-          trace: JSON.stringify(result.trace)
-        });
+          // Save to Firebase
+          await saveResultsToFirebase(orderId, userData, result);
+          
+          // Pass orderId to onQuizComplete
+          onQuizComplete({
+            ...userData,
+            orderId, // Add orderId to the result
+            blend: JSON.stringify(result.blend),
+            alternatives: JSON.stringify(result.alternatives),
+            confidence: result.confidence,
+            reasoning: result.reasoning,
+            warnings: JSON.stringify(result.warnings),
+            trace: JSON.stringify(result.trace)
+          });
 
-      } catch (error) {
-        console.error("Error processing results:", error);
-        // Fallback - still show results even if Firebase fails
-        const result = determineBlendEnhanced();
-        onQuizComplete({
-          gender,
-          ageGroup,
-          hairType,
-          hairFall,
-          scalp,
-          issues,
-          washFrequency,
-          porosity,
-          climate,
-          goals: JSON.stringify(goals),
-          allergies: allergies,
-          season,
-          scentPreference,
-          mode,
-          blend: JSON.stringify(result.blend),
-          alternatives: JSON.stringify(result.alternatives),
-          confidence: result.confidence,
-          reasoning: result.reasoning,
-          warnings: JSON.stringify(result.warnings),
-          trace: JSON.stringify(result.trace),
-          orderId: 'ERROR_SAVING' // Indicate save error
-        });
+        } catch (error) {
+          console.error("Error processing results:", error);
+          // Fallback - still show results even if Firebase fails
+          const result = determineBlendEnhanced();
+          const orderId = generateOrderId(); // Generate ID for fallback
+          
+          onQuizComplete({
+            gender,
+            ageGroup,
+            hairType,
+            hairFall,
+            scalp,
+            issues,
+            washFrequency,
+            porosity,
+            climate,
+            goals: JSON.stringify(goals),
+            allergies: allergies,
+            season,
+            scentPreference,
+            mode,
+            orderId, // Include orderId in fallback
+            blend: JSON.stringify(result.blend),
+            alternatives: JSON.stringify(result.alternatives),
+            confidence: result.confidence,
+            reasoning: result.reasoning,
+            warnings: JSON.stringify(result.warnings),
+            trace: JSON.stringify(result.trace)
+          });
+        }
       }
-    }
-  }, 100);
-}
+    }, 100);
+  }
 };
 
 // Add this function in your Quiz component or a separate utility file
-const generateOrderId = () => {
-const timestamp = Date.now().toString(36);
-const randomStr = Math.random().toString(36).substring(2, 8);
-return `DATA_${timestamp}_${randomStr}`.toUpperCase();
-};
+
 
 // ======= OPTIONS & LABELS (kept + extended) =======
 const getOptions = () => {
@@ -973,8 +973,17 @@ const progressBar = Math.round((step / totalSteps) * 100);
 };
 
 // Generate order ID
+// 4-character IDs
+// 4-character IDs
 export const generateOrderId = () => {
-  const timestamp = Date.now().toString(36);
-  const randomStr = Math.random().toString(36).substring(2, 8);
-  return `DATA_${timestamp}_${randomStr}`.toUpperCase();
+  // Remove confusing characters: 0, O, 1, I, l
+  const safeChars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let id = '';
+  
+  for (let i = 0; i < 4; i++) {
+    const randomIndex = Math.floor(Math.random() * safeChars.length);
+    id += safeChars[randomIndex];
+  }
+  
+  return id;
 };

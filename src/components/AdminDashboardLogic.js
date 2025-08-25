@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { db, auth } from '../firebase';
-import { collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, query, orderBy, writeBatch } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -199,6 +199,9 @@ export const useAdminDashboard = () => {
       }
     }
   };
+  
+  // Function to delete all result data
+  
   
   const parseBlendData = (blend) => {
     if (!blend) return [];
@@ -717,6 +720,7 @@ export const useAdminDashboard = () => {
     handleLogout,
     handleCheckboxChange,
     handleDeleteOrder,
+
     parseBlendData,
     handleAddProduct,
     resetProductForm,

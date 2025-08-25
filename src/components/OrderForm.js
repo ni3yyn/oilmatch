@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, setDoc, doc, Timestamp } from 'firebase/firestore'; // Added setDoc and doc imports
 import { motion, AnimatePresence } from 'framer-motion';
+import { generateOrderId } from '../components/QuizLogic'; // Added import for generateOrderId
 
 function OrderForm({ productName, blend }) {
   const [submitted, setSubmitted] = useState(false);
@@ -14,14 +15,29 @@ function OrderForm({ productName, blend }) {
   const [loading, setLoading] = useState(false);
   const [errorFields, setErrorFields] = useState([]);
   const [error, setError] = useState('');
+  
+  // Get the orderId from quiz data
+  const [orderId, setOrderId] = useState(''); // Added setOrderId state
 
   // Parse blend safely
   let parsedBlend = null;
   try {
     parsedBlend = typeof blend === 'string' ? JSON.parse(blend) : blend || null;
+    // Extract orderId from parsed blend if available
+    if (parsedBlend && parsedBlend.orderId) {
+      setOrderId(parsedBlend.orderId);
+    }
   } catch (e) {
-    parsedBlend = null; // لو JSON غير صالح، لا نكسر الواجهة
+    parsedBlend = null;
   }
+
+  // Also check localStorage for orderId
+  useEffect(() => {
+    const storedOrderId = localStorage.getItem('quizOrderId');
+    if (storedOrderId && !orderId) {
+      setOrderId(storedOrderId);
+    }
+  }, [orderId]);
 
   // Custom select states
   const [isWilayaOpen, setIsWilayaOpen] = useState(false);
@@ -210,7 +226,11 @@ function OrderForm({ productName, blend }) {
       ? { name: 'خلطة', price: productPrice, quantity, blend: parsedBlend }
       : { name: productName, quantity };
 
+    // Use the existing orderId or generate a new one if not available
+    const finalOrderId = orderId || generateOrderId();
+
     const orderData = {
+      id: finalOrderId, // Add the ID to the order data
       name: name.trim(),
       phone: phone.trim(),
       address: address.trim(),
@@ -225,7 +245,8 @@ function OrderForm({ productName, blend }) {
     };
 
     try {
-      await addDoc(collection(db, 'orders'), orderData);
+      // Save to orders collection with the same orderId using setDoc instead of addDoc
+      await setDoc(doc(db, 'orders', finalOrderId), orderData);
       setSubmitted(true);
     } catch (err) {
       console.error('Error submitting order:', err);
